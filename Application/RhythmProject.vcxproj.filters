@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Essential">
+      <UniqueIdentifier>{63a9bd15-d8e1-42cc-8e58-7810bbe9bde5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application">
+      <UniqueIdentifier>{0dec1c24-a800-462c-b567-f3efd305fac6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Source\Essential\SampleFramework.cpp">
+      <Filter>Essential</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Essential\SampleScene.cpp">
+      <Filter>Essential</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Essential\SceneFactory.cpp">
+      <Filter>Essential</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Essential\SampleFramework.h">
+      <Filter>Essential</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Essential\SampleScene.h">
+      <Filter>Essential</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Essential\SceneFactory.h">
+      <Filter>Essential</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
