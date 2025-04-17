@@ -8,6 +8,7 @@
 
 // Application
 #include <Application/Lane/Lane.h>
+#include <Application/Note/NotesSystem.h>
 
 class GameScene : public BaseScene
 {
@@ -31,5 +32,6 @@ private:
 
     // Application
     std::unique_ptr<Lane> lane_ = nullptr;
+    std::unique_ptr<NotesSystem> notesSystem_ = nullptr;
 
 };
