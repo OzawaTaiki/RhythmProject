@@ -2,19 +2,14 @@
 #include <Features/Scene/Interface/BaseScene.h>
 #include <Features/Camera/Camera/Camera.h>
 #include <Features/Camera/DebugCamera/DebugCamera.h>
-#include <Features/Model/ObjectModel.h>
-#include <Features/Model/AnimationModel.h>
+#include <System/Input/Input.h>
+#include <Features/LineDrawer/LineDrawer.h>
 
 #include <Features/Effect/Manager/ParticleManager.h>
-#include <Features/LineDrawer/LineDrawer.h>
-#include <System/Input/Input.h>
 #include <System/Time/GameTime.h>
+#include <Features/Model/ObjectModel.h>
+#include <Features/Model/AnimationModel.h>
 #include <Features/UI/UIButton.h>
-#include <Features/Model/Primitive/Ring.h>
-#include <Features/Model/Primitive/Ellipse.h>
-#include <Features/Model/Primitive/Cylinder.h>
-#include <Features/UVTransform/SpriteSheetAnimetion.h>
-#include <Features/UVTransform/UVTransformAnimation.h>
 #include <Features/Animation/Sequence/AnimationSequence.h>
 
 #include <Features/Collision/Manager/CollisionManager.h>
