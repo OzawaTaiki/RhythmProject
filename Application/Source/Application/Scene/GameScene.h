@@ -6,6 +6,9 @@
 #include <System/Input/Input.h>
 #include <Features/LineDrawer/LineDrawer.h>
 
+// Application
+#include <Application/Lane/Lane.h>
+
 class GameScene : public BaseScene
 {
 public:
@@ -17,7 +20,7 @@ public:
 
 private:
 
-    // ÉVÅ[Éìä÷òA
+    // „Ç∑„Éº„É≥Èñ¢ÈÄ£
     Camera SceneCamera_ = {};
     DebugCamera debugCamera_ = {};
     bool enableDebugCamera_ = false;
@@ -25,5 +28,8 @@ private:
     LineDrawer* lineDrawer_ = nullptr;
     Input* input_ = nullptr;
 
+
+    // Application
+    std::unique_ptr<Lane> lane_ = nullptr;
 
 };

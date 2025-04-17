@@ -18,6 +18,10 @@ void GameScene::Initialize()
     lineDrawer_->SetCameraPtr(&SceneCamera_);
 
     input_ = Input::GetInstance();
+
+    // Application
+    lane_ = std::make_unique<Lane>();
+    lane_->Initialize();
 }
 
 void GameScene::Update()
@@ -37,6 +41,9 @@ void GameScene::Update()
 
 void GameScene::Draw()
 {
+
+
+    lane_->Draw();
 }
 
 void GameScene::DrawShadow()

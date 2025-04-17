@@ -10,6 +10,9 @@
     <Filter Include="Application\Scene">
       <UniqueIdentifier>{6ff9434d-5779-4bf7-92c0-840b550980a2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Lane">
+      <UniqueIdentifier>{8db313fb-adad-492f-a52d-78f42409e5cf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -25,6 +28,9 @@
     <ClCompile Include="Source\Application\Scene\GameScene.cpp">
       <Filter>Application\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Lane\Lane.cpp">
+      <Filter>Application\Lane</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Essential\SampleFramework.h">
@@ -38,6 +44,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Scene\GameScene.h">
       <Filter>Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Lane\Lane.h">
+      <Filter>Application\Lane</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

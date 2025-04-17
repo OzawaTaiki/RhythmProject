@@ -10,11 +10,6 @@
 #include <Features/Model/ObjectModel.h>
 #include <Features/Model/AnimationModel.h>
 #include <Features/UI/UIButton.h>
-#include <Features/Model/Primitive/Ring.h>
-#include <Features/Model/Primitive/Ellipse.h>
-#include <Features/Model/Primitive/Cylinder.h>
-#include <Features/UVTransform/SpriteSheetAnimetion.h>
-#include <Features/UVTransform/UVTransformAnimation.h>
 #include <Features/Animation/Sequence/AnimationSequence.h>
 
 #include <Features/Collision/Manager/CollisionManager.h>
