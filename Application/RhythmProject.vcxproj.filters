@@ -7,6 +7,9 @@
     <Filter Include="Application">
       <UniqueIdentifier>{0dec1c24-a800-462c-b567-f3efd305fac6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Scene">
+      <UniqueIdentifier>{6ff9434d-5779-4bf7-92c0-840b550980a2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -19,6 +22,9 @@
     <ClCompile Include="Source\Essential\SceneFactory.cpp">
       <Filter>Essential</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Scene\GameScene.cpp">
+      <Filter>Application\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Essential\SampleFramework.h">
@@ -30,5 +36,11 @@
     <ClInclude Include="Source\Essential\SceneFactory.h">
       <Filter>Essential</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Scene\GameScene.h">
+      <Filter>Application\Scene</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".editorconfig" />
   </ItemGroup>
 </Project>
