@@ -13,6 +13,9 @@
     <Filter Include="Application\Lane">
       <UniqueIdentifier>{8db313fb-adad-492f-a52d-78f42409e5cf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Note">
+      <UniqueIdentifier>{2ef44d65-e297-41f8-9366-f1dedf552e5a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -31,6 +34,12 @@
     <ClCompile Include="Source\Application\Lane\Lane.cpp">
       <Filter>Application\Lane</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Note\Note.cpp">
+      <Filter>Application\Note</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Note\NotesSystem.cpp">
+      <Filter>Application\Note</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Essential\SampleFramework.h">
@@ -47,6 +56,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Lane\Lane.h">
       <Filter>Application\Lane</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Note\Note.h">
+      <Filter>Application\Note</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Note\NotesSystem.h">
+      <Filter>Application\Note</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

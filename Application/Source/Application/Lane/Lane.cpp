@@ -107,7 +107,7 @@ void Lane::CalculateLane()
         lanePoint.z += length_;
         lanePoints_.push_back(lanePoint);
     }
-
+    GeneLaneStartPoints();
 }
 
 std::vector<Vector3> Lane::GeneLaneStartPoints() const
@@ -126,7 +126,7 @@ std::vector<Vector3> Lane::GeneLaneStartPoints() const
 
     for (uint32_t i = 0; i < lanePoints_.size() / 2 - 1; ++i)
     {
-        Vector3 spoint = lanePoints_[i * 2];
+        Vector3 spoint = lanePoints_[i * 2 + 1 ];
         spoint.x += width_ / 2.0f;
 
         laneStartPoints.push_back(spoint);
@@ -146,7 +146,7 @@ void Lane::DrawCenterLine()
     {
         Vector3 start = laneStartPoints_[index];
         Vector3 end = start;
-        end.z += length_;
+        end.z -= length_;
         lineDrawer_->RegisterPoint(start, end, { 1,0,0,1 });
     }
 }

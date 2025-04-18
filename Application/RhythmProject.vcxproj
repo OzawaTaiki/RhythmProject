@@ -148,6 +148,8 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Source\Application\Lane\Lane.cpp" />
+    <ClCompile Include="Source\Application\Note\Note.cpp" />
+    <ClCompile Include="Source\Application\Note\NotesSystem.cpp" />
     <ClCompile Include="Source\Application\Scene\GameScene.cpp" />
     <ClCompile Include="Source\Essential\SampleFramework.cpp" />
     <ClCompile Include="Source\Essential\SampleScene.cpp" />
@@ -160,6 +162,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Lane\Lane.h" />
+    <ClInclude Include="Source\Application\Note\Note.h" />
+    <ClInclude Include="Source\Application\Note\NotesSystem.h" />
     <ClInclude Include="Source\Application\Scene\GameScene.h" />
     <ClInclude Include="Source\Essential\SampleFramework.h" />
     <ClInclude Include="Source\Essential\SampleScene.h" />

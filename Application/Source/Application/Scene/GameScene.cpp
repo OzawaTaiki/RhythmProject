@@ -1,4 +1,5 @@
 #include "GameScene.h"
+#include <Features/Model/Manager/ModelManager.h>
 
 GameScene::~GameScene()
 {
@@ -22,10 +23,23 @@ void GameScene::Initialize()
     // Application
     lane_ = std::make_unique<Lane>();
     lane_->Initialize();
+
+    notesSystem_ = std::make_unique<NotesSystem>(lane_.get());
+    notesSystem_->Initialize(10.0f, 1.0f);
 }
 
 void GameScene::Update()
 {
+#ifdef _DEBUG
+    if (input_->IsKeyTriggered(DIK_F1))
+    {
+        enableDebugCamera_ = !enableDebugCamera_;
+    }
+#endif // _DEBUG
+
+    notesSystem_->Update(1.0f / 60.0f);
+
+
     if (enableDebugCamera_)
     {
         debugCamera_.Update();
@@ -41,7 +55,9 @@ void GameScene::Update()
 
 void GameScene::Draw()
 {
+    ModelManager::GetInstance()->PreDrawForObjectModel();
 
+    notesSystem_->DrawNotes(&SceneCamera_);
 
     lane_->Draw();
 }
