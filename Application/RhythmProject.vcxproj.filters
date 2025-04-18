@@ -16,6 +16,9 @@
     <Filter Include="Application\Note">
       <UniqueIdentifier>{2ef44d65-e297-41f8-9366-f1dedf552e5a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Note\Judge">
+      <UniqueIdentifier>{a73bc968-3077-4492-9411-9cafd32a5298}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -40,6 +43,12 @@
     <ClCompile Include="Source\Application\Note\NotesSystem.cpp">
       <Filter>Application\Note</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Note\Judge\JudgeLine.cpp">
+      <Filter>Application\Note\Judge</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Note\Judge\NoteJudge.cpp">
+      <Filter>Application\Note\Judge</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Essential\SampleFramework.h">
@@ -62,6 +71,15 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Note\NotesSystem.h">
       <Filter>Application\Note</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Note\Judge\NoteJudgeDara.h">
+      <Filter>Application\Note\Judge</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Note\Judge\JudgeLine.h">
+      <Filter>Application\Note\Judge</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Note\Judge\NoteJudge.h">
+      <Filter>Application\Note\Judge</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

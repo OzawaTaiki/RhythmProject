@@ -26,6 +26,9 @@ void GameScene::Initialize()
 
     notesSystem_ = std::make_unique<NotesSystem>(lane_.get());
     notesSystem_->Initialize(10.0f, 1.0f);
+
+    judgeLine_ = std::make_unique<JudgeLine>();
+    judgeLine_->Initialize();
 }
 
 void GameScene::Update()
@@ -60,6 +63,7 @@ void GameScene::Draw()
     notesSystem_->DrawNotes(&SceneCamera_);
 
     lane_->Draw();
+    judgeLine_->Draw();
 }
 
 void GameScene::DrawShadow()
