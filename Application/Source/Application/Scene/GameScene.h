@@ -5,11 +5,15 @@
 #include <Features/Camera/DebugCamera/DebugCamera.h>
 #include <System/Input/Input.h>
 #include <Features/LineDrawer/LineDrawer.h>
+#include <System/Time/Stopwatch.h>
 
 // Application
 #include <Application/Lane/Lane.h>
 #include <Application/Note/NotesSystem.h>
 #include <Application/Note/Judge/JudgeLine.h>
+#include <Application/Note/Judge/NoteJudge.h>
+#include <Application/Note/Judge/JudgeResult.h>
+#include <Application/Input/NoteKeyController.h>
 
 
 class GameScene : public BaseScene
@@ -36,5 +40,10 @@ private:
     std::unique_ptr<Lane> lane_ = nullptr;
     std::unique_ptr<NotesSystem> notesSystem_ = nullptr;
     std::unique_ptr<JudgeLine> judgeLine_ = nullptr;
+    std::unique_ptr<NoteJudge> noteJudge_ = nullptr;
+    std::unique_ptr<JudgeResult> judgeResult_ = nullptr;
+    std::unique_ptr<NoteKeyController> noteKeyController_ = nullptr;
+
+    std::unique_ptr<Stopwatch> stopwatch_ = nullptr;
 
 };

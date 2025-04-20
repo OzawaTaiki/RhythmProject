@@ -1,12 +1,19 @@
 #include "Lane.h"
 
 #include <Debug/ImGuiDebugManager.h>
+#include <Features/Event/EventManager.h>
+
+#include <Application/EventData/HitKeyData.h>
+#include <Application/EventData/NoteJudgeData.h>
+#include <Application/EventData/JudgeResultData.h>
 
 Lane::Lane()
 {
 #ifdef _DEBUG
     ImGuiDebugManager::GetInstance()->AddDebugWindow("Lane", [&]() { ImGui(); });
 #endif // _DEBUG
+
+    EventManager::GetInstance()->AddEventListener("HitKey", this);
 }
 
 Lane::~Lane()
@@ -14,6 +21,8 @@ Lane::~Lane()
 #ifdef _DEBUG
     ImGuiDebugManager::GetInstance()->RemoveDebugWindow("Lane");
 #endif // _DEBUG
+
+    EventManager::GetInstance()->RemoveEventListener("HitKey", this);
 }
 
 void Lane::Initialize()
@@ -31,6 +40,18 @@ void Lane::Initialize()
 
 void Lane::Update()
 {
+    for (auto& [laneindex, notes] : notes_)
+    {
+        for (auto it = notes.begin(); it != notes.end();)
+        {
+            if ((*it)->IsJudged())
+            {
+                it = notes.erase(it);
+                continue;
+            }
+            ++it;
+        }
+    }
 }
 
 void Lane::Draw()
@@ -54,6 +75,73 @@ Vector3 Lane::GetLaneStartPosition(uint32_t _index) const
     }
 
     return GeneLaneStartPoints()[_index];
+}
+
+void Lane::AddNote(uint32_t _index, std::shared_ptr<Note> _note)
+{
+    if (_index >= laneStartPoints_.size())
+    {
+        throw std::out_of_range("Indexが配列サイズより大きいです。");
+    }
+
+    if (_note == nullptr)        throw std::runtime_error("Noteがnullptrです");
+
+    notes_[_index].push_back(_note);
+
+}
+
+void Lane::OnEvent(const GameEvent& _event)
+{
+    if (_event.GetEventType() == "HitKey")
+    {
+        // 判定を行うノーツのリストを作成
+        auto data = static_cast<HitKeyData*>(_event.GetData());
+
+        if (data)
+        {
+            if (data->laneIndex >= laneStartPoints_.size())
+            {
+                throw std::out_of_range("Indexが配列サイズより大きいです。");
+                return;
+            }
+
+            // レーンにノーツがない場合は何もしない
+            if (notes_[data->laneIndex].empty())
+                return;
+
+            // レーンの一番手前のノーツを取得
+            Note* note = notes_[data->laneIndex].front().get();
+
+            // ターゲットタイムとの差分を取得
+            double diff = note->GetTargetTime() - data->keyTriggeredTimestamp;
+
+            // memo : diffが正の時は奥にある
+            if (diff > 0 && diff < judgeWindow_)
+            {
+                // 判定を行う イベントを発行
+                NoteJudgeData noteJudgeData(diff, data->laneIndex, note);
+
+                EventManager::GetInstance()->DispatchEvent(
+                    GameEvent("NoteJudge", &noteJudgeData)
+                );
+                note->Judge();
+            }
+            // ラインより手前のとき
+            // 手前は問答無用でミス
+            // TODO : ライン手前でもある程度の判定は設けなければ
+            /*else if (diff < 0 )
+            {
+                JudgeResultData judgeResultData(NoteJudgeType::Miss, data->laneIndex);
+
+                EventManager::GetInstance()->DispatchEvent(
+                    GameEvent("JudgeResult", &judgeResultData)
+                );
+                note->Judge();
+            }*/
+        }
+
+    }
+
 }
 
 void Lane::InitializeJsonBinder()

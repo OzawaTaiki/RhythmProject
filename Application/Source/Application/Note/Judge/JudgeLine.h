@@ -20,6 +20,8 @@ public:
     void Draw();
 
 
+    float GetPosition() const { return position_; }
+
 private:
 
     void CalculateLine();
@@ -30,7 +32,7 @@ private:
 
     float position_ = -8.0f;
 
-    Vector4 color_ = { 0,0,1,1 };
+    Vector4 color_ = { 0,1,1,1 };
 
     LineDrawer* lineDrawer_ = nullptr;
 

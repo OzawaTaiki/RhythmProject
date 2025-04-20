@@ -1,17 +1,98 @@
 #include "NoteJudge.h"
 
+// Engine
 #include <Features/Event/EventManager.h>
+#include <Features/LineDrawer/LineDrawer.h>
+
+// application
+#include <Application/EventData/NoteJudgeData.h>
+#include <Application/EventData/JudgeResultData.h>
+
+
+// STL
 
 NoteJudge::NoteJudge()
 {
-    EventManager::GetInstance()->AddEventListener("noteJudge", this);
+    EventManager::GetInstance()->AddEventListener("NoteJudge", this);
 }
 
 NoteJudge::~NoteJudge()
 {
-    EventManager::GetInstance()->RemoveEventListener("noteJudge", this);
+    EventManager::GetInstance()->RemoveEventListener("NoteJudge", this);
 }
 
 void NoteJudge::Initialize()
 {
+    InitializeJsonBinder();
+
+    // 仮
+    timingThresholds_[NoteJudgeType::Perfect] = 0.06f;
+    timingThresholds_[NoteJudgeType::Good] = 0.18f;
+    timingThresholds_[NoteJudgeType::Miss] = 0.3f;
+
+
+}
+
+void NoteJudge::DrawJudgeLine()
+{
+    /// debug用
+
+
+    float halfWidth = laneTotalWidth_ / 2.0f;
+
+    // 判定ラインを描画
+    for (const auto& [i, timingThreshold] : timingThresholds_)
+    {
+        // 判定ラインを描画
+        float position = timingThresholds_[i] * speed_ + position_;
+
+        Vector3 start = { -halfWidth, 0,  position };
+        Vector3 end = { halfWidth, 0, position };
+
+        LineDrawer::GetInstance()->RegisterPoint(start, end, Vector4(1, 1, 0, 1));
+    }
+}
+
+
+void NoteJudge::OnEvent(const GameEvent& _event)
+{
+    if (_event.GetEventType() == "NoteJudge")
+    {
+        // NOTEJUDGEのデータを取得
+        auto data = static_cast<NoteJudgeData*>(_event.GetData());
+        if (data)// nullチェック
+        {
+            // 判定を取得
+            for (const auto& [i, timingThreshold] : timingThresholds_)
+            {
+                if (data->diff <= timingThresholds_[i])
+                {
+                    // 判定を行う
+                    JudgeResultData judgeResult(i, data->laneIndex);
+                    EventManager::GetInstance()->DispatchEvent(
+                        GameEvent("JudgeResult", &judgeResult)
+                    );
+                    break;
+                }
+            }
+            // ミス判定
+
+        }
+    }
+}
+
+void NoteJudge::InitializeJsonBinder()
+{
+    jsonBinder_ = std::make_unique<JsonBinder>("Judge", "Resources/Data/Note/");
+
+    std::vector<float> timingThresholds;
+    jsonBinder_->GetVariableValue("TimingThresholds", timingThresholds_);
+
+
+    for (size_t i = 0; i < timingThresholds.size(); ++i)
+    {
+        NoteJudgeType judgeType = static_cast<NoteJudgeType>(i);
+        timingThresholds_[judgeType] = timingThresholds[i];
+    }
+
 }

@@ -3,14 +3,17 @@
 // Engine
 #include <Features/LineDrawer/LineDrawer.h>
 #include <Features/Json/JsonBinder.h>
+#include <Features/Event/EventListener.h>
 
 // Application
+#include <Application/Note/Note.h>
 
 
 // STL
 #include <memory>
+#include <list>
 
-class Lane
+class Lane : public iEventListener
 {
 public:
     Lane();
@@ -20,8 +23,35 @@ public:
     void Update();
     void Draw();
 
+    /// <summary>
+    /// レーンのスタート位置を取得
+    /// </summary>
+    /// <param name="_index">レーンインデックス</param>
+    /// <returns>レーンのスタート座標</returns>
     Vector3 GetLaneStartPosition(uint32_t _index) const;
 
+
+    /// <summary>
+    /// レーンにノーツを追加
+    /// </summary>
+    /// <param name="_index">レーンインデックス</param>
+    /// <param name="_note"ノーツのポインタ></param>
+    void AddNote(uint32_t _index, std::shared_ptr<Note> _note);
+
+    /// <summary>
+    /// レーンの合計幅を取得
+    /// </summary>
+    /// <returns>レーンの合計幅</returns>
+    float GetLaneTotalWidth() const { return totalWidth_; }
+
+    /// <summary>
+    /// 判定を取る最大判定を設定
+    /// </summary>
+    /// <param name="_window">判定を取る最大判定</param>
+    void SetJudgeWindow(float _window) { judgeWindow_ = _window; }
+
+
+    void OnEvent(const GameEvent& _event) override;
 private:
 
     void InitializeJsonBinder();
@@ -59,6 +89,11 @@ private:
 
     mutable bool isDirty_ = false;
 
+    // レーンごとのノーツの参照
+    std::map<uint32_t, std::list<std::shared_ptr<Note>>> notes_;
+
+    // 判定を取る最大範囲 -> ミス判定となる時間
+    double judgeWindow_ = 0.5f;
 
     std::unique_ptr<JsonBinder> jsonBinder_ = nullptr;
 

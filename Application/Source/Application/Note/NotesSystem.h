@@ -1,6 +1,7 @@
 #pragma once
 
 // Engine
+#include <System/Time/Stopwatch.h>
 
 // Application
 #include <Application/Lane/Lane.h>
@@ -19,9 +20,19 @@ public:
     void Update(float _deltaTime);
     void DrawNotes(const Camera* _camera);
 
+    float GetNoteSpeed() const { return noteSpeed_; }
+
+    void SetJudgeLinePosition(float _position) { judgeLinePosition_ = _position; }
+
+    void SetMissJudgeThreshold(float _threshold) { missJudgeThreshold_ = _threshold; }
+
+#ifdef _DEBUG
+    void SetStopwatch(Stopwatch* _stopwatch) { stopwatch_ = _stopwatch; }
+#endif // _DEBUG
+
 private:
 
-    void CreateNote(uint32_t _laneIndex, float _speed);
+    void CreateNote(uint32_t _laneIndex, float _speed, float _targetTime);
 
     void DebugWindow();
 private:
@@ -29,7 +40,13 @@ private:
     float noteSpeed_ = 0.0f;
     float noteSize_ = 0.0f;
 
+    float judgeLinePosition_ = 0.0f;
+    float missJudgeThreshold_ = 0.0f;
+
     Lane* lane_ = nullptr;
     std::list<std::shared_ptr<Note>> notes_;
 
+#ifdef _DEBUG
+    Stopwatch* stopwatch_;
+#endif // _DEBUG
 };
