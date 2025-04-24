@@ -64,7 +64,7 @@ void NotesSystem::DrawNotes(const Camera* _camera)
     }
 }
 
-void NotesSystem::CreateNote(uint32_t _laneIndex, float _speed,float _targetTime)
+void NotesSystem::CreateNormalNote(uint32_t _laneIndex, float _speed,float _targetTime)
 {
     if (lane_ == nullptr)        throw std::runtime_error("Lane is not initialized.");
 
@@ -72,12 +72,46 @@ void NotesSystem::CreateNote(uint32_t _laneIndex, float _speed,float _targetTime
     laneStartPosition.z = judgeLinePosition_ + _targetTime * _speed;
 
     laneStartPosition.y += noteSize_ / 2.0f;
-    auto note = std::make_shared<nomalNote>();
+    auto note = std::make_shared<NomalNote>();
     note->Initilize(laneStartPosition, _speed, _targetTime,_laneIndex);
 
     notes_.emplace_back(note);
 
     lane_->AddNote(_laneIndex, note);
+}
+
+void NotesSystem::CreateLongNote(uint32_t _laneIndex, float _speed, float _targetTime, std::shared_ptr<Note> _nextNote)
+{
+    if (lane_ == nullptr)        throw std::runtime_error("Lane is not initialized.");
+
+    Vector3 laneStartPosition = lane_->GetLaneStartPosition(_laneIndex);
+    laneStartPosition.z = judgeLinePosition_ + _targetTime * _speed;
+    laneStartPosition.y += noteSize_ / 2.0f;
+    auto note = std::make_shared<LongNote>();
+
+    note->Initilize(laneStartPosition, _speed, _targetTime, _laneIndex);
+    notes_.emplace_back(note);
+    lane_->AddNote(_laneIndex, note);
+
+
+    // 次のノーツを設定
+    if (_nextNote)
+    {
+        note->SetNextNote(_nextNote);
+    }
+    else
+    {
+        /// デバッグ用
+        auto nextNote = std::make_shared<LongNote>();
+        float targetTime = _targetTime + 1.0f;
+        laneStartPosition.z = judgeLinePosition_ + targetTime * _speed;
+        nextNote->Initilize(laneStartPosition, _speed, _targetTime, _laneIndex);
+
+        note->SetNextNote(nextNote);
+
+        notes_.emplace_back(nextNote);
+        lane_->AddNote(_laneIndex, nextNote);
+    }
 }
 
 void NotesSystem::DebugWindow()
@@ -92,9 +126,24 @@ void NotesSystem::DebugWindow()
     static float targetTime = 0.0f;
     ImGui::DragFloat("TargetTime", &targetTime, 0.01f);
 
-    if (ImGui::Button("CreateNote"))
+    if (ImGui::Button("CreateNormalNote"))
     {
-        CreateNote(laneIndex, noteSpeed_, targetTime);
+        CreateNormalNote(laneIndex, noteSpeed_, targetTime);
+        stopwatch_->Reset();
+    }
+
+    if (ImGui::Button("CreateLongNote"))
+    {
+        Vector3 laneStartPosition = lane_->GetLaneStartPosition(laneIndex);
+        laneStartPosition.z = judgeLinePosition_ + (targetTime + 1.0f) * noteSpeed_;
+        laneStartPosition.y += noteSize_ / 2.0f;
+        /// デバッグ用
+        auto nextNote = std::make_shared<Note>();
+        nextNote->Initilize(laneStartPosition, noteSpeed_, targetTime + 1.0f , laneIndex);
+
+        CreateLongNote(laneIndex, noteSpeed_, targetTime, nextNote);
+        notes_.emplace_back(nextNote);
+        lane_->AddNote(laneIndex, nextNote);
         stopwatch_->Reset();
     }
 

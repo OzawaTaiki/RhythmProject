@@ -117,6 +117,9 @@
     <ClInclude Include="Source\Application\Note\Judge\JudgeResult.h">
       <Filter>Application\Judge\Result</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\EventData\ReleaseKeyData.h">
+      <Filter>Application\EventData</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

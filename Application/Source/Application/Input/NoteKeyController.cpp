@@ -3,6 +3,18 @@
 #include <Features/Event/EventManager.h>
 
 #include <Application/EventData/HitKeyData.h>
+#include <Application/EventData/ReleaseKeyData.h>
+
+
+NoteKeyController::NoteKeyController()
+{
+    EventManager::GetInstance()->AddEventListener("HoldKey", this);
+}
+
+NoteKeyController::~NoteKeyController()
+{
+    EventManager::GetInstance()->AddEventListener("HoldKey", this);
+}
 
 void NoteKeyController::Initialize(Stopwatch* _stopWatch, NoteJudge* _noteJudge)
 {
@@ -22,21 +34,13 @@ void NoteKeyController::Update()
 {
     uint32_t laneIndex = 0xffffffff;
 
-    if (input_->IsKeyTriggered(laneKeyBindings_[0]))
+    for (uint32_t i = 0; i < laneKeyBindings_.size(); ++i)
     {
-        laneIndex = 0;
-    }
-    if (input_->IsKeyTriggered(laneKeyBindings_[1]))
-    {
-        laneIndex = 1;
-    }
-    if (input_->IsKeyTriggered(laneKeyBindings_[2]))
-    {
-        laneIndex = 2;
-    }
-    if (input_->IsKeyTriggered(laneKeyBindings_[3]))
-    {
-        laneIndex = 3;
+        if (input_->IsKeyTriggered(laneKeyBindings_[i]))
+        {
+            laneIndex = i;
+            break;
+        }
     }
 
     if (laneIndex != 0xffffffff)
@@ -46,10 +50,43 @@ void NoteKeyController::Update()
         );
     }
 
+    if (!HoldKey)        return;
+
+
+    laneIndex = 0xffffffff;
+
+    for (uint32_t i = 0; i < laneKeyBindings_.size(); ++i)
+    {
+        if (input_->IsKeyReleased(laneKeyBindings_[i]))
+        {
+            laneIndex = i;
+            HoldKey = false;
+            break;
+        }
+    }
+
+    if (laneIndex != 0xffffffff)
+    {
+        EventManager::GetInstance()->DispatchEvent(
+            GameEvent("ReleaseKey", new ReleaseKeyData(laneIndex, stopWatch_->GetElapsedTime<double>()))
+        );
+    }
 }
 
 void NoteKeyController::Draw()
 {
+}
+
+void NoteKeyController::OnEvent(const GameEvent& _event)
+{
+    if (_event.GetEventType() == "HoldKey")
+    {
+        auto data = static_cast<HitKeyData*>(_event.GetData());
+        if (data)
+        {
+            HoldKey = true;
+        }
+    }
 }
 
 void NoteKeyController::InitializeJsonBinder()

@@ -6,6 +6,7 @@
 #include <Application/EventData/HitKeyData.h>
 #include <Application/EventData/NoteJudgeData.h>
 #include <Application/EventData/JudgeResultData.h>
+#include <Application/EventData/ReleaseKeyData.h>
 
 Lane::Lane()
 {
@@ -14,6 +15,7 @@ Lane::Lane()
 #endif // _DEBUG
 
     EventManager::GetInstance()->AddEventListener("HitKey", this);
+    EventManager::GetInstance()->AddEventListener("ReleaseKey", this);
 }
 
 Lane::~Lane()
@@ -23,6 +25,7 @@ Lane::~Lane()
 #endif // _DEBUG
 
     EventManager::GetInstance()->RemoveEventListener("HitKey", this);
+    EventManager::GetInstance()->RemoveEventListener("ReleaseKey", this);
 }
 
 void Lane::Initialize()
@@ -125,23 +128,47 @@ void Lane::OnEvent(const GameEvent& _event)
                     GameEvent("NoteJudge", &noteJudgeData)
                 );
                 note->Judge();
-            }
-            // ラインより手前のとき
-            // 手前は問答無用でミス
-            // TODO : ライン手前でもある程度の判定は設けなければ
-            /*else if (diff < 0 )
-            {
-                JudgeResultData judgeResultData(NoteJudgeType::Miss, data->laneIndex);
 
-                EventManager::GetInstance()->DispatchEvent(
-                    GameEvent("JudgeResult", &judgeResultData)
-                );
-                note->Judge();
-            }*/
+                if (dynamic_cast<LongNote*>(note))
+                {
+                    EventManager::GetInstance()->DispatchEvent(
+                        GameEvent("HoldKey", &noteJudgeData)
+                    );
+                }
+            }
         }
 
     }
+    else if (_event.GetEventType() == "ReleaseKey")
+    {
+        auto data = static_cast<ReleaseKeyData*>(_event.GetData());
+        if (data)
+        {
+            if (data->laneIndex >= laneStartPoints_.size())
+            {
+                throw std::runtime_error("Indexが配列サイズより大きいです。");
+                return;
+            }
 
+            if (notes_[data->laneIndex].empty())
+                return;
+
+            // レーンの一番手前のノーツを取得
+            Note* note = notes_[data->laneIndex].front().get();
+            // ターゲットタイムとの差分を取得
+            double diff = note->GetTargetTime() - data->keyReleasedTimestamp;
+            // memo : diffが正の時は奥にある
+            if (diff > 0 && diff < judgeWindow_)
+            {
+                // 判定を行う イベントを発行
+                NoteJudgeData noteJudgeData(diff, data->laneIndex, note);
+                EventManager::GetInstance()->DispatchEvent(
+                    GameEvent("NoteJudge", &noteJudgeData)
+                );
+                note->Judge();
+            }
+        }
+    }
 }
 
 void Lane::InitializeJsonBinder()

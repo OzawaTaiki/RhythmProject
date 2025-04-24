@@ -43,19 +43,38 @@ protected:
 };
 
 
-class nomalNote : public Note
+class NomalNote : public Note
 {
 public:
-    nomalNote() = default;
-    ~nomalNote() override = default;
+    NomalNote() = default;
+    ~NomalNote() override = default;
 
 
     void Initilize(const Vector3 _position, float _speed, float _targetTime, uint32_t _laneIndex) override;
     void Update(float _deltaTime) override;
     void Draw(const Camera* _camera) override;
 
+
 private:
 
 
+
+};
+
+class LongNote : public Note
+{
+public:
+    LongNote() = default;
+    ~LongNote() override;
+    void Initilize(const Vector3 _position, float _speed, float _targetTime, uint32_t _laneIndex) override;
+    void Update(float _deltaTime) override;
+    void Draw(const Camera* _camera) override;
+
+    void SetNextNote(std::shared_ptr<Note> _nextNote) {
+        nextNote_ = _nextNote; 
+    }
+private:
+
+    std::shared_ptr<Note> nextNote_ = nullptr;  // 次のノーツ
 
 };

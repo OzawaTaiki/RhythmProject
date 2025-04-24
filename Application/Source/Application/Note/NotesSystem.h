@@ -32,7 +32,9 @@ public:
 
 private:
 
-    void CreateNote(uint32_t _laneIndex, float _speed, float _targetTime);
+    void CreateNormalNote(uint32_t _laneIndex, float _speed, float _targetTime);
+
+    void CreateLongNote(uint32_t _laneIndex, float _speed, float _targetTime,std::shared_ptr<Note> _nextNote);
 
     void DebugWindow();
 private:

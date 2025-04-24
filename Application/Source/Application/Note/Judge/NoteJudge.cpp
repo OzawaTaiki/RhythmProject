@@ -28,7 +28,7 @@ void NoteJudge::Initialize()
     // 仮
     timingThresholds_[NoteJudgeType::Perfect] = 0.06f;
     timingThresholds_[NoteJudgeType::Good] = 0.18f;
-    timingThresholds_[NoteJudgeType::Miss] = 0.3f;
+    //timingThresholds_[NoteJudgeType::Miss] = 0.3f;
 
 
 }

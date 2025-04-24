@@ -4,6 +4,7 @@
 #include <System/Time/Stopwatch.h>
 #include <System/Input/Input.h>
 #include <Features/Json/JsonBinder.h>
+#include <Features/Event/EventListener.h>
 
 // Application
 #include <Application/Lane/Lane.h>
@@ -13,15 +14,17 @@
 #include <vector>
 #include <cstdint>
 
-class NoteKeyController
+class NoteKeyController : public iEventListener
 {
 public:
-    NoteKeyController() = default;
-    ~NoteKeyController() = default;
+    NoteKeyController();
+    ~NoteKeyController();
 
     void Initialize(Stopwatch* _stopWatch, NoteJudge* _noteJudge);
     void Update();
     void Draw();
+
+    void OnEvent(const GameEvent& _event) override;
 
 private:
 
@@ -33,6 +36,9 @@ private:
     NoteJudge* noteJudge_;          // 判定用（所有権なし）
     Input* input_;
 
+    
+    bool HoldKey = false; // キーを押しているかどうか
+    
 
     // キー設定
     std::vector<uint32_t> laneKeyBindings_;

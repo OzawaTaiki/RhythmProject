@@ -169,6 +169,7 @@
     <ClInclude Include="Source\Application\EventData\JudgeResultData.h" />
     <ClInclude Include="Source\Application\EventData\NoteJudgeData.h" />
     <ClInclude Include="Source\Application\EventData\NoteJudgeType.h" />
+    <ClInclude Include="Source\Application\EventData\ReleaseKeyData.h" />
     <ClInclude Include="Source\Application\Input\NoteKeyController.h" />
     <ClInclude Include="Source\Application\Lane\Lane.h" />
     <ClInclude Include="Source\Application\Note\Judge\JudgeLine.h" />
