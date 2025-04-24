@@ -147,7 +147,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Source\Application\Input\NoteKeyController.cpp" />
     <ClCompile Include="Source\Application\Lane\Lane.cpp" />
+    <ClCompile Include="Source\Application\Note\Judge\JudgeLine.cpp" />
+    <ClCompile Include="Source\Application\Note\Judge\JudgeResult.cpp" />
+    <ClCompile Include="Source\Application\Note\Judge\NoteJudge.cpp" />
     <ClCompile Include="Source\Application\Note\Note.cpp" />
     <ClCompile Include="Source\Application\Note\NotesSystem.cpp" />
     <ClCompile Include="Source\Application\Scene\GameScene.cpp" />
@@ -161,7 +165,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Application\EventData\HitKeyData.h" />
+    <ClInclude Include="Source\Application\EventData\JudgeResultData.h" />
+    <ClInclude Include="Source\Application\EventData\NoteJudgeData.h" />
+    <ClInclude Include="Source\Application\EventData\NoteJudgeType.h" />
+    <ClInclude Include="Source\Application\EventData\ReleaseKeyData.h" />
+    <ClInclude Include="Source\Application\Input\NoteKeyController.h" />
     <ClInclude Include="Source\Application\Lane\Lane.h" />
+    <ClInclude Include="Source\Application\Note\Judge\JudgeLine.h" />
+    <ClInclude Include="Source\Application\Note\Judge\JudgeResult.h" />
+    <ClInclude Include="Source\Application\Note\Judge\NoteJudge.h" />
     <ClInclude Include="Source\Application\Note\Note.h" />
     <ClInclude Include="Source\Application\Note\NotesSystem.h" />
     <ClInclude Include="Source\Application\Scene\GameScene.h" />
