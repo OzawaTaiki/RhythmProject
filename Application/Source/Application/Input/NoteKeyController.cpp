@@ -6,6 +6,7 @@
 #include <Application/EventData/ReleaseKeyData.h>
 
 
+
 NoteKeyController::NoteKeyController()
 {
     EventManager::GetInstance()->AddEventListener("HoldKey", this);

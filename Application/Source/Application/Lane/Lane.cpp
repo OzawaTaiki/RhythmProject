@@ -7,6 +7,7 @@
 #include <Application/EventData/NoteJudgeData.h>
 #include <Application/EventData/JudgeResultData.h>
 #include <Application/EventData/ReleaseKeyData.h>
+#include <Application/Effects/TriggerEffects.h>
 
 Lane::Lane()
 {
@@ -107,6 +108,10 @@ void Lane::OnEvent(const GameEvent& _event)
                 throw std::out_of_range("Indexが配列サイズより大きいです。");
                 return;
             }
+
+            Vector3 laneEndPoint = laneStartPoints_[data->laneIndex];
+            laneEndPoint.z = -8.0f;
+            TriggerEffects::Emit(laneEndPoint);
 
             // レーンにノーツがない場合は何もしない
             if (notes_[data->laneIndex].empty())

@@ -1,6 +1,9 @@
 #include "GameScene.h"
 #include <Features/Model/Manager/ModelManager.h>
 
+#include <Application/Effects/TriggerEffects.h>
+#include <Features/Effect/Manager/ParticleSystem.h>
+
 GameScene::~GameScene()
 {
 }
@@ -52,8 +55,11 @@ void GameScene::Initialize()
     notesSystem_->SetJudgeLinePosition(judgeLine_->GetPosition());
     notesSystem_->SetMissJudgeThreshold(noteJudge_->GetMissJudgeThreshold());
 
-    stopwatch_->Start();
+    particleEmitter_ = std::make_unique<ParticleEmitter>();
+    particleEmitter_->Initialize("fuga");
 
+    stopwatch_->Start();
+    ParticleSystem::GetInstance()->SetCamera(&SceneCamera_);
 }
 
 void GameScene::Update()
@@ -66,6 +72,9 @@ void GameScene::Update()
         enableDebugCamera_ = !enableDebugCamera_;
     }
     stopwatch_->ShowDebugWindow();
+
+    if (ImGui::Button("Emit"))
+        TriggerEffects::Emit({ 0,1,0 });
 
 #endif // _DEBUG
 
@@ -93,6 +102,7 @@ void GameScene::Update()
         SceneCamera_.Update();
         SceneCamera_.UpdateMatrix();
     }
+    ParticleSystem::GetInstance()->Update(1.0f / 60.0f);
 }
 
 void GameScene::Draw()
@@ -104,6 +114,8 @@ void GameScene::Draw()
     lane_->Draw();
     judgeLine_->Draw();
     noteJudge_->DrawJudgeLine();
+
+    ParticleSystem::GetInstance()->DrawParticles();
 }
 
 void GameScene::DrawShadow()

@@ -6,6 +6,7 @@
 #include <System/Input/Input.h>
 #include <Features/LineDrawer/LineDrawer.h>
 #include <System/Time/Stopwatch.h>
+#include <Features/Effect/Emitter/ParticleEmitter.h>
 
 // Application
 #include <Application/Lane/Lane.h>
@@ -45,5 +46,7 @@ private:
     std::unique_ptr<NoteKeyController> noteKeyController_ = nullptr;
 
     std::unique_ptr<Stopwatch> stopwatch_ = nullptr;
+
+    std::unique_ptr<ParticleEmitter> particleEmitter_ = nullptr;
 
 };

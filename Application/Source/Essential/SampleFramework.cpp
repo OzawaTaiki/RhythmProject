@@ -2,6 +2,7 @@
 
 #include "SampleScene.h"
 #include <Features/Scene/ParticleTestScene.h>
+#include "ParticleModifierFactory.h"
 #include "SceneFactory.h"
 
 void SampleFramework::Initialize()
@@ -16,6 +17,7 @@ void SampleFramework::Initialize()
     rtvManager_->CreateRenderTarget("ShadowMap", 4096, 4096, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,  Vector4(1.0f, 1.0f, 1.0f, 1.0f),true);
 
     sceneManager_->SetSceneFactory(new SceneFactory());
+    ParticleSystem::GetInstance()->SetModifierFactory(new ParticleModifierFactory());
 
     // 最初のシーンで初期化
     sceneManager_->Initialize("GameScene");
