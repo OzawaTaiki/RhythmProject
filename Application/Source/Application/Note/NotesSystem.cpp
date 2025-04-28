@@ -34,16 +34,6 @@ void NotesSystem::Update(float _deltaTime)
 {
     for (auto it = notes_.begin(); it != notes_.end();)
     {
-        if (((*it)->GetPosition().z - noteSize_) < judgeLinePosition_ - (noteSpeed_ * missJudgeThreshold_))
-        {
-            // 判定を行う
-            JudgeResultData noteJudgeData(NoteJudgeType::Miss,(*it)->GetLaneIndex());
-            EventManager::GetInstance()->DispatchEvent(
-                GameEvent("JudgeResult", &noteJudgeData)
-            );
-            (*it)->Judge();
-        }
-
         // 判定済みのノーツは削除
         if ((*it)->IsJudged())
         {
@@ -51,7 +41,19 @@ void NotesSystem::Update(float _deltaTime)
             continue;
         }
 
-        (*it)->Update(_deltaTime);
+        // ノーツは次のフレームで消す
+        if (((*it)->GetPosition().z - noteSize_ / 2.0f) < judgeLinePosition_ - (noteSpeed_ * missJudgeThreshold_))
+        {
+            // 判定を行う
+            JudgeResultData noteJudgeData(NoteJudgeType::Miss, (*it)->GetLaneIndex());
+            EventManager::GetInstance()->DispatchEvent(
+                GameEvent("JudgeResult", &noteJudgeData)
+            );
+            (*it)->Judge();
+        }
+        else
+            (*it)->Update(_deltaTime);
+
         ++it;
     }
 }
@@ -68,8 +70,10 @@ void NotesSystem::CreateNormalNote(uint32_t _laneIndex, float _speed,float _targ
 {
     if (lane_ == nullptr)        throw std::runtime_error("Lane is not initialized.");
 
+    float elapsedTime = stopwatch_->GetElapsedTime<float>();
+
     Vector3 laneStartPosition = lane_->GetLaneStartPosition(_laneIndex);
-    laneStartPosition.z = judgeLinePosition_ + _targetTime * _speed;
+    laneStartPosition.z = judgeLinePosition_ + (_targetTime - elapsedTime) * _speed;
 
     laneStartPosition.y += noteSize_ / 2.0f;
     auto note = std::make_shared<NomalNote>();
@@ -84,8 +88,10 @@ void NotesSystem::CreateLongNote(uint32_t _laneIndex, float _speed, float _targe
 {
     if (lane_ == nullptr)        throw std::runtime_error("Lane is not initialized.");
 
+    float elapsedTime = stopwatch_->GetElapsedTime<float>();
+
     Vector3 laneStartPosition = lane_->GetLaneStartPosition(_laneIndex);
-    laneStartPosition.z = judgeLinePosition_ + _targetTime * _speed;
+    laneStartPosition.z = judgeLinePosition_ + (_targetTime - elapsedTime) * _speed;
     laneStartPosition.y += noteSize_ / 2.0f;
     auto note = std::make_shared<LongNote>();
 
@@ -128,23 +134,24 @@ void NotesSystem::DebugWindow()
 
     if (ImGui::Button("CreateNormalNote"))
     {
-        CreateNormalNote(laneIndex, noteSpeed_, targetTime);
-        stopwatch_->Reset();
+        float elapseTime = stopwatch_->GetElapsedTime<float>();
+        CreateNormalNote(laneIndex, noteSpeed_, targetTime + elapseTime);
     }
 
     if (ImGui::Button("CreateLongNote"))
     {
+        float elapseTime = stopwatch_->GetElapsedTime<float>();
         Vector3 laneStartPosition = lane_->GetLaneStartPosition(laneIndex);
         laneStartPosition.z = judgeLinePosition_ + (targetTime + 1.0f) * noteSpeed_;
         laneStartPosition.y += noteSize_ / 2.0f;
         /// デバッグ用
         auto nextNote = std::make_shared<Note>();
-        nextNote->Initilize(laneStartPosition, noteSpeed_, targetTime + 1.0f , laneIndex);
+        nextNote->Initilize(laneStartPosition, noteSpeed_, targetTime + 1.0f + elapseTime, laneIndex);
 
-        CreateLongNote(laneIndex, noteSpeed_, targetTime, nextNote);
+        CreateLongNote(laneIndex, noteSpeed_, targetTime + elapseTime, nextNote);
         notes_.emplace_back(nextNote);
         lane_->AddNote(laneIndex, nextNote);
-        stopwatch_->Reset();
+        //stopwatch_->Reset();
     }
 
     ImGui::PopID();

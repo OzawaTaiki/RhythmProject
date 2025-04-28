@@ -119,7 +119,8 @@ void Lane::OnEvent(const GameEvent& _event)
             double diff = note->GetTargetTime() - data->keyTriggeredTimestamp;
 
             // memo : diffが正の時は奥にある
-            if (diff > 0 && diff < judgeWindow_)
+            if (diff > 0 && diff < judgeWindow_ ||
+                diff < 0 && diff > -judgeWindow_)
             {
                 // 判定を行う イベントを発行
                 NoteJudgeData noteJudgeData(diff, data->laneIndex, note);
@@ -158,7 +159,8 @@ void Lane::OnEvent(const GameEvent& _event)
             // ターゲットタイムとの差分を取得
             double diff = note->GetTargetTime() - data->keyReleasedTimestamp;
             // memo : diffが正の時は奥にある
-            if (diff > 0 && diff < judgeWindow_)
+            if (diff > 0 && diff < judgeWindow_ ||
+                diff < 0 && diff > -judgeWindow_)
             {
                 // 判定を行う イベントを発行
                 NoteJudgeData noteJudgeData(diff, data->laneIndex, note);
@@ -224,6 +226,7 @@ void Lane::CalculateLane()
     }
     GeneLaneStartPoints();
 }
+
 
 std::vector<Vector3> Lane::GeneLaneStartPoints() const
 {

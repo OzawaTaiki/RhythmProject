@@ -46,4 +46,6 @@ private:
     float laneTotalWidth_ = 0.0f;
     float speed_ = 0.0f;
 
+    bool isDrawLine = true;
+
 };

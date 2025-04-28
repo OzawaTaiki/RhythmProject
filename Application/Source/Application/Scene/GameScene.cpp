@@ -67,6 +67,8 @@ void GameScene::Update()
     }
     stopwatch_->ShowDebugWindow();
 
+    judgeResult_->DebugWindow();
+
 #endif // _DEBUG
 
 #pragma region Application
@@ -104,6 +106,9 @@ void GameScene::Draw()
     lane_->Draw();
     judgeLine_->Draw();
     noteJudge_->DrawJudgeLine();
+
+    Sprite::PreDraw();
+    noteKeyController_->Draw();
 }
 
 void GameScene::DrawShadow()
