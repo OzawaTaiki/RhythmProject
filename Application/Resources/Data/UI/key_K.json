@@ -1,0 +1,28 @@
+{
+    "key_K": {
+        "key_K_anchor": {
+            "x": 0.0,
+            "y": 0.0
+        },
+        "key_K_color": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "key_K_directoryPath": "Resources/images/",
+        "key_K_isActive": 257,
+        "key_K_isVisible": 1,
+        "key_K_label": "key_K",
+        "key_K_pos": {
+            "x": 989.0,
+            "y": 558.0
+        },
+        "key_K_rotate": 0.0,
+        "key_K_size": {
+            "x": 32.0,
+            "y": 32.0
+        },
+        "key_K_textureName": "white.png"
+    }
+}

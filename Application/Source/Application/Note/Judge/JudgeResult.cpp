@@ -55,6 +55,7 @@ void JudgeResult::DebugWindow()
 {
 #ifdef _DEBUG
     ImGui::PushID(this);
+    ImGui::Begin("JudgeResult");
     ImGui::Text("JudgeResult");
 
     ImGui::Text("Perfect : %d", judgeResult_[NoteJudgeType::Perfect]);
@@ -63,6 +64,8 @@ void JudgeResult::DebugWindow()
 
     ImGui::Text("None : %d", judgeResult_[NoteJudgeType::None]);
 
+    ImGui::End();
     ImGui::PopID();
+
 #endif // _DEBUG
 }

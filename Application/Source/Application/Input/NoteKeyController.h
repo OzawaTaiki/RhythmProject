@@ -5,6 +5,7 @@
 #include <System/Input/Input.h>
 #include <Features/Json/JsonBinder.h>
 #include <Features/Event/EventListener.h>
+#include <Features/UI/UISprite.h>
 
 // Application
 #include <Application/Lane/Lane.h>
@@ -44,5 +45,8 @@ private:
     std::vector<uint32_t> laneKeyBindings_;
 
     std::unique_ptr<JsonBinder> jsonBinder_;
+
+    /// デバッグ用
+    std::array<UISprite, 4> keySprites_;
 
 };

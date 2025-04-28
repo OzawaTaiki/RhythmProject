@@ -43,7 +43,7 @@ private:
     float noteSize_ = 0.0f;
 
     float judgeLinePosition_ = 0.0f;
-    float missJudgeThreshold_ = 0.0f;
+    float missJudgeThreshold_ = 0.5f;
 
     Lane* lane_ = nullptr;
     std::list<std::shared_ptr<Note>> notes_;

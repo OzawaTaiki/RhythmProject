@@ -21,11 +21,11 @@ public:
 
     void OnEvent(const GameEvent& _event) override;
 
+    void DebugWindow();
 private:
 
     std::map<NoteJudgeType, uint32_t> judgeResult_; // 判定結果
 
-    void DebugWindow();
 
 
 };

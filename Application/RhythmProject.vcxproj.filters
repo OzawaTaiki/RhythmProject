@@ -34,6 +34,9 @@
     <Filter Include="Application\Judge\Result">
       <UniqueIdentifier>{c7db6b80-829a-4785-839a-06cd65fe6f5c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Debug">
+      <UniqueIdentifier>{030b9c6d-7706-47a8-b7c0-7dbe29b06417}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
