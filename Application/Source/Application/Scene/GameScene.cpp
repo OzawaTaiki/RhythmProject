@@ -1,6 +1,8 @@
 #include "GameScene.h"
 #include <Features/Model/Manager/ModelManager.h>
 
+#include <System/Time/GameTime.h>
+
 GameScene::~GameScene()
 {
 }
@@ -20,9 +22,9 @@ void GameScene::Initialize()
 
     input_ = Input::GetInstance();
 
-///---------------------------------
-/// Application
-///---------------------------------
+    ///---------------------------------
+    /// Application
+    ///---------------------------------
     stopwatch_ = std::make_unique<Stopwatch>(true, "default");
     stopwatch_->Reset();
 
@@ -52,6 +54,9 @@ void GameScene::Initialize()
     notesSystem_->SetJudgeLinePosition(judgeLine_->GetPosition());
     notesSystem_->SetMissJudgeThreshold(noteJudge_->GetMissJudgeThreshold());
 
+    beatManager_ = std::make_unique<BeatManager>();
+    beatManager_->Initialize(120.0f);
+
     stopwatch_->Start();
 
 }
@@ -69,6 +74,13 @@ void GameScene::Update()
 
     judgeResult_->DebugWindow();
 
+    if(ImGui::Button("stop"))
+        beatManager_->Stop();
+    if (ImGui::Button("play"))
+        beatManager_->Start();
+
+    beatManager_->Update();
+
 #endif // _DEBUG
 
 #pragma region Application
@@ -78,7 +90,7 @@ void GameScene::Update()
     noteJudge_->SetSpeed(notesSystem_->GetNoteSpeed());
 
 
-    notesSystem_->Update(1.0f / 60.0f);
+    notesSystem_->Update(GameTime::GetInstance()->GetDeltaTime());
     lane_->Update();
     noteKeyController_->Update();
 
