@@ -4,6 +4,9 @@
 #include <Features/Scene/ParticleTestScene.h>
 #include "SceneFactory.h"
 
+#include <System/Time/Time_MT.h>
+
+
 void SampleFramework::Initialize()
 {
     Framework::Initialize();
@@ -16,6 +19,8 @@ void SampleFramework::Initialize()
     rtvManager_->CreateRenderTarget("ShadowMap", 4096, 4096, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,  Vector4(1.0f, 1.0f, 1.0f, 1.0f),true);
 
     sceneManager_->SetSceneFactory(new SceneFactory());
+
+    Time_MT::GetInstance()->Initialize();
 
     // 最初のシーンで初期化
     sceneManager_->Initialize("GameScene");
@@ -68,5 +73,6 @@ void SampleFramework::Draw()
 
 void SampleFramework::Finalize()
 {
+    Time_MT::GetInstance()->Finalize();
     Framework::Finalize();
 }
