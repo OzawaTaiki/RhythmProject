@@ -40,6 +40,9 @@
     <Filter Include="Application\BeatManager">
       <UniqueIdentifier>{9ad010fc-e9bf-47bb-80d3-07a75d91c4b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Effects">
+      <UniqueIdentifier>{d0b45143-0256-4531-9b83-fc72c18b5001}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -79,6 +82,7 @@
     <ClCompile Include="Source\Application\BeatsManager\BeatManager.cpp">
       <Filter>Application\BeatManager</Filter>
     </ClCompile>
+    <ClCompile Include="TrigerEffects.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Essential\SampleFramework.h">
@@ -131,6 +135,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\BeatsManager\BeatManager.h">
       <Filter>Application\BeatManager</Filter>
+    </ClInclude>
+    <ClInclude Include="TrigerEffects.h">
+      <Filter>Application\Effects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

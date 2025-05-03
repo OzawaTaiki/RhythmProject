@@ -6,6 +6,7 @@
 #include <System/Input/Input.h>
 #include <Features/LineDrawer/LineDrawer.h>
 #include <System/Time/Stopwatch.h>
+#include <Features/Effect/Emitter/ParticleEmitter.h>
 
 // Application
 #include <Application/Lane/Lane.h>
