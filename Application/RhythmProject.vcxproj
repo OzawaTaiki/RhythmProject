@@ -159,7 +159,6 @@
     <ClCompile Include="Source\Essential\SampleFramework.cpp" />
     <ClCompile Include="Source\Essential\SampleScene.cpp" />
     <ClCompile Include="Source\Essential\SceneFactory.cpp" />
-    <ClCompile Include="TrigerEffects.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine\GameEngine.vcxproj">
@@ -184,7 +183,6 @@
     <ClInclude Include="Source\Essential\SampleFramework.h" />
     <ClInclude Include="Source\Essential\SampleScene.h" />
     <ClInclude Include="Source\Essential\SceneFactory.h" />
-    <ClInclude Include="TrigerEffects.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

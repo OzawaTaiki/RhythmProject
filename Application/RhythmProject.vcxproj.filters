@@ -82,7 +82,6 @@
     <ClCompile Include="Source\Application\BeatsManager\BeatManager.cpp">
       <Filter>Application\BeatManager</Filter>
     </ClCompile>
-    <ClCompile Include="TrigerEffects.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Essential\SampleFramework.h">
@@ -135,9 +134,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\BeatsManager\BeatManager.h">
       <Filter>Application\BeatManager</Filter>
-    </ClInclude>
-    <ClInclude Include="TrigerEffects.h">
-      <Filter>Application\Effects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
