@@ -108,6 +108,8 @@ void Lane::OnEvent(const GameEvent& _event)
                 return;
             }
 
+            //TODO : レーンエフェクト
+
             // レーンにノーツがない場合は何もしない
             if (notes_[data->laneIndex].empty())
                 return;

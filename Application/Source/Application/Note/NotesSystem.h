@@ -6,6 +6,7 @@
 // Application
 #include <Application/Lane/Lane.h>
 #include <Application/Note/Note.h>
+#include <Application/BeatMapLoader/BeatMapData.h>
 
 // STL
 #include <list>
@@ -16,9 +17,12 @@ class NotesSystem
 public:
     NotesSystem(Lane* _lane);
     ~NotesSystem();
+
     void Initialize(float _noteSpeed, float _noteSize);
     void Update(float _deltaTime);
     void DrawNotes(const Camera* _camera);
+
+    void SetBeatMapData(const BeatMapData& _beatMapData) { beatMapData_ = _beatMapData; }
 
     float GetNoteSpeed() const { return noteSpeed_; }
 
@@ -47,6 +51,8 @@ private:
 
     Lane* lane_ = nullptr;
     std::list<std::shared_ptr<Note>> notes_;
+
+    BeatMapData beatMapData_;
 
 #ifdef _DEBUG
     Stopwatch* stopwatch_;

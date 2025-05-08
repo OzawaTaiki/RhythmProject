@@ -16,6 +16,7 @@
 #include <Application/Note/Judge/JudgeResult.h>
 #include <Application/Input/NoteKeyController.h>
 #include <Application/BeatsManager/BeatManager.h>
+#include <Application/BeatMapLoader/BeatMapLoader.h>
 
 
 class GameScene : public BaseScene
@@ -46,8 +47,13 @@ private:
     std::unique_ptr<JudgeResult> judgeResult_ = nullptr;
     std::unique_ptr<NoteKeyController> noteKeyController_ = nullptr;
 
+    BeatMapLoader* beatMapLoader_ = nullptr;
+
     std::unique_ptr<Stopwatch> stopwatch_ = nullptr;
 
     std::unique_ptr<BeatManager> beatManager_ = nullptr;
 
+    std::future<bool> beatMapLoadFuture_ = {};
+
+    bool isBeatMapLoaded_ = false;
 };

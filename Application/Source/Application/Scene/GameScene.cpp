@@ -54,16 +54,43 @@ void GameScene::Initialize()
     notesSystem_->SetJudgeLinePosition(judgeLine_->GetPosition());
     notesSystem_->SetMissJudgeThreshold(noteJudge_->GetMissJudgeThreshold());
 
+    beatMapLoader_ = BeatMapLoader::GetInstance();
+    beatMapLoadFuture_ = beatMapLoader_->LoadBeatMap("Resources/Data/Game/BeatMap/Luminous_Memory.json");
+
     beatManager_ = std::make_unique<BeatManager>();
     beatManager_->Initialize(120.0f);
 
-    stopwatch_->Start();
-
+    isBeatMapLoaded_ = false;
 }
 
 void GameScene::Update()
 {
+    if (beatMapLoader_->IsLoading())
+    {
+        Debug::Log("Loading BeatMap...\n");
+        return;
+    }
+    else if(!isBeatMapLoaded_)
+    {
+        if (!beatMapLoader_->IsLoadingSuccess())
+        {
+            std::string errorMessage = beatMapLoader_->GetErrorMessage();
+            Debug::Log("Error: " + errorMessage+"\n");
+            return;
+        }
+
+        notesSystem_->SetBeatMapData(beatMapLoader_->GetLoadedBeatMapData());
+
+        Debug::Log("BeatMap Loaded Successfully\n");
+        stopwatch_->Start();
+        beatManager_->Start();
+
+        isBeatMapLoaded_ = true;
+
+    }
+
     stopwatch_->Update();
+
 
 #ifdef _DEBUG
     if (input_->IsKeyTriggered(DIK_F1))
@@ -90,7 +117,7 @@ void GameScene::Update()
     noteJudge_->SetSpeed(notesSystem_->GetNoteSpeed());
 
 
-    notesSystem_->Update(GameTime::GetInstance()->GetDeltaTime());
+    notesSystem_->Update(static_cast<float> (GameTime::GetInstance()->GetDeltaTime()));
     lane_->Update();
     noteKeyController_->Update();
 

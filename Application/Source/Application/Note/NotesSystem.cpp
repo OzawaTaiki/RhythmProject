@@ -28,6 +28,8 @@ void NotesSystem::Initialize(float _noteSpeed, float _noteSize)
     noteSize_ = _noteSize;
 
     notes_.clear();
+
+
 }
 
 void NotesSystem::Update(float _deltaTime)
@@ -65,6 +67,7 @@ void NotesSystem::DrawNotes(const Camera* _camera)
         note->Draw(_camera);
     }
 }
+
 
 void NotesSystem::CreateNormalNote(uint32_t _laneIndex, float _speed,float _targetTime)
 {

@@ -47,6 +47,7 @@ void NoteKeyController::Update()
         {
             laneIndex = i;
             keySprites_[i].SetColor({1,0,0,1});
+            // TODO : 同時押し対応 vector等で
             break;
         }
 
