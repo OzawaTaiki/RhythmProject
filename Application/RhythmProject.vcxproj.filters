@@ -46,6 +46,9 @@
     <Filter Include="Application\BeatMapLoader">
       <UniqueIdentifier>{22209b8d-cf6c-4276-8a03-28c097c8a183}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Effects\LaneEffect">
+      <UniqueIdentifier>{8d76655d-dae6-4ce7-b884-14bd6cb43774}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -87,6 +90,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\BeatMapLoader\BeatMapLoader.cpp">
       <Filter>Application\BeatMapLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Effects\LaneEffect\LaneEffect.cpp">
+      <Filter>Application\Effects\LaneEffect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -146,6 +152,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\BeatMapLoader\BeatMapData.h">
       <Filter>Application\BeatMapLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Effects\LaneEffect\LaneEffect.h">
+      <Filter>Application\Effects\LaneEffect</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

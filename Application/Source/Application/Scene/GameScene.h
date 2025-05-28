@@ -23,7 +23,7 @@ class GameScene : public BaseScene
 {
 public:
     ~GameScene() override;
-    void Initialize() override;
+    void Initialize(SceneData* _sceneData) override;
     void Update() override;
     void Draw() override;
     void DrawShadow() override;

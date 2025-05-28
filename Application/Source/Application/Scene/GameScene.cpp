@@ -8,7 +8,7 @@ GameScene::~GameScene()
 {
 }
 
-void GameScene::Initialize()
+void GameScene::Initialize(SceneData* _sceneData)
 {
     SceneCamera_.Initialize();
     SceneCamera_.translate_ = { 0,5,-20 };
@@ -61,6 +61,7 @@ void GameScene::Initialize()
     beatManager_ = std::make_unique<BeatManager>();
     beatManager_->Initialize(100.0f);
     beatManager_->SetStopWatch(stopwatch_.get());
+    beatManager_->SetEnableSound(false);
 
     isBeatMapLoaded_ = false;
     frameCount_ = 0;
@@ -103,8 +104,8 @@ void GameScene::Update()
     }
     stopwatch_->Update();
 
-    Debug::Log("Begin Frame : " + std::to_string(stopwatch_->GetElapsedTime<float>()) + "\n");
-    Debug::Log("Frame Count : " + std::to_string(frameCount_++) + "\n");
+    //Debug::Log("Begin Frame : " + std::to_string(stopwatch_->GetElapsedTime<float>()) + "\n");
+    //Debug::Log("Frame Count : " + std::to_string(frameCount_++) + "\n");
 
 
 
@@ -142,7 +143,7 @@ void GameScene::Update()
 
 #pragma region Application
 
-    notesSystem_->Update(static_cast<float> (GameTime::GetInstance()->GetDeltaTime()));
+    //notesSystem_->Update(static_cast<float> (GameTime::GetInstance()->GetDeltaTime()));
     lane_->Update();
     noteKeyController_->Update();
 
@@ -167,12 +168,14 @@ void GameScene::Draw()
 
     notesSystem_->DrawNotes(&SceneCamera_);
 
-    lane_->Draw();
     judgeLine_->Draw();
     noteJudge_->DrawJudgeLine();
 
+    lane_->Draw(&SceneCamera_);
+
+
     Sprite::PreDraw();
-    noteKeyController_->Draw();
+    //noteKeyController_->Draw();
 }
 
 void GameScene::DrawShadow()

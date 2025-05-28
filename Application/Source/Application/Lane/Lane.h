@@ -7,6 +7,7 @@
 
 // Application
 #include <Application/Note/Note.h>
+#include <Application/Effects/LaneEffect/LaneEffect.h>
 
 
 // STL
@@ -21,7 +22,7 @@ public:
 
     void Initialize();
     void Update();
-    void Draw();
+    void Draw(const Camera* _camera);
 
     /// <summary>
     /// レーンのスタート位置を取得
@@ -49,6 +50,8 @@ public:
     /// </summary>
     /// <param name="_window">判定を取る最大判定</param>
     void SetJudgeWindow(float _window) { judgeWindow_ = _window; }
+
+    const std::vector<Vector3>& GetLanePoints() const { return lanePoints_; }
 
 
     void OnEvent(const GameEvent& _event) override;
@@ -91,6 +94,8 @@ private:
 
     // レーンごとのノーツの参照
     std::map<uint32_t, std::list<std::shared_ptr<Note>>> notes_;
+
+    std::vector<std::unique_ptr<LaneEffect>> laneEffects_;
 
     // 判定を取る最大範囲 -> ミス判定となる時間
     double judgeWindow_ = 0.5f;

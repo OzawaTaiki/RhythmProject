@@ -41,6 +41,28 @@ void Lane::Initialize()
     CalculateLane();
     DrawCenterLine();
 
+    // レーンえふぇくと用のいたポリ作成
+
+    Vector2 laneSize;
+    laneSize.x = (lanePoints_[2].x - lanePoints_[0].x);
+    laneSize.y = (lanePoints_[1].z - lanePoints_[0].z);
+
+    Plane plane;
+    plane.SetSize(laneSize);
+    plane.SetNormal(Vector3(0, 1, 0));
+    plane.SetPivot(Vector3(0, 1, 0));
+
+    Model* planeModel = plane.Generate("laneEffectPlane");
+
+    for (uint32_t i = 0; i < laneCount_; ++i)
+    {
+        auto laneEff = std::make_unique<LaneEffect>();
+
+        laneEff->Initialize(GetLaneStartPosition(i), planeModel);
+
+        laneEffects_.push_back(std::move(laneEff));
+    }
+
 }
 
 void Lane::Update()
@@ -57,13 +79,24 @@ void Lane::Update()
             ++it;
         }
     }
+
+    for (const auto& laneEffect : laneEffects_)
+    {
+        laneEffect->Update(0.016f); // TODO: DeltaTimeを渡す
+    }
+
 }
 
-void Lane::Draw()
+void Lane::Draw(const Camera* _camera)
 {
     for (uint32_t i = 1; i < lanePoints_.size() + 1; i += 2)
     {
         lineDrawer_->RegisterPoint(lanePoints_[i - 1], lanePoints_[i], color_);
+    }
+
+    for (const auto& laneEffect : laneEffects_)
+    {
+        laneEffect->Draw(_camera);
     }
 
     DrawCenterLine();
@@ -111,6 +144,14 @@ void Lane::OnEvent(const GameEvent& _event)
             }
 
             //TODO : レーンエフェクト
+            // レーンエフェクトを開始
+            if (data->laneIndex >= laneEffects_.size())
+            {
+                throw std::out_of_range("LaneEffectsのIndexが配列サイズより大きいです。");
+                return;
+            }
+
+            laneEffects_[data->laneIndex]->Start();
 
             // レーンにノーツがない場合は何もしない
             if (notes_[data->laneIndex].empty())
