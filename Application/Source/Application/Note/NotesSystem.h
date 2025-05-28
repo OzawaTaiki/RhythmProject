@@ -22,7 +22,7 @@ public:
     void Update(float _deltaTime);
     void DrawNotes(const Camera* _camera);
 
-    void SetBeatMapData(const BeatMapData& _beatMapData) { beatMapData_ = _beatMapData; }
+    void SetBeatMapDataAndCreateNotes(const BeatMapData& _beatMapData);
 
     float GetNoteSpeed() const { return noteSpeed_; }
 
@@ -30,15 +30,14 @@ public:
 
     void SetMissJudgeThreshold(float _threshold) { missJudgeThreshold_ = _threshold; }
 
-#ifdef _DEBUG
     void SetStopwatch(Stopwatch* _stopwatch) { stopwatch_ = _stopwatch; }
-#endif // _DEBUG
 
 private:
 
     void CreateNormalNote(uint32_t _laneIndex, float _speed, float _targetTime);
 
     void CreateLongNote(uint32_t _laneIndex, float _speed, float _targetTime,std::shared_ptr<Note> _nextNote);
+    std::shared_ptr<Note> CreateNextNoteForLongNote(uint32_t _laneIndex, float _speed, float _targetTime);
 
     void DebugWindow();
 private:
@@ -54,7 +53,7 @@ private:
 
     BeatMapData beatMapData_;
 
-#ifdef _DEBUG
+    bool playing_ = true;
+
     Stopwatch* stopwatch_;
-#endif // _DEBUG
 };

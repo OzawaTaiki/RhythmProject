@@ -60,8 +60,10 @@ std::future<bool> BeatMapLoader::LoadBeatMap(const std::string& filePath)
             isLoadingSuccess_ = false;
         }
 
+        std::this_thread::sleep_for(std::chrono::seconds(2)); // 2s待機
         // ロード完了
         isLoading_ = false;
+
         return isLoadingSuccess_;
         });
 }

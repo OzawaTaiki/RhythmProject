@@ -56,4 +56,5 @@ private:
     std::future<bool> beatMapLoadFuture_ = {};
 
     bool isBeatMapLoaded_ = false;
+    int frameCount_ = 0;
 };

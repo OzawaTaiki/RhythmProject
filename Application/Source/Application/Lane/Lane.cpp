@@ -39,6 +39,8 @@ void Lane::Initialize()
 
     // レーンの計算
     CalculateLane();
+    DrawCenterLine();
+
 }
 
 void Lane::Update()

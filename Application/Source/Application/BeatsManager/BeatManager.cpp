@@ -1,12 +1,13 @@
 #include "BeatManager.h"
 #include <System/Audio/Audio.h>
 #include <System/Time/GameTime.h>
+#include <Debug/Debug.h>
 #include <cmath>
 
 BeatManager::BeatManager() : 
     bpm_(120.0f), 
     offset_(0.0f), 
-    lastBeat_(-1), 
+    lastBeat_(0), 
     playing_(false),
     soundHandle_(0),
     voiceHandle_(0),
@@ -34,12 +35,15 @@ void BeatManager::Update()
     if (!playing_) return;
     
     // ストップウォッチを更新
-    stopwatch_.Update();
+    //stopwatch_->Update();
     
     // 新しい拍かチェック
     if (IsNewBeat() && soundEnabled_)
     {
         // 拍に合わせて音を鳴らす
+        Debug::Log("Beat Triggered: " + std::to_string(GetNearestBeat()) + "\n");
+        //Debug::Log("Elapsed Time: " + std::to_string(stopwatch_->GetElapsedTime<float>()) + "\n");
+
         voiceHandle_ = Audio::GetInstance()->SoundPlay(soundHandle_, volume_, false, true);
     }
 }
@@ -49,7 +53,8 @@ void BeatManager::Start()
     if (!playing_)
     {
         playing_ = true;
-        stopwatch_.Start();
+        //Debug::Log("Elapsed Time: " + std::to_string(stopwatch_->GetElapsedTime<float>()) + "\n");
+        //stopwatch_->Start();
     }
 }
 
@@ -58,7 +63,7 @@ void BeatManager::Stop()
     if (playing_)
     {
         playing_ = false;
-        stopwatch_.Stop();
+        //stopwatch_->Stop();
         
         // 音を停止
         if (soundEnabled_)
@@ -70,8 +75,8 @@ void BeatManager::Stop()
 
 void BeatManager::Reset()
 {
-    stopwatch_.Reset();
-    lastBeat_ = -1;
+    //stopwatch_->Reset();
+    lastBeat_ = 0;
     
     // 音を停止
     if (soundEnabled_)
@@ -82,7 +87,7 @@ void BeatManager::Reset()
 
 float BeatManager::GetCurrentBeat() const
 {
-    float currentTime = stopwatch_.GetElapsedTime<float>() - offset_;
+    float currentTime = stopwatch_->GetElapsedTime<float>() - offset_;
     return currentTime / GetSecondsPerBeat();
 }
 
@@ -115,4 +120,5 @@ void BeatManager::SetBPM(float bpm)
 {
     if (bpm <= 0.0f) return;
     bpm_ = bpm;
+    Reset();
 }
