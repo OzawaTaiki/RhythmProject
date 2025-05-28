@@ -46,11 +46,13 @@ public:
     // サウンド有効・無効設定
     void EnableSound(bool enable) { soundEnabled_ = enable; }
 
+    void SetStopWatch(Stopwatch* stopwatch) { stopwatch_ = stopwatch; }
+
 private:
-    Stopwatch stopwatch_;
+    Stopwatch* stopwatch_;
     float bpm_ = 120.0f;       // 1分あたりの拍数
     float offset_ = 0.0f;      // 開始オフセット（秒）
-    int lastBeat_ = -1;        // 最後に処理した拍数
+    int lastBeat_ = 0;        // 最後に処理した拍数
     bool playing_ = false;     // 再生中かどうか
 
     // サウンド関連

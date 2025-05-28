@@ -43,6 +43,9 @@
     <Filter Include="Application\Effects">
       <UniqueIdentifier>{d0b45143-0256-4531-9b83-fc72c18b5001}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\BeatMapLoader">
+      <UniqueIdentifier>{22209b8d-cf6c-4276-8a03-28c097c8a183}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -81,6 +84,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\BeatsManager\BeatManager.cpp">
       <Filter>Application\BeatManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\BeatMapLoader\BeatMapLoader.cpp">
+      <Filter>Application\BeatMapLoader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -134,6 +140,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\BeatsManager\BeatManager.h">
       <Filter>Application\BeatManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\BeatMapLoader\BeatMapLoader.h">
+      <Filter>Application\BeatMapLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\BeatMapLoader\BeatMapData.h">
+      <Filter>Application\BeatMapLoader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

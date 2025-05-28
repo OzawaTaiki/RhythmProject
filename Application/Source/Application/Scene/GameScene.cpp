@@ -2,6 +2,7 @@
 #include <Features/Model/Manager/ModelManager.h>
 
 #include <System/Time/GameTime.h>
+#include <System/Audio/Audio.h>
 
 GameScene::~GameScene()
 {
@@ -54,16 +55,58 @@ void GameScene::Initialize()
     notesSystem_->SetJudgeLinePosition(judgeLine_->GetPosition());
     notesSystem_->SetMissJudgeThreshold(noteJudge_->GetMissJudgeThreshold());
 
-    beatManager_ = std::make_unique<BeatManager>();
-    beatManager_->Initialize(120.0f);
+    beatMapLoader_ = BeatMapLoader::GetInstance();
+    beatMapLoadFuture_ = beatMapLoader_->LoadBeatMap("Resources/Data/Game/BeatMap/Luminous_Memory.json");
 
-    stopwatch_->Start();
+    beatManager_ = std::make_unique<BeatManager>();
+    beatManager_->Initialize(100.0f);
+    beatManager_->SetStopWatch(stopwatch_.get());
+
+    isBeatMapLoaded_ = false;
+    frameCount_ = 0;
 
 }
 
 void GameScene::Update()
 {
+
+    if (beatMapLoader_->IsLoading())
+    {
+        Debug::Log("Loading BeatMap...\n");
+        return;
+    }
+    else if(!isBeatMapLoaded_)
+    {
+        if (!beatMapLoader_->IsLoadingSuccess())
+        {
+            std::string errorMessage = beatMapLoader_->GetErrorMessage();
+            Debug::Log("Error: " + errorMessage+"\n");
+            return;
+        }
+
+        notesSystem_->SetBeatMapDataAndCreateNotes(beatMapLoader_->GetLoadedBeatMapData());
+
+        static float bpm = beatMapLoader_->GetLoadedBeatMapData().bpm;
+        beatManager_->SetBPM(bpm);
+
+        std::string audioFilePath = beatMapLoader_->GetLoadedBeatMapData().audioFilePath;
+        uint32_t handle = Audio::GetInstance()->SoundLoadWave(audioFilePath);
+
+        //Audio::GetInstance()->SoundPlay(handle, 0.5f, true, false);
+
+        Debug::Log("BeatMap Loaded Successfully\n");
+        beatManager_->Start();
+        stopwatch_->Start();
+
+        isBeatMapLoaded_ = true;
+        return;
+    }
     stopwatch_->Update();
+
+    Debug::Log("Begin Frame : " + std::to_string(stopwatch_->GetElapsedTime<float>()) + "\n");
+    Debug::Log("Frame Count : " + std::to_string(frameCount_++) + "\n");
+
+
 
 #ifdef _DEBUG
     if (input_->IsKeyTriggered(DIK_F1))
@@ -79,18 +122,27 @@ void GameScene::Update()
     if (ImGui::Button("play"))
         beatManager_->Start();
 
-    beatManager_->Update();
-
-#endif // _DEBUG
-
-#pragma region Application
+    static float bpm = 120;
+    ImGui::DragFloat("BPM", &bpm, 0.1f);
+    if (ImGui::Button("SetBPM"))
+    {
+        beatManager_->SetBPM(bpm);
+    }
 
     noteJudge_->SetPosition(judgeLine_->GetPosition());
     noteJudge_->SetLaneTotalWidth(lane_->GetLaneTotalWidth());
     noteJudge_->SetSpeed(notesSystem_->GetNoteSpeed());
 
+#endif // _DEBUG
+    beatManager_->Update();
 
-    notesSystem_->Update(GameTime::GetInstance()->GetDeltaTime());
+    if(Input::GetInstance()->IsKeyTriggered(DIK_F2))
+        beatManager_->SetBPM(100);
+
+
+#pragma region Application
+
+    notesSystem_->Update(static_cast<float> (GameTime::GetInstance()->GetDeltaTime()));
     lane_->Update();
     noteKeyController_->Update();
 

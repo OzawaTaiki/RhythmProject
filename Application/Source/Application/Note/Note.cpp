@@ -12,7 +12,7 @@ void Note::Initilize(const Vector3 _position, float _speed, float _targetTime, u
 
     model_->scale_.x = 0.7f;
     model_->scale_.z = 0.5f;
-    model_->scale_.y = 0.3f;
+    model_->scale_.y = 0.1f;
 
     speed_ = _speed;
     targetTime_ = _targetTime;

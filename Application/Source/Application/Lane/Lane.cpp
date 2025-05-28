@@ -39,6 +39,8 @@ void Lane::Initialize()
 
     // レーンの計算
     CalculateLane();
+    DrawCenterLine();
+
 }
 
 void Lane::Update()
@@ -107,6 +109,8 @@ void Lane::OnEvent(const GameEvent& _event)
                 throw std::out_of_range("Indexが配列サイズより大きいです。");
                 return;
             }
+
+            //TODO : レーンエフェクト
 
             // レーンにノーツがない場合は何もしない
             if (notes_[data->laneIndex].empty())
