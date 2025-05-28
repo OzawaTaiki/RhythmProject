@@ -16,7 +16,7 @@ SampleScene::~SampleScene()
     delete cubeCollider2_;
 }
 
-void SampleScene::Initialize()
+void SampleScene::Initialize(SceneData* _sceneData)
 {
     SceneCamera_.Initialize();
     SceneCamera_.translate_ = { 0,5,-20 };
@@ -70,14 +70,14 @@ void SampleScene::Initialize()
         Debug::Log("bunny Collision\n");
         });*/
 
-    cubeCollider_ = new SphereCollider();
+    cubeCollider_ = new SphereCollider("");
     cubeCollider_->SetLayer("cube");
     cubeCollider_->SetRadius(.5f);
     cubeCollider_->SetWorldTransform(oModel2_->GetWorldTransform());
     cubeCollider_->SetOnCollisionCallback([](Collider* _other, const ColliderInfo& _info) {
         });
 
-    cubeCollider2_ = new CapsuleCollider();
+    cubeCollider2_ = new CapsuleCollider("");
     cubeCollider2_->SetLayer("cube2");
     cubeCollider2_->SetRadius(1);
     cubeCollider2_->SetHeight(5);
@@ -140,7 +140,7 @@ void SampleScene::Update()
 
     if (input_->IsKeyTriggered(DIK_TAB))
     {
-        SceneManager::GetInstance()->ReserveScene("ParticleTest");
+        SceneManager::GetInstance()->ReserveScene("ParticleTest", nullptr);
     }
 
     if (enableDebugCamera_)

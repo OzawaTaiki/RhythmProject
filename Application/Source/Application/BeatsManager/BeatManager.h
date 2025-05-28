@@ -48,6 +48,8 @@ public:
 
     void SetStopWatch(Stopwatch* stopwatch) { stopwatch_ = stopwatch; }
 
+    void SetEnableSound(bool enable) { soundEnabled_ = enable; }
+
 private:
     Stopwatch* stopwatch_;
     float bpm_ = 120.0f;       // 1分あたりの拍数
