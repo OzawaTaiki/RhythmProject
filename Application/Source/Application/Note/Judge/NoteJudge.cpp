@@ -8,6 +8,7 @@
 // application
 #include <Application/EventData/NoteJudgeData.h>
 #include <Application/EventData/JudgeResultData.h>
+#include <Application/Effects/TapEffects/TriggerEffects.h>
 
 
 // STL
@@ -88,6 +89,7 @@ void NoteJudge::OnEvent(const GameEvent& _event)
         auto data = static_cast<NoteJudgeData*>(_event.GetData());
         if (data)// nullチェック
         {
+            bool continueJudge = true;
             // 判定を取得
             for (const auto& [i, timingThreshold] : timingThresholds_)
             {
@@ -100,7 +102,7 @@ void NoteJudge::OnEvent(const GameEvent& _event)
                         EventManager::GetInstance()->DispatchEvent(
                             GameEvent("JudgeResult", &judgeResult)
                         );
-                        break;
+                        continueJudge = false; // 判定が決まったらループを抜ける
                     }
                 }
                 else
@@ -112,9 +114,19 @@ void NoteJudge::OnEvent(const GameEvent& _event)
                         EventManager::GetInstance()->DispatchEvent(
                             GameEvent("JudgeResult", &judgeResult)
                         );
-                        break;
+                        continueJudge = false; // 判定が決まったらループを抜ける
                     }
                 }
+
+                if (!continueJudge)
+                {
+                    if (i == NoteJudgeType::Perfect ||
+                        i == NoteJudgeType::Good)
+                    {
+                    }
+                    break;
+                }
+
             }
 
             // ミス判定

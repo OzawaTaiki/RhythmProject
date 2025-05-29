@@ -8,6 +8,8 @@
 #include <Application/EventData/JudgeResultData.h>
 #include <Application/EventData/ReleaseKeyData.h>
 
+#include <Application/Effects/TapEffects/TriggerEffects.h>
+
 Lane::Lane()
 {
 #ifdef _DEBUG
@@ -40,6 +42,8 @@ void Lane::Initialize()
     // レーンの計算
     CalculateLane();
     DrawCenterLine();
+
+    TriggerEffects::Initialize();
 
     // レーンえふぇくと用のいたポリ作成
 
@@ -153,6 +157,10 @@ void Lane::OnEvent(const GameEvent& _event)
 
             laneEffects_[data->laneIndex]->Start();
 
+            Vector3 laneEndPoint = laneStartPoints_[data->laneIndex];
+            laneEndPoint.z = -8.0f;
+            TriggerEffects::EmitCenterCircles(laneEndPoint);
+
             // レーンにノーツがない場合は何もしない
             if (notes_[data->laneIndex].empty())
                 return;
@@ -167,6 +175,7 @@ void Lane::OnEvent(const GameEvent& _event)
             if (diff > 0 && diff < judgeWindow_ ||
                 diff < 0 && diff > -judgeWindow_)
             {
+                TriggerEffects::EmitSurroundingParticles(laneEndPoint);
                 // 判定を行う イベントを発行
                 NoteJudgeData noteJudgeData(diff, data->laneIndex, note);
 

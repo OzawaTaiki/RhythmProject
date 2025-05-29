@@ -23,6 +23,15 @@ void GameScene::Initialize(SceneData* _sceneData)
 
     input_ = Input::GetInstance();
 
+    particleSystem_ = ParticleSystem::GetInstance();
+    particleSystem_->SetCamera(&SceneCamera_);
+
+    lightGroup_ = std::make_shared<LightGroup>();
+    lightGroup_->Initialize();
+
+
+    LightingSystem::GetInstance()->SetActiveGroup(lightGroup_);
+
     ///---------------------------------
     /// Application
     ///---------------------------------
@@ -143,7 +152,7 @@ void GameScene::Update()
 
 #pragma region Application
 
-    //notesSystem_->Update(static_cast<float> (GameTime::GetInstance()->GetDeltaTime()));
+    notesSystem_->Update(static_cast<float> (GameTime::GetInstance()->GetDeltaTime()));
     lane_->Update();
     noteKeyController_->Update();
 
@@ -160,6 +169,8 @@ void GameScene::Update()
         SceneCamera_.Update();
         SceneCamera_.UpdateMatrix();
     }
+
+    particleSystem_->Update();
 }
 
 void GameScene::Draw()
@@ -171,11 +182,14 @@ void GameScene::Draw()
     judgeLine_->Draw();
     noteJudge_->DrawJudgeLine();
 
+    ModelManager::GetInstance()->PreDrawForAlphaObjectModel();
     lane_->Draw(&SceneCamera_);
 
 
     Sprite::PreDraw();
     //noteKeyController_->Draw();
+
+    particleSystem_->DrawParticles();
 }
 
 void GameScene::DrawShadow()

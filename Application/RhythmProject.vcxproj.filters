@@ -49,6 +49,9 @@
     <Filter Include="Application\Effects\LaneEffect">
       <UniqueIdentifier>{8d76655d-dae6-4ce7-b884-14bd6cb43774}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Effects\TapEffects">
+      <UniqueIdentifier>{1becb388-379b-4a7f-a968-049ec8f0f527}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -93,6 +96,15 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Effects\LaneEffect\LaneEffect.cpp">
       <Filter>Application\Effects\LaneEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Effects\TapEffects\TriggerEffects.cpp">
+      <Filter>Application\Effects\TapEffects</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Effects\TapEffects\HitparticleModifier.cpp">
+      <Filter>Application\Effects\TapEffects</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Essential\ParticleModifierFactory.cpp">
+      <Filter>Essential</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -155,6 +167,15 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Effects\LaneEffect\LaneEffect.h">
       <Filter>Application\Effects\LaneEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Effects\TapEffects\HitparticleModifier.h">
+      <Filter>Application\Effects\TapEffects</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Effects\TapEffects\TriggerEffects.h">
+      <Filter>Application\Effects\TapEffects</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Essential\ParticleModifierFactory.h">
+      <Filter>Essential</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
