@@ -13,6 +13,7 @@
 #include <Features/Animation/Sequence/AnimationSequence.h>
 
 #include <Features/Collision/Manager/CollisionManager.h>
+#include <Features/Effect/Emitter/ParticleEmitter.h>
 
 #include <memory>
 
@@ -52,10 +53,9 @@ private:
 
     std::unique_ptr<AnimationSequence> sequence_ = nullptr;
 
-    AABBCollider* bunnyCollider_ = nullptr;
-    SphereCollider* cubeCollider_ = nullptr;
-    CapsuleCollider* cubeCollider2_ = nullptr;
-
+    ParticleEmitter emitter_;
+    ParticleEmitter emitter_triangle;
+    ParticleEmitter emitter_circle;
 
 
 #ifdef _DEBUG

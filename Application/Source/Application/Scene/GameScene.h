@@ -6,7 +6,7 @@
 #include <System/Input/Input.h>
 #include <Features/LineDrawer/LineDrawer.h>
 #include <System/Time/Stopwatch.h>
-#include <Features/Effect/Emitter/ParticleEmitter.h>
+#include <Features/Effect/Manager/ParticleSystem.h>
 
 // Application
 #include <Application/Lane/Lane.h>
@@ -37,7 +37,9 @@ private:
 
     LineDrawer* lineDrawer_ = nullptr;
     Input* input_ = nullptr;
+    ParticleSystem* particleSystem_ = nullptr;
 
+    std::shared_ptr<LightGroup> lightGroup_ = nullptr;
 
     // Application
     std::unique_ptr<Lane> lane_ = nullptr;

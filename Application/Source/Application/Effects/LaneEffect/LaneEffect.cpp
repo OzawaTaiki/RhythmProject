@@ -11,7 +11,7 @@ void LaneEffect::Initialize(const Vector3& _laneCenter, Model* _planeModel)
 
     laneModel_ = std::move(model);
 
-    duration_ = 1.0f; // デフォルトの持続時間を設定
+    duration_ = 0.5f; // デフォルトの持続時間を設定
     timer_ = 0.0f; // タイマーをリセット
     isActive_ = false; // エフェクトをアクティブに設定
     color_ = { 0.5f, 0.5f, 0.5f, 1.0f }; // デフォルトの色を設定

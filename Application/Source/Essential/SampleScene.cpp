@@ -7,13 +7,11 @@
 #include <Core/DXCommon/TextureManager/TextureManager.h>
 #include <Features/Collision/Manager/CollisionManager.h>
 #include <Debug/ImguITools.h>
+#include <Features/Model/Primitive/Triangle.h>
 
 
 SampleScene::~SampleScene()
 {
-    delete bunnyCollider_;
-    delete cubeCollider_;
-    delete cubeCollider2_;
 }
 
 void SampleScene::Initialize(SceneData* _sceneData)
@@ -62,30 +60,21 @@ void SampleScene::Initialize(SceneData* _sceneData)
     sequence_ = std::make_unique<AnimationSequence>("test");
     sequence_->Initialize("Resources/Data/");
 
-    bunnyCollider_ = new AABBCollider("bunny");
-    bunnyCollider_->Load("bunny");
-    /*bunnyCollider_->SetLayer("bunny");
-    bunnyCollider_->SetMinMax({ -1,-1,-1 }, { 1,1,1 });
-    bunnyCollider_->SetOnCollisionCallback([](Collider* _other, const ColliderInfo& _info) {
-        Debug::Log("bunny Collision\n");
-        });*/
+    emitter_.Initialize("TapEffect_01");
+    emitter_triangle.Initialize("TapEffect_Triangle");
 
-    cubeCollider_ = new SphereCollider("");
-    cubeCollider_->SetLayer("cube");
-    cubeCollider_->SetRadius(.5f);
-    cubeCollider_->SetWorldTransform(oModel2_->GetWorldTransform());
-    cubeCollider_->SetOnCollisionCallback([](Collider* _other, const ColliderInfo& _info) {
+
+    ParticleSystem::GetInstance()->Initialize();
+    ParticleSystem::GetInstance()->SetCamera(&SceneCamera_);
+
+    Triangle triangle;
+    triangle.SetNormal(Vector3(0, 0, -1));
+    triangle.SetVertices({
+        Vector3(0, 0.5f, 0),
+        Vector3(0.5f, -0.5f, 0),
+        Vector3(-0.5f, -0.5f, 0)
         });
-
-    cubeCollider2_ = new CapsuleCollider("");
-    cubeCollider2_->SetLayer("cube2");
-    cubeCollider2_->SetRadius(1);
-    cubeCollider2_->SetHeight(5);
-    cubeCollider2_->SetWorldTransform(aModel_->GetWorldTransform());
-    cubeCollider2_->SetOnCollisionCallback([](Collider* _other, const ColliderInfo& _info) {
-        Debug::Log("cube2 Collision\n");
-        });
-
+    triangle.Generate("nZ1_1Triangle");
 
 }
 
@@ -122,12 +111,31 @@ void SampleScene::Update()
         oModel_->translate_ = sequence_->GetValue<Vector3>("a");
 
 
-    if (ImGui::Button("Save"))
+    ImGui::Begin("Emitter");
+
+    if (ImGui::Button("Gene"))
     {
-        bunnyCollider_->Save("bunny");
-        cubeCollider_->Save("cube");
-        cubeCollider2_->Save("cube2");
+        emitter_.GenerateParticles();
+        emitter_triangle.GenerateParticles();
     }
+
+
+    if (ImGui::BeginTabBar("EmitterTabs"))
+    {
+        if (ImGui::BeginTabItem("tapEffect_01"))
+        {
+            emitter_.ShowDebugWindow();
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("emitter_tri"))
+        {
+            emitter_triangle.ShowDebugWindow();
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
+    //emitter_.ShowDebugWindow();
+    ImGui::End();
 #endif // _DEBUG
     LightingSystem::GetInstance()->SetActiveGroup(lights_);
 
@@ -140,7 +148,7 @@ void SampleScene::Update()
 
     if (input_->IsKeyTriggered(DIK_TAB))
     {
-        SceneManager::GetInstance()->ReserveScene("ParticleTest", nullptr);
+        //SceneManager::GetInstance()->ReserveScene("ParticleTest", nullptr);
     }
 
     if (enableDebugCamera_)
@@ -148,19 +156,14 @@ void SampleScene::Update()
         debugCamera_.Update();
         SceneCamera_.matView_ = debugCamera_.matView_;
         SceneCamera_.TransferData();
-        //ParticleSystem::GetInstance()->Update();
     }
     else
     {
         SceneCamera_.Update();
         SceneCamera_.UpdateMatrix();
-        //ParticleSystem::GetInstance()->Update();
     }
 
-
-    CollisionManager::GetInstance()->RegisterCollider(bunnyCollider_);
-    CollisionManager::GetInstance()->RegisterCollider(cubeCollider_);
-    CollisionManager::GetInstance()->RegisterCollider(cubeCollider2_);
+    ParticleSystem::GetInstance()->Update();
 
     CollisionManager::GetInstance()->Update();
 }
@@ -181,7 +184,7 @@ void SampleScene::Draw()
 
     //button_->Draw();
 
-    //ParticleManager::GetInstance()->Draw(&SceneCamera_);
+    ParticleSystem::GetInstance()->DrawParticles();
 
 }
 
