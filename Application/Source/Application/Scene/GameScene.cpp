@@ -15,7 +15,7 @@ GameScene::~GameScene()
 void GameScene::Initialize(SceneData* _sceneData)
 {
     SceneCamera_.Initialize();
-    SceneCamera_.translate_ = { 0,5,-20 };
+    SceneCamera_.translate_ = { 0,5,-13 };
     SceneCamera_.rotate_ = { 0.26f,0,0 };
     SceneCamera_.UpdateMatrix();
     debugCamera_.Initialize();

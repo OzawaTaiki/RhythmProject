@@ -92,6 +92,7 @@ void NotesSystem::SetBeatMapDataAndCreateNotes(const BeatMapData& _beatMapData)
 void NotesSystem::Reload()
 {
     notes_.clear();
+    lane_->Reset();
     stopwatch_->Reset();
     for (const auto& note : beatMapData_.notes)
     {

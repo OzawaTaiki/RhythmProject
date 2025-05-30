@@ -30,7 +30,7 @@ private:
 
 private:
 
-    float position_ = -8.0f;
+    float position_ = -0.0f;
 
     Vector4 color_ = { 0,1,1,1 };
 

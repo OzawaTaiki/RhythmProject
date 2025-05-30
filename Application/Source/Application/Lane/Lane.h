@@ -53,6 +53,7 @@ public:
 
     const std::vector<Vector3>& GetLanePoints() const { return lanePoints_; }
 
+    void Reset();
 
     void OnEvent(const GameEvent& _event) override;
 private:
