@@ -24,6 +24,7 @@ public:
 
     void OnEvent(const GameEvent& _event) override;
 
+    void SetIsDrawLine(bool _isDraw) { isDrawLine = _isDraw; }
 
     void SetPosition(float _position) { position_ = _position; }
     void SetLaneTotalWidth(float _width) { laneTotalWidth_ = _width; }

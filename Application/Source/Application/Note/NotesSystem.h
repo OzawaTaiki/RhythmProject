@@ -34,6 +34,8 @@ public:
 
     void Reload();
 
+    void playing(bool _playing) { playing_ = _playing; }
+
 private:
 
     void CreateNormalNote(uint32_t _laneIndex, float _speed, float _targetTime);
