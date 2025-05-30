@@ -48,11 +48,12 @@ void GameScene::Initialize(SceneData* _sceneData)
     lane_->Initialize();
 
     notesSystem_ = std::make_unique<NotesSystem>(lane_.get());
-    notesSystem_->Initialize(10.0f, 1.0f);
+    notesSystem_->Initialize(30.0f, 1.0f);
     notesSystem_->SetStopwatch(stopwatch_.get());
 
     judgeLine_ = std::make_unique<JudgeLine>();
     judgeLine_->Initialize();
+
 
 
     noteJudge_ = std::make_unique<NoteJudge>();
@@ -78,6 +79,13 @@ void GameScene::Initialize(SceneData* _sceneData)
     beatManager_->SetStopWatch(stopwatch_.get());
     beatManager_->SetEnableSound(false);
 
+
+
+#ifdef _DEBUG
+    noteJudge_->SetIsDrawLine(true);
+#else
+    noteJudge_->SetIsDrawLine(false);
+#endif // _DEBUG
     isBeatMapLoaded_ = false;
     frameCount_ = 0;
 
@@ -91,6 +99,10 @@ void GameScene::Update()
         return;
 
     stopwatch_->Update();
+    if (input_->IsKeyTriggered(DIK_R))
+    {
+        notesSystem_->Reload();
+    }
 
 #ifdef _DEBUG
     if (input_->IsKeyTriggered(DIK_F1))
@@ -98,6 +110,7 @@ void GameScene::Update()
         enableDebugCamera_ = !enableDebugCamera_;
     }
     stopwatch_->ShowDebugWindow();
+
 
     judgeResult_->DebugWindow();
 
@@ -245,6 +258,8 @@ bool GameScene::IsComplateLoadBeatMap()
         // 開始する
         beatManager_->Start();
         stopwatch_->Start();
+
+        notesSystem_->playing(true);
 
         isBeatMapLoaded_ = true;
     }
