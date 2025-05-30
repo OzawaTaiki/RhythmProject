@@ -17,6 +17,8 @@ void Note::Initilize(const Vector3 _position, float _speed, float _targetTime, u
     speed_ = _speed;
     targetTime_ = _targetTime;
     laneIndex_ = _laneIndex;
+
+    model_->Update();
 }
 
 void Note::Update(float _deltaTime)
@@ -48,31 +50,53 @@ void NomalNote::Draw(const Camera* _camera)
 
 LongNote::~LongNote()
 {
-    if (nextNote_)
+    if (beforeNote_)
     {
-        nextNote_.reset();
+        beforeNote_.reset();
     }
 }
 
 void LongNote::Initilize(const Vector3 _position, float _speed, float _targetTime, uint32_t _laneIndex)
 {
     Note::Initilize(_position, _speed, _targetTime, _laneIndex);
+
+    noteBridge_ = std::make_unique<ObjectModel>("noteBridge");
+    noteBridge_->Initialize("pY1x1p01Plane");// y+向きpivot(010)
+    noteBridge_->useQuaternion_ = true;
 }
 
 void LongNote::Update(float _deltaTime)
 {
     Note::Update(_deltaTime);
+
+
+    if (beforeNote_)
+    {
+        Vector3 spos = model_->translate_;
+        Vector3 epos = beforeNote_->GetPosition();
+
+        const Vector3 downVector = Vector3(0, 0, -1);// 下向きベクトル
+        Vector3 direction = epos - spos;
+        length_ = direction.Length();
+        direction = direction.Normalize();
+
+        noteBridge_->quaternion_ = Quaternion::FromToRotation(downVector, direction);
+
+        noteBridge_->scale_.z = length_;
+
+        noteBridge_->translate_ = spos;
+
+        noteBridge_->Update();
+
+    }
 }
 
 void LongNote::Draw(const Camera* _camera)
 {
-    Note::Draw(_camera);
+    model_->Draw(_camera, Vector4(1, 1, 1, 1));
 
-    if(nextNote_)
+    if (beforeNote_)
     {
-        Vector3 spos = model_->translate_;
-        Vector3 epos = nextNote_->GetPosition();
-
-        LineDrawer::GetInstance()->RegisterPoint(spos, epos, Vector4(1, 1, 0, 1));
+        noteBridge_->Draw(_camera, Vector4(0, 1, 0, 1));
     }
 }

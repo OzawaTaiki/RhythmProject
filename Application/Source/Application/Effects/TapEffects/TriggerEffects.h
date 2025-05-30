@@ -31,6 +31,8 @@ private:
     static Vector4 commonColor_;
 
     static uint32_t textureHandle_;
+    static uint32_t gradationTexture_;
+
 
     static ParticleEmitter emitter_; // ほぞ長いのを出すエミッター
     static ParticleEmitter triangleEmitter_; // 三角形を出すエミッター

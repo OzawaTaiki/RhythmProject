@@ -30,6 +30,15 @@ public:
 
 private:
 
+    void GenerateModels();
+
+    /// <summary>
+    /// 譜面データの読み込みを待機する
+    /// </summary>
+    /// <param name="_filePath">譜面データのファイルパス</param>
+    /// <returns> 読み込み完了 or 読み込み済みなら true </returns>
+    bool IsComplateLoadBeatMap();
+
     // シーン関連
     Camera SceneCamera_ = {};
     DebugCamera debugCamera_ = {};
