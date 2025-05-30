@@ -1,9 +1,11 @@
 #include "ParticleModifierFactory.h"
 
-#include <Features/Effect/Modifier/Preset/DecelerationModifier.h>
-#include <Features/Effect/Modifier/Preset/AlphaOverLifetime.h>
-#include <Application/Effects/TapEffects/HitparticleModifier.h>
 #include <Features/Effect/Modifier/Preset/RotationBasedMovementModifier.h>
+#include <Features/Effect/Modifier/Preset/AlphaOverLifetime.h>
+#include <Features/Effect/Modifier/Preset/DecelerationModifier.h>
+
+#include <Application/Effects/TapEffects/HitparticleModifier.h>
+#include <Application/Effects/TapEffects/LightPillarModifier.h>
 
 
 std::unique_ptr<ParticleModifier> ParticleModifierFactory::CreateModifier(const std::string _name)
@@ -31,6 +33,10 @@ std::unique_ptr<ParticleModifier> ParticleModifierFactory::CreateModifier(const 
     else if (_name == "RotationBasedMovementModifier")
     {
          return std::make_unique<RotationBasedMovementModifier>();
+    }
+    else if (_name == "LightPillarModifier")
+    {
+        return std::make_unique<LightPillarModifier>();
     }
 
 

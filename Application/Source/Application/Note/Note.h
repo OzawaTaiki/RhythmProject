@@ -24,7 +24,7 @@ public:
    uint32_t GetLaneIndex() const { return laneIndex_; }
 
    bool IsJudged() const { return isJudged_; }
-   void Judge() { isJudged_ = true; }
+   virtual void Judge() { isJudged_ = true; }
 
 protected:
 
@@ -69,6 +69,8 @@ public:
     void Initilize(const Vector3 _position, float _speed, float _targetTime, uint32_t _laneIndex) override;
     void Update(float _deltaTime) override;
     void Draw(const Camera* _camera) override;
+
+    virtual void Judge() override;
 
     void SetBeforeNote(std::shared_ptr<Note> _beforeNote) {
         beforeNote_= _beforeNote;

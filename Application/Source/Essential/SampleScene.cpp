@@ -60,8 +60,8 @@ void SampleScene::Initialize(SceneData* _sceneData)
     sequence_ = std::make_unique<AnimationSequence>("test");
     sequence_->Initialize("Resources/Data/");
 
-    emitter_.Initialize("TapEffect_01");
-    emitter_triangle.Initialize("TapEffect_Triangle");
+    emitter_.Initialize("longHold_00");
+    emitter_triangle.Initialize("longHold_01");
 
 
     ParticleSystem::GetInstance()->Initialize();

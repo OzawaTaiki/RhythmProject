@@ -30,7 +30,7 @@ void Note::Update(float _deltaTime)
 
 void Note::Draw(const Camera* _camera)
 {
-    model_->Draw(_camera, color_);
+    model_->Draw(_camera, 0, color_);
 }
 
 void NomalNote::Initilize(const Vector3 _position, float _speed, float _targetTime, uint32_t _laneIndex)
@@ -93,10 +93,19 @@ void LongNote::Update(float _deltaTime)
 
 void LongNote::Draw(const Camera* _camera)
 {
-    model_->Draw(_camera, Vector4(1, 1, 1, 1));
+    model_->Draw(_camera,0, Vector4(0.0f, 1.0f, 0.5f, 1.0f));
 
     if (beforeNote_)
     {
-        noteBridge_->Draw(_camera, Vector4(0, 1, 0, 1));
+        noteBridge_->Draw(_camera, 0, Vector4(0.5f, 1.0f, 0.5f, 1.0f));
     }
+}
+
+void LongNote::Judge()
+{
+    Note::Judge();
+
+    // ブリッジを画面外へ運ぶために
+    model_->translate_.z = -2; // ノーツを画面外へ
+
 }

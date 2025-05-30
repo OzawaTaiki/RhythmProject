@@ -3,10 +3,10 @@
         "Center": {
             "x": 0.0,
             "y": 0.0,
-            "z": 27.0
+            "z": 45.0
         },
         "LaneCount": 4,
-        "Length": 75.0,
+        "Length": 100.0,
         "TotalWidth": 8.0,
         "Width": 2.0
     }

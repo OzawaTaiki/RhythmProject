@@ -1,0 +1,156 @@
+{
+    "TapEffect_LightPillar": {
+        "BoxOffset_Max": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "BoxOffset_Min": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "BoxOffset_Random": false,
+        "RGB_Max": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "RGB_Min": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "RGB_Random": false,
+        "RGB_Value": {
+            "x": 0.2696078419685364,
+            "y": 0.8925894498825073,
+            "z": 1.0
+        },
+        "SphereOffset_Max": 0.0,
+        "SphereOffset_Min": 0.0,
+        "SphereOffset_Random": false,
+        "SphereOffset_Value": 0.0,
+        "alpha_Max": 1.0,
+        "alpha_Min": 0.0,
+        "alpha_Random": false,
+        "alpha_Value": 0.5,
+        "billboard_x": false,
+        "billboard_y": false,
+        "billboard_z": false,
+        "blendMode": 1,
+        "boxSize": {
+            "x": 0.5,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "cullBack": false,
+        "deceleration_Max": 1.0,
+        "deceleration_Min": 0.0,
+        "deceleration_Random": false,
+        "deceleration_Value": 0.0,
+        "delayTime": 0.0,
+        "direction_Max": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "direction_Min": {
+            "x": -1.0,
+            "y": -1.0,
+            "z": -1.0
+        },
+        "direction_Random": false,
+        "direction_Type": 3,
+        "direction_Value": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "emitCount": 3,
+        "emitPerSecond": 10,
+        "isLoop": false,
+        "lifeTime": 0.0,
+        "lifeTime_Max": 2.0,
+        "lifeTime_Min": 0.5,
+        "lifeTime_Random": false,
+        "lifeTime_Type": 2,
+        "lifeTime_Value": 0.3,
+        "modifiers": [
+            "AlphaOverLifetime",
+            "LightPillarModifier"
+        ],
+        "offset": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "rotation": {
+            "qw": 1.0,
+            "qx": 0.0,
+            "qy": 0.0,
+            "qz": 0.0
+        },
+        "rotationSpeed_Max": {
+            "x": 3.141590118408203,
+            "y": 3.141590118408203,
+            "z": 3.141590118408203
+        },
+        "rotationSpeed_Min": {
+            "x": -3.141590118408203,
+            "y": -3.141590118408203,
+            "z": -3.141590118408203
+        },
+        "rotationSpeed_Random": false,
+        "rotationSpeed_Value": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "rotation_Max": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "rotation_Min": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "rotation_Random": true,
+        "rotation_Value": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "shape": 0,
+        "size_Max": {
+            "x": 0.5,
+            "y": 2.0,
+            "z": 0.0
+        },
+        "size_Min": {
+            "x": 0.5,
+            "y": 1.0,
+            "z": 0.0
+        },
+        "size_Random": true,
+        "size_Value": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "speed_Max": 2.0,
+        "speed_Min": 0.5,
+        "speed_Random": false,
+        "speed_Value": 0.0,
+        "sphereRadius": 0.20000000298023224,
+        "texturePath": "guradation.png",
+        "useModelName": "plane_py0n1"
+    }
+}

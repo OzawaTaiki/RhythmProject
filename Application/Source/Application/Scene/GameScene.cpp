@@ -15,7 +15,7 @@ GameScene::~GameScene()
 void GameScene::Initialize(SceneData* _sceneData)
 {
     SceneCamera_.Initialize();
-    SceneCamera_.translate_ = { 0,5,-20 };
+    SceneCamera_.translate_ = { 0,5,-13 };
     SceneCamera_.rotate_ = { 0.26f,0,0 };
     SceneCamera_.UpdateMatrix();
     debugCamera_.Initialize();
@@ -71,7 +71,7 @@ void GameScene::Initialize(SceneData* _sceneData)
     notesSystem_->SetMissJudgeThreshold(noteJudge_->GetMissJudgeThreshold());
 
     beatMapLoader_ = BeatMapLoader::GetInstance();
-    beatMapLoadFuture_ = beatMapLoader_->LoadBeatMap("Resources/Data/Game/BeatMap/Luminous_Memory.json");
+    beatMapLoadFuture_ = beatMapLoader_->LoadBeatMap("Resources/Data/Game/BeatMap/demo.json");
 
     beatManager_ = std::make_unique<BeatManager>();
     beatManager_->Initialize(100.0f);
@@ -178,6 +178,15 @@ void GameScene::GenerateModels()
 
     plane.Generate("pY1x1Plane");
 
+
+    Plane plane_py0n1;
+    plane_py0n1.SetSize(Vector2(1.0f, 1.0f) * 2);
+    plane_py0n1.SetNormal(Vector3(0, 0, -1));
+    plane_py0n1.SetPivot(Vector3(0, -1, 0));
+    plane_py0n1.SetFlipV(true);
+
+    plane_py0n1.Generate("plane_py0n1");
+
     Plane plane_py01;
     plane_py01.SetSize(Vector2(1.0f, 1.0f));
     plane_py01.SetNormal(Vector3(0, 1, 0));
@@ -227,8 +236,8 @@ bool GameScene::IsComplateLoadBeatMap()
         static float bpm = beatMapLoader_->GetLoadedBeatMapData().bpm;
         beatManager_->SetBPM(bpm);
 
-        std::string audioFilePath = beatMapLoader_->GetLoadedBeatMapData().audioFilePath;
-        uint32_t handle = Audio::GetInstance()->SoundLoadWave(audioFilePath);
+        //std::string audioFilePath = beatMapLoader_->GetLoadedBeatMapData().audioFilePath;
+        //uint32_t handle = Audio::GetInstance()->SoundLoadWave(audioFilePath);
 
         // ロード完了
         Debug::Log("BeatMap Loaded Successfully\n");

@@ -20,7 +20,8 @@ public:
     static void EmitCenterCircles(const Vector3& _pos);
     // 周囲のパーティクルを発生させる
     static void EmitSurroundingParticles(const Vector3& _pos);
-
+    // 光の柱を発生させる
+    static void EmitLightPillar(const Vector3& _pos, const Vector3& _direction, float _length = 1.0f);
 
 private:
 
@@ -35,6 +36,7 @@ private:
 
 
     static ParticleEmitter emitter_; // ほぞ長いのを出すエミッター
+    static ParticleEmitter lightPillarEmitter_; // 光の柱を出すエミッター
     static ParticleEmitter triangleEmitter_; // 三角形を出すエミッター
 
 };

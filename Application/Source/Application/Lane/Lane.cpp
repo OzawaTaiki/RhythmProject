@@ -46,7 +46,6 @@ void Lane::Initialize()
     TriggerEffects::Initialize();
 
     // レーンえふぇくと用のいたポリ作成
-
     Vector2 laneSize;
     laneSize.x = (lanePoints_[2].x - lanePoints_[0].x);
     laneSize.y = (lanePoints_[1].z - lanePoints_[0].z);
@@ -132,6 +131,15 @@ void Lane::AddNote(uint32_t _index, std::shared_ptr<Note> _note)
 
 }
 
+void Lane::Reset()
+{
+    for (auto& [laneIndex, notes] : notes_)
+    {
+        notes.clear();
+    }
+}
+
+
 void Lane::OnEvent(const GameEvent& _event)
 {
     if (_event.GetEventType() == "HitKey")
@@ -158,7 +166,7 @@ void Lane::OnEvent(const GameEvent& _event)
             laneEffects_[data->laneIndex]->Start();
 
             Vector3 laneEndPoint = laneStartPoints_[data->laneIndex];
-            laneEndPoint.z = -8.0f;
+            laneEndPoint.z = 0;
             TriggerEffects::EmitCenterCircles(laneEndPoint);
 
             // レーンにノーツがない場合は何もしない
@@ -223,6 +231,10 @@ void Lane::OnEvent(const GameEvent& _event)
                 );
                 note->Judge();
             }
+
+            Vector3 laneEndPoint = laneStartPoints_[data->laneIndex];
+            laneEndPoint.z = 0;
+            TriggerEffects::EmitSurroundingParticles(laneEndPoint);
         }
     }
 }
