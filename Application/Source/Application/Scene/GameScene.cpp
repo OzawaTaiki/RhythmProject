@@ -1,6 +1,10 @@
 #include "GameScene.h"
 #include <Features/Model/Manager/ModelManager.h>
 
+#include <Features/Model/Primitive/Plane.h>
+#include <Features/Model/Primitive/Triangle.h>
+#include <Features/Model/Primitive/Ring.h>
+
 #include <System/Time/GameTime.h>
 #include <System/Audio/Audio.h>
 
@@ -35,6 +39,8 @@ void GameScene::Initialize(SceneData* _sceneData)
     ///---------------------------------
     /// Application
     ///---------------------------------
+    GenerateModels();
+
     stopwatch_ = std::make_unique<Stopwatch>(true, "default");
     stopwatch_->Reset();
 
@@ -80,43 +86,11 @@ void GameScene::Initialize(SceneData* _sceneData)
 void GameScene::Update()
 {
 
-    if (beatMapLoader_->IsLoading())
-    {
-        Debug::Log("Loading BeatMap...\n");
+    // ロードが完了してなかったら更新しない
+    if (!IsComplateLoadBeatMap())
         return;
-    }
-    else if(!isBeatMapLoaded_)
-    {
-        if (!beatMapLoader_->IsLoadingSuccess())
-        {
-            std::string errorMessage = beatMapLoader_->GetErrorMessage();
-            Debug::Log("Error: " + errorMessage+"\n");
-            return;
-        }
 
-        notesSystem_->SetBeatMapDataAndCreateNotes(beatMapLoader_->GetLoadedBeatMapData());
-
-        static float bpm = beatMapLoader_->GetLoadedBeatMapData().bpm;
-        beatManager_->SetBPM(bpm);
-
-        std::string audioFilePath = beatMapLoader_->GetLoadedBeatMapData().audioFilePath;
-        uint32_t handle = Audio::GetInstance()->SoundLoadWave(audioFilePath);
-
-        //Audio::GetInstance()->SoundPlay(handle, 0.5f, true, false);
-
-        Debug::Log("BeatMap Loaded Successfully\n");
-        beatManager_->Start();
-        stopwatch_->Start();
-
-        isBeatMapLoaded_ = true;
-        return;
-    }
     stopwatch_->Update();
-
-    //Debug::Log("Begin Frame : " + std::to_string(stopwatch_->GetElapsedTime<float>()) + "\n");
-    //Debug::Log("Frame Count : " + std::to_string(frameCount_++) + "\n");
-
-
 
 #ifdef _DEBUG
     if (input_->IsKeyTriggered(DIK_F1))
@@ -177,10 +151,9 @@ void GameScene::Draw()
 {
     ModelManager::GetInstance()->PreDrawForObjectModel();
 
-    notesSystem_->DrawNotes(&SceneCamera_);
-
     judgeLine_->Draw();
     noteJudge_->DrawJudgeLine();
+    notesSystem_->DrawNotes(&SceneCamera_);
 
     ModelManager::GetInstance()->PreDrawForAlphaObjectModel();
     lane_->Draw(&SceneCamera_);
@@ -194,4 +167,78 @@ void GameScene::Draw()
 
 void GameScene::DrawShadow()
 {
+}
+
+void GameScene::GenerateModels()
+{// 2x2 y+向き
+    Plane plane;
+    plane.SetSize(Vector2(1.0f, 1.0f) * 2);
+    plane.SetNormal(Vector3(0, 1, 0));
+    plane.SetPivot(Vector3(0, 0, 0));
+
+    plane.Generate("pY1x1Plane");
+
+    Plane plane_py01;
+    plane_py01.SetSize(Vector2(1.0f, 1.0f));
+    plane_py01.SetNormal(Vector3(0, 1, 0));
+    plane_py01.SetPivot(Vector3(0, 1, 0));
+
+    plane_py01.Generate("pY1x1p01Plane");// y+向き 1x1 pivot(0,1,0)
+
+    // ほそ長いやつ
+    Plane plane2;
+    plane2.SetSize(Vector2(0.1f, 0.7f) * 5.0f);
+    plane2.SetNormal(Vector3(0, 0, -1));
+    plane2.SetPivot(Vector3(0, 0, 0));
+
+    plane2.Generate("nZ0.1x0.7Plane");
+
+
+    Triangle triangle;
+    triangle.SetNormal(Vector3(0, 0, -1));
+    triangle.SetVertices({
+        Vector3(0, 0.5f, 0),
+        Vector3(0.5f, -0.5f, 0),
+        Vector3(-0.5f, -0.5f, 0)
+        });
+    triangle.Generate("nZ1_1Triangle");
+}
+
+bool GameScene::IsComplateLoadBeatMap()
+{
+    if (beatMapLoader_->IsLoading())
+    {
+        Debug::Log("Loading BeatMap...\n");
+    }
+    else if (!isBeatMapLoaded_)
+    {
+        if (!beatMapLoader_->IsLoadingSuccess())
+        {
+            // 読み込み失敗してたら エラーメッセージを取得して表示
+            std::string errorMessage = beatMapLoader_->GetErrorMessage();
+            Debug::Log("Error: " + errorMessage + "\n");
+            assert(false);
+        }
+
+        // 譜面データを渡してnoteを生成
+        notesSystem_->SetBeatMapDataAndCreateNotes(beatMapLoader_->GetLoadedBeatMapData());
+
+        // bpmを設定
+        static float bpm = beatMapLoader_->GetLoadedBeatMapData().bpm;
+        beatManager_->SetBPM(bpm);
+
+        std::string audioFilePath = beatMapLoader_->GetLoadedBeatMapData().audioFilePath;
+        uint32_t handle = Audio::GetInstance()->SoundLoadWave(audioFilePath);
+
+        // ロード完了
+        Debug::Log("BeatMap Loaded Successfully\n");
+
+        // 開始する
+        beatManager_->Start();
+        stopwatch_->Start();
+
+        isBeatMapLoaded_ = true;
+    }
+
+    return isBeatMapLoaded_;
 }

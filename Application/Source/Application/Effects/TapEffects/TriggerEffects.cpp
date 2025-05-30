@@ -13,6 +13,7 @@ uint32_t TriggerEffects::countPerEmit_ = 16; // 一度に発生するパーテ�
 float TriggerEffects::baseSize = 0.3f;
 float TriggerEffects::centerSize = 1.0f;
 uint32_t TriggerEffects::textureHandle_ = 0;
+uint32_t TriggerEffects::gradationTexture_ = 0; // グラデーション用のテクスチャ
 Vector4 TriggerEffects::commonColor_ = Vector4(0.3f, 0.6f, 1.0f, 0.7f); // 共通の色
 
 ParticleEmitter TriggerEffects::emitter_; // ほそ長いのを出すエミッター
@@ -21,40 +22,6 @@ ParticleEmitter TriggerEffects::triangleEmitter_; // 三角形を出すエミッ
 void TriggerEffects::Initialize()
 {
     textureHandle_ = TextureManager::GetInstance()->Load("circle.png");
-
-    // 2x2 y+向き
-    Plane plane;
-    plane.SetSize(Vector2(1.0f, 1.0f) * 2);
-    plane.SetNormal(Vector3(0, 1, 0));
-    plane.SetPivot(Vector3(0, 0, 0));
-
-    plane.Generate("pY1x1Plane");
-
-    //// 2x2 z-向き
-    //Plane nZplane;
-    //nZplane.SetSize(Vector2(1.0f, 1.0f) * 2);
-    //nZplane.SetNormal(Vector3(0, 0, -1));
-    //nZplane.SetPivot(Vector3(0, 0, 0));
-
-    //nZplane.Generate("nZ1x1Plane");
-
-    // ほそ長いやつ
-    Plane plane2;
-    plane2.SetSize(Vector2(0.1f, 0.7f) * 5.0f);
-    plane2.SetNormal(Vector3(0, 0, -1));
-    plane2.SetPivot(Vector3(0, 0, 0));
-
-    plane2.Generate("nZ0.1x0.7Plane");
-
-
-    Triangle triangle;
-    triangle.SetNormal(Vector3(0, 0, -1));
-    triangle.SetVertices({
-        Vector3(0, 0.5f, 0),
-        Vector3(0.5f, -0.5f, 0),
-        Vector3(-0.5f, -0.5f, 0)
-        });
-    triangle.Generate("nZ1_1Triangle");
 
     // ほそ長いのを出すエミッター
     emitter_.Initialize("TapEffect_01");

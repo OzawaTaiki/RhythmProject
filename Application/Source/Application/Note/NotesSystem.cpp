@@ -6,7 +6,7 @@
 
 #include <Application/EventData/JudgeResultData.h>
 
-NotesSystem::NotesSystem(Lane* _lane) : lane_(_lane)
+NotesSystem::NotesSystem(Lane* _lane) : lane_(_lane), playing_(false)
 {
 #ifdef _DEBUG
     ImGuiDebugManager::GetInstance()->AddDebugWindow("NotesSystem", [&]() { DebugWindow(); });
@@ -82,35 +82,31 @@ void NotesSystem::SetBeatMapDataAndCreateNotes(const BeatMapData& _beatMapData)
         }
         else if (note.noteType == "hold")
         {
-            // 次のノーツを設定
-            std::shared_ptr<LongNote> nextNote = nullptr;
-            if (note.holdDuration > 0.0f)
-            {
-                nextNote = std::make_shared<LongNote>();
+            CreateLongNote(note);
 
-                float elapsedTime = stopwatch_->GetElapsedTime<float>();
-
-                float targetTime = note.targetTime + note.holdDuration;
-
-                Vector3 laneStartPosition = lane_->GetLaneStartPosition(note.laneIndex);
-                laneStartPosition.y += noteSize_ / 2.0f;
-                laneStartPosition.z = judgeLinePosition_ + targetTime * noteSpeed_;
-
-                nextNote->Initilize(laneStartPosition, noteSpeed_, targetTime, note.laneIndex);
-
-                CreateLongNote(note.laneIndex, noteSpeed_, note.targetTime, nextNote);
-
-                notes_.emplace_back(nextNote);
-                lane_->AddNote(note.laneIndex, nextNote);
-            }
-            else
-            {
-                //CreateLongNote(note.laneIndex, noteSpeed_, note.targetTime, nullptr);
-            }
         }
     }
 }
 
+
+void NotesSystem::Reload()
+{
+    notes_.clear();
+    stopwatch_->Reset();
+    for (const auto& note : beatMapData_.notes)
+    {
+        if (note.noteType == "normal")
+        {
+            CreateNormalNote(note.laneIndex, noteSpeed_, note.targetTime);
+        }
+        else if (note.noteType == "hold")
+        {
+            CreateLongNote(note);
+        }
+    }
+    stopwatch_->Start();
+
+}
 
 void NotesSystem::CreateNormalNote(uint32_t _laneIndex, float _speed,float _targetTime)
 {
@@ -149,7 +145,7 @@ void NotesSystem::CreateLongNote(uint32_t _laneIndex, float _speed, float _targe
     // 次のノーツを設定
     if (_nextNote)
     {
-        note->SetNextNote(_nextNote);
+
     }
     else
     {
@@ -159,11 +155,59 @@ void NotesSystem::CreateLongNote(uint32_t _laneIndex, float _speed, float _targe
         laneStartPosition.z = judgeLinePosition_ + targetTime * _speed;
         nextNote->Initilize(laneStartPosition, _speed, _targetTime, _laneIndex);
 
-        note->SetNextNote(nextNote);
+        //note->SetNextNote(nextNote);
 
         notes_.emplace_back(nextNote);
         lane_->AddNote(_laneIndex, nextNote);
     }
+}
+
+void NotesSystem::CreateLongNote(const NoteData& _noteData)
+{
+    if (_noteData.holdDuration <= 0.0f)
+    {
+        throw std::runtime_error("Hold duration must be greater than 0 for long notes.");
+        return;
+    }
+
+    // ノーツの初期化
+    std::shared_ptr<LongNote> note = std::make_shared<LongNote>();
+
+    // 経過時間
+    float elapsedTime = stopwatch_->GetElapsedTime<float>();
+
+    // ノーツの開始位置を計算
+    Vector3 laneStartPosition = lane_->GetLaneStartPosition(_noteData.laneIndex);
+    // targetTimeから座標
+    laneStartPosition.z = judgeLinePosition_ + (_noteData.targetTime - elapsedTime) * noteSpeed_;
+    laneStartPosition.y += noteSize_ / 2.0f;
+
+    // ノーツの初期化
+    note->Initilize(laneStartPosition, noteSpeed_, _noteData.targetTime, _noteData.laneIndex);
+
+
+
+
+    std::shared_ptr<LongNote> nextNote = std::make_shared<LongNote>();
+
+    float targetTime = _noteData.targetTime + _noteData.holdDuration;
+
+    laneStartPosition = lane_->GetLaneStartPosition(_noteData.laneIndex);
+    laneStartPosition.z = judgeLinePosition_ + (targetTime - elapsedTime) * noteSpeed_;
+    laneStartPosition.y += noteSize_ / 2.0f;
+
+    nextNote->Initilize(laneStartPosition, noteSpeed_, targetTime, _noteData.laneIndex);
+    nextNote->SetBeforeNote(note);
+
+    // listとレーンに追加
+    notes_.emplace_back(note);
+    lane_->AddNote(_noteData.laneIndex, note);
+
+    notes_.emplace_back(nextNote);
+    lane_->AddNote(_noteData.laneIndex, nextNote);
+
+
+
 }
 
 std::shared_ptr<Note> NotesSystem::CreateNextNoteForLongNote(uint32_t _laneIndex, float _speed, float _targetTime)
@@ -189,6 +233,10 @@ void NotesSystem::DebugWindow()
     ImGui::PushID(this);
 
     ImGui::Checkbox("Playing", &playing_);
+    if (ImGui::Button("Reload"))
+    {
+        Reload();
+    }
 
     static int laneIndex = 0;
     ImGui::InputInt("LaneIndex", &laneIndex);

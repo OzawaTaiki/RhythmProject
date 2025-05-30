@@ -53,21 +53,21 @@
         "direction_Max": {
             "x": 1.0,
             "y": 1.0,
-            "z": 1.0
+            "z": 0.0
         },
         "direction_Min": {
             "x": -1.0,
             "y": -1.0,
-            "z": -1.0
+            "z": 0.0
         },
-        "direction_Random": false,
-        "direction_Type": 0,
+        "direction_Random": true,
+        "direction_Type": 2,
         "direction_Value": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0
         },
-        "emitCount": 15,
+        "emitCount": 30,
         "emitPerSecond": 10,
         "isLoop": false,
         "lifeTime": 0.0,
@@ -75,7 +75,7 @@
         "lifeTime_Min": 0.5,
         "lifeTime_Random": false,
         "lifeTime_Type": 2,
-        "lifeTime_Value": 0.6,
+      "lifeTime_Value": 0.6,
         "modifiers": [
             "AlphaOverLifetime",
             "DecelerationModifier"
@@ -99,12 +99,12 @@
         "rotationSpeed_Max": {
             "x": 3.141590118408203,
             "y": 3.1419999599456787,
-            "z": 0.0
+            "z": 3.1419999599456787
         },
         "rotationSpeed_Min": {
             "x": -3.141590118408203,
             "y": -3.1419999599456787,
-            "z": 0.0
+            "z": -3.1419999599456787
         },
         "rotationSpeed_Random": true,
         "rotationSpeed_Value": {

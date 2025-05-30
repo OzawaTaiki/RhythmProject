@@ -70,11 +70,14 @@ public:
     void Update(float _deltaTime) override;
     void Draw(const Camera* _camera) override;
 
-    void SetNextNote(std::shared_ptr<Note> _nextNote) {
-        nextNote_ = _nextNote; 
+    void SetBeforeNote(std::shared_ptr<Note> _beforeNote) {
+        beforeNote_= _beforeNote;
     }
 private:
 
-    std::shared_ptr<Note> nextNote_ = nullptr;  // 次のノーツ
+    std::shared_ptr<Note> beforeNote_ = nullptr;  // 前のノーツ
+    std::unique_ptr<ObjectModel> noteBridge_ = nullptr; // ノーツブリッジ
+
+    float length_ = 0.0f; // ノーツの長さ
 
 };
