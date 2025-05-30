@@ -152,6 +152,7 @@
     <ClCompile Include="Source\Application\BeatsManager\BeatManager.cpp" />
     <ClCompile Include="Source\Application\Effects\LaneEffect\LaneEffect.cpp" />
     <ClCompile Include="Source\Application\Effects\TapEffects\HitparticleModifier.cpp" />
+    <ClCompile Include="Source\Application\Effects\TapEffects\LightPillarModifier.cpp" />
     <ClCompile Include="Source\Application\Effects\TapEffects\TriggerEffects.cpp" />
     <ClCompile Include="Source\Application\Input\NoteKeyController.cpp" />
     <ClCompile Include="Source\Application\Lane\Lane.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="Source\Application\BeatsManager\BeatManager.h" />
     <ClInclude Include="Source\Application\Effects\LaneEffect\LaneEffect.h" />
     <ClInclude Include="Source\Application\Effects\TapEffects\HitparticleModifier.h" />
+    <ClInclude Include="Source\Application\Effects\TapEffects\LightPillarModifier.h" />
     <ClInclude Include="Source\Application\Effects\TapEffects\TriggerEffects.h" />
     <ClInclude Include="Source\Application\EventData\HitKeyData.h" />
     <ClInclude Include="Source\Application\EventData\JudgeResultData.h" />

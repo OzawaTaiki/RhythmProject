@@ -106,6 +106,6 @@ void LongNote::Judge()
     Note::Judge();
 
     // ブリッジを画面外へ運ぶために
-    model_->translate_.z = -100.0f; // ノーツを画面外へ
+    model_->translate_.z = -2; // ノーツを画面外へ
 
 }

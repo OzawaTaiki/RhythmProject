@@ -64,6 +64,14 @@ void JudgeResult::DebugWindow()
 
     ImGui::Text("None : %d", judgeResult_[NoteJudgeType::None]);
 
+    if (ImGui::Button("Reset"))
+    {
+        for (auto& [type, count] : judgeResult_)
+        {
+            count = 0; // 各判定結果をリセット
+        }
+    }
+
     ImGui::End();
     ImGui::PopID();
 

@@ -106,6 +106,9 @@
     <ClCompile Include="Source\Essential\ParticleModifierFactory.cpp">
       <Filter>Essential</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Effects\TapEffects\LightPillarModifier.cpp">
+      <Filter>Application\Effects\TapEffects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Essential\SampleFramework.h">
@@ -176,6 +179,9 @@
     </ClInclude>
     <ClInclude Include="Source\Essential\ParticleModifierFactory.h">
       <Filter>Essential</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Effects\TapEffects\LightPillarModifier.h">
+      <Filter>Application\Effects\TapEffects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

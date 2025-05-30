@@ -1,7 +1,7 @@
 {
-    "title": "Luminous Memory",
+    "title": "demo",
     "artist": "Unknown Artist",
-    "audioFilePath": "Resources/Sounds/Music/Luminous_Memory_offset.wav",
+    "audioFilePath": "none",
     "bpm": 100.0,
     "offset": 0.0,
     "difficultyLevel": 3,

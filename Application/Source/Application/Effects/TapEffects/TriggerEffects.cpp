@@ -18,15 +18,21 @@ Vector4 TriggerEffects::commonColor_ = Vector4(0.3f, 0.6f, 1.0f, 0.7f); // 共�
 
 ParticleEmitter TriggerEffects::emitter_; // ほそ長いのを出すエミッター
 ParticleEmitter TriggerEffects::triangleEmitter_; // 三角形を出すエミッター
+ParticleEmitter TriggerEffects::lightPillarEmitter_; // 光の柱を出すエミッター
 
 void TriggerEffects::Initialize()
 {
     textureHandle_ = TextureManager::GetInstance()->Load("circle.png");
+    gradationTexture_ = TextureManager::GetInstance()->Load("guradation.png");
+
+
 
     // ほそ長いのを出すエミッター
     emitter_.Initialize("TapEffect_01");
 
     triangleEmitter_.Initialize("TapEffect_Triangle");
+
+    lightPillarEmitter_.Initialize("TapEffect_LightPillar");
 }
 
 void TriggerEffects::EmitCenterCircles(const Vector3& _pos)
@@ -34,8 +40,7 @@ void TriggerEffects::EmitCenterCircles(const Vector3& _pos)
     ParticleRenderSettings settings;
     settings.blendMode = BlendMode::Add;
     settings.cullBack = false;
-
-
+   
     {// 中心のやつ
         std::vector<Particle*> circleParticle;
         ParticleInitParam param;
@@ -69,8 +74,9 @@ void TriggerEffects::EmitSurroundingParticles(const Vector3& _pos)
 {
     emitter_.SetPosition(_pos);
     triangleEmitter_.SetPosition(_pos);
+    lightPillarEmitter_.SetPosition(_pos);
 
     emitter_.GenerateParticles();
     triangleEmitter_.GenerateParticles();
-
+    lightPillarEmitter_.GenerateParticles();
 }
