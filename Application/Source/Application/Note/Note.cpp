@@ -97,6 +97,14 @@ void LongNote::Draw(const Camera* _camera)
 
     if (beforeNote_)
     {
+        // ノーツ間の差分ベクトルを計算
+        Vector3  sub = beforeNote_->GetPosition() - model_->translate_;
+        // 前のノーツが自身より奥にある場合描画しない
+        if (sub.z >= 0)
+        {
+            return;
+        }
+
         noteBridge_->Draw(_camera, 0, Vector4(0.5f, 1.0f, 0.5f, 1.0f));
     }
 }

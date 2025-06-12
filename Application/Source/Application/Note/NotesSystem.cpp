@@ -253,18 +253,12 @@ void NotesSystem::DebugWindow()
 
     if (ImGui::Button("CreateLongNote"))
     {
-        float elapseTime = stopwatch_->GetElapsedTime<float>();
-        Vector3 laneStartPosition = lane_->GetLaneStartPosition(laneIndex);
-        laneStartPosition.z = judgeLinePosition_ + (targetTime + 1.0f) * noteSpeed_;
-        laneStartPosition.y += noteSize_ / 2.0f;
-        /// デバッグ用
-        auto nextNote = std::make_shared<Note>();
-        nextNote->Initilize(laneStartPosition, noteSpeed_, targetTime + 1.0f + elapseTime, laneIndex);
+        NoteData data;
+        data.holdDuration = 1.0f; // デフォルトのホールド時間
+        data.laneIndex = laneIndex;
+        data.targetTime = targetTime + 1 + stopwatch_->GetElapsedTime<float>();
+        CreateLongNote(data);
 
-        CreateLongNote(laneIndex, noteSpeed_, targetTime + elapseTime, nextNote);
-        notes_.emplace_back(nextNote);
-        lane_->AddNote(laneIndex, nextNote);
-        //stopwatch_->Reset();
     }
 
     ImGui::PopID();
