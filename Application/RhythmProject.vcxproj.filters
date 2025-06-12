@@ -109,6 +109,15 @@
     <ClCompile Include="Source\Application\Effects\TapEffects\LightPillarModifier.cpp">
       <Filter>Application\Effects\TapEffects</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Scene\TitleScene.cpp">
+      <Filter>Application\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Scene\SelectScene.cpp">
+      <Filter>Application\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Scene\ResultScene.cpp">
+      <Filter>Application\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Essential\SampleFramework.h">
@@ -182,6 +191,15 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Effects\TapEffects\LightPillarModifier.h">
       <Filter>Application\Effects\TapEffects</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Scene\TitleScene.h">
+      <Filter>Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Scene\SelectScene.h">
+      <Filter>Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Scene\ResultScene.h">
+      <Filter>Application\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
