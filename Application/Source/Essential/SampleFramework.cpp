@@ -7,9 +7,9 @@
 #include <System/Time/Time_MT.h>
 #include <Essential/ParticleModifierFactory.h>
 
-void SampleFramework::Initialize()
+void SampleFramework::Initialize(const std::wstring& _winTitle)
 {
-    Framework::Initialize();
+    Framework::Initialize(L"GameEngine");
 
 
     JsonHub::GetInstance()->Initialize("Resources/Data/");
@@ -66,8 +66,8 @@ void SampleFramework::Draw()
     // スワップチェインに戻す
     rtvManager_->SetSwapChainRenderTexture(dxCommon_->GetSwapChain());
 
-    PSOManager::GetInstance()->SetPipeLineStateObject(PSOFlags::Type_OffScreen);
-    PSOManager::GetInstance()->SetRootSignature(PSOFlags::Type_OffScreen);
+    PSOManager::GetInstance()->SetPipeLineStateObject(PSOFlags::Type::OffScreen);
+    PSOManager::GetInstance()->SetRootSignature(PSOFlags::Type::OffScreen);
 
     // レンダーテクスチャを描画
     rtvManager_->DrawRenderTexture("default");
