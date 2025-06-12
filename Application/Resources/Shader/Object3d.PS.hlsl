@@ -31,8 +31,11 @@ SamplerState gSampler : register(s0);
 Texture2D<float> gShadowMap : register(t1);
 SamplerComparisonState gShadowSampler : register(s1);
 
-TextureCube<float4> gCubeMap : register(t2);
-SamplerState gCubeMapSampler : register(s2);
+
+TextureCube<float> gPointLightShadowMap : register(t2);
+SamplerState gPointLightShadowSampler : register(s2);
+
+TextureCube<float4> gEnviromentTexture : register(t3);
 
 float3 CalculateDirectionalLighting(VertexShaderOutput _input, float3 _toEye, float4 _textureColor);
 float3 CalculatePointLighting(VertexShaderOutput _input, PointLight _PL, int _lightIndex, float3 _toEye, float4 _textureColor);
@@ -40,6 +43,8 @@ float3 CalculateSpotLighting(VertexShaderOutput _input, SpotLight _SL, float3 _t
 
 float3 CalculateLightingWithMultiplePointLights(VertexShaderOutput _input, float3 _toEye, float4 _textureColor);
 float3 CalculateLightingWithMultipleSpotLights(VertexShaderOutput _input, float3 _toEye, float4 _textureColor);
+
+float3 CalculateEnViromentColor(VertexShaderOutput _input, float3 _cameraPos);
 
 float ComputeShadow(float4 shadowCoord)
 {
@@ -54,9 +59,10 @@ float ComputeShadow(float4 shadowCoord)
     float closestDepth = gShadowMap.Sample(gSampler, shadowCoord.xy).r;
 
     // 深度比較による影の判定
-    float shadow = (currentDepth > closestDepth + 0.001f) ? DL.shadowFactor : 1.0f;
+    float shadow = (currentDepth > closestDepth + 0.001f) ? 0.5f : 1.0f;
     return shadow;
 }
+
 float ComputePointLightShadow(int lightIndex, float3 worldPos, PointLight _PL)
 {
     // 安全性のチェック
@@ -82,13 +88,13 @@ float ComputePointLightShadow(int lightIndex, float3 worldPos, PointLight _PL)
     float currentDepth = length(lightToWorldVec) / _PL.radius;
 
     // 対応するライトのシャドウマップをサンプリング
-    float closestDepth = gCubeMap.Sample(
-        gCubeMapSampler,
+    float closestDepth = gPointLightShadowMap.Sample(
+        gPointLightShadowSampler,
         lightToWorldVec
     ).r;
 
     // シャドウバイアスを考慮
-    float bias = 0.005;
+    float bias = 0.001;
     float shadow = currentDepth > closestDepth + bias ? _PL.shadowFactor : 1.0;
 
 
@@ -113,13 +119,13 @@ PixelShaderOutput main(VertexShaderOutput _input)
     // シャドウファクターを適用したライティング
     float3 directionalLight = CalculateDirectionalLighting(_input, toEye, textureColor) * shadowFactor;
     float3 pointLight = CalculateLightingWithMultiplePointLights(_input, toEye, textureColor);
-    float3 spotLightcColor = CalculateLightingWithMultipleSpotLights(_input, toEye, textureColor) * shadowFactor;
+    float3 spotLightcColor = CalculateLightingWithMultipleSpotLights(_input, toEye, textureColor);
 
-
+    float3 envColor = CalculateEnViromentColor(_input, worldPosition);
 
     if (enableLighting != 0)
     {
-        output.color.rgb = directionalLight + pointLight + spotLightcColor;
+        output.color.rgb = directionalLight + pointLight + spotLightcColor;//        +envColor;
         output.color.a = materialColor.a * textureColor.a;
     }
     else
@@ -153,7 +159,7 @@ float3 CalculateDirectionalLighting(VertexShaderOutput _input, float3 _toEye, fl
     return diffuse + specular;
 }
 
-float3 CalculatePointLighting(VertexShaderOutput _input,PointLight _PL, int _lightIndex,float3 _toEye, float4 _textureColor)
+float3 CalculatePointLighting(VertexShaderOutput _input, PointLight _PL, int _lightIndex, float3 _toEye, float4 _textureColor)
 {
     if (_PL.intensity <= 0.0f)
         return float3(0.0f, 0.0f, 0.0f);
@@ -176,7 +182,6 @@ float3 CalculatePointLighting(VertexShaderOutput _input,PointLight _PL, int _lig
     float3 specular = _PL.color.rgb * _PL.intensity * specularPow * float3(1.0f, 1.0f, 1.0f) * factor * shadowFactor;
 
     return diffuse + specular;
-
 }
 
 float3 CalculateSpotLighting(VertexShaderOutput _input, SpotLight _SL, float3 _toEye, float4 _textureColor)
@@ -232,4 +237,14 @@ float3 CalculateLightingWithMultipleSpotLights(VertexShaderOutput _input, float3
         lighting += CalculateSpotLighting(_input, SL[i], _toEye, _textureColor);
     }
     return lighting;
+}
+
+float3 CalculateEnViromentColor(VertexShaderOutput _input, float3 _cameraPos)
+{
+
+    float3 cameraToPosition = normalize(_input.worldPosition - _cameraPos);
+    float3 reflectVector = reflect(cameraToPosition, normalize(_input.normal));
+    float4 envColor = gEnviromentTexture.Sample(gSampler, reflectVector);
+
+    return envColor.rgb;
 }

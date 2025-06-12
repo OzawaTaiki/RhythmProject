@@ -63,7 +63,8 @@ struct SpotLight
     int isHalf;
 
     int castShadow;
-    float3 pad;
+    float shadowFactor;
+    float2 pad;
 
     float4x4 lightVP;
 };

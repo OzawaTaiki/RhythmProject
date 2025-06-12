@@ -31,7 +31,6 @@ cbuffer TransformationMatrix : register(b0)
 
 struct PointLight
 {
-
     float4 color;
 
     float3 position;
@@ -48,15 +47,11 @@ struct PointLight
     float4x4 lightVP[6];
 };
 
+
 cbuffer gLightGroup : register(b1)
 {
     PointLight PL;
 };
-
-cbuffer id : register(b2)
-{
-    uint id;
-}
 
 VSOutput VSmain(VSInput _input)
 {
@@ -99,12 +94,8 @@ PSOutput PSmain(GSOutput input)
 {
     PSOutput output;
 
-    float r = (id & 0xFF) / 255.0; // 下位8bit
-    float g = ((id >> 8) & 0xFF) / 255.0; // 中位8bit
-    float b = ((id >> 16) & 0xFF) / 255.0; // 上位8bit
-
-    float a = 1.0f;
-    output.data = float4(r, g, b, a);
+    float z = input.Position.z / input.Position.w; // NDC座標のZ値を取得
+    output.data = float4(z, z, z, 1.0f);
 
     return output;
 }

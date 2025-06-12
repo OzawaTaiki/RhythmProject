@@ -13,6 +13,9 @@ PixelShaderOutput main(VertexOutput _input)
 {
     PixelShaderOutput output;
     output.color = gTexture.Sample(gSampler, _input.uv);
-    output.color.a= 1.0f; // Set alpha to 1.0 for full opacity
+    float value = dot(output.color.rgb, float3(0.2125f, 0.7154f, 0.0721f));
+    output.color.rgb = float3(value, value, value);
+    output.color.a = 1.0f;
     return output;
 }
+

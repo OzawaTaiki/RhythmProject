@@ -191,9 +191,9 @@ void SampleScene::Draw()
 void SampleScene::DrawShadow()
 {
 
-    oModel_->DrawShadow(&SceneCamera_, 0);
-    oModel2_->DrawShadow(&SceneCamera_, 1);
-    aModel_->DrawShadow(&SceneCamera_, 2);
+    oModel_->DrawShadow(&SceneCamera_);
+    oModel2_->DrawShadow(&SceneCamera_);
+    aModel_->DrawShadow(&SceneCamera_);
 
 }
 
