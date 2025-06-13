@@ -148,6 +148,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Source\Application\BeatMapEditor\BeatMapEditor.cpp" />
+    <ClCompile Include="Source\Application\BeatMapEditor\EditorCoordinate.cpp" />
     <ClCompile Include="Source\Application\BeatMapLoader\BeatMapLoader.cpp" />
     <ClCompile Include="Source\Application\BeatsManager\BeatManager.cpp" />
     <ClCompile Include="Source\Application\Effects\LaneEffect\LaneEffect.cpp" />
@@ -176,6 +178,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Application\BeatMapEditor\BeatMapEditor.h" />
+    <ClInclude Include="Source\Application\BeatMapEditor\EditorCoordinate.h" />
     <ClInclude Include="Source\Application\BeatMapLoader\BeatMapData.h" />
     <ClInclude Include="Source\Application\BeatMapLoader\BeatMapLoader.h" />
     <ClInclude Include="Source\Application\BeatsManager\BeatManager.h" />

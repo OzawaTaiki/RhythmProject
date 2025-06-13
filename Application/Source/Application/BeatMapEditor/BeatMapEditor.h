@@ -1,0 +1,154 @@
+#pragma once
+
+#include <Features/UI/UISprite.h>
+
+#include <Application/BeatMapEditor/EditorCoordinate.h>
+#include <Application/BeatMapLoader/BeatMapData.h>
+
+#include <string>
+#include <cstdint>
+
+class Camera;
+
+class BeatMapLoader;
+
+class BeatMapEditor
+{
+public:
+    BeatMapEditor() = default;
+    ~BeatMapEditor() = default;
+
+
+    void Initialize();
+    void Update(float _deltaTime);
+    void Draw(const Camera* _camera);
+    void Finalize();
+
+private:
+    ///---------------------
+    /// ファイル操作
+
+    /// <summary>
+    /// 譜面データをロード
+    /// </summary>
+    /// <param name="_beatMapPath">Jsonファイルパス</param>
+    void LoadBeatMap(const std::string& _beatMapPath);
+
+    /// <summary>
+    /// 譜面データを保存
+    /// </summary>
+    /// <param name="_beatMapPath"> 保存するJsonファイルパス</param>
+    void SaveBeatMap(const std::string& _beatMapPath);
+
+    /// <summary>
+    /// 新しい譜面データを作成
+    /// </summary>
+    /// <param name="_audioFilePath">作成する音楽ファイルパス</param>
+    void CreateNewBeatMap(const std::string& _audioFilePath);
+
+
+
+    ///---------------------
+    /// 譜面編集
+
+    /// <summary>
+    /// ノートを配置
+    /// </summary>
+    /// <param name="_laneIndex">レーン番号</param>
+    /// <param name="_targetTime">は一時間</param>
+    /// <param name="_noteType">ノートタイプ</param>
+    /// <param name="_holdDuration">ホールド時間(ロングノートの場合)</param>
+    void PlaceNote(uint32_t _laneIndex, float _targetTime, const std::string& _noteType, float _holdDuration = 0);
+
+
+    /// <summary>
+    /// ノートを削除
+    /// </summary>
+    /// <param name="_noteIndex">削除するノートのインデックス</param>
+    void DeleteNote(uint32_t _noteIndex);
+
+
+    /// <summary>
+    /// ノートを選択
+    /// </summary>
+    /// <param name="_noteIndex">選択するノートのインデックス</param>
+    /// <param name="_multiSelect">複数選択フラグ</param>
+    void SelectNote(uint32_t _noteIndex,bool _multiSelect);
+
+    /// <summary>
+    /// 選択をクリア
+    /// </summary>
+    void ClearSelection();
+
+    /// <summary>
+    /// 選択中のノートを移動
+    /// </summary>
+    /// <param name="_deltaTime">新しい時間</param>
+    void MoveSelectedNote(float _newTime);
+
+
+    ///---------------------
+    /// 内部処理関連
+    ///
+
+    /// <summary>
+    /// 入力処理
+    /// </summary>
+    void HandleInput();
+
+    /// <summary>
+    /// エディターの状態更新
+    /// </summary>
+    /// <param name="_deltaTime">deltaTime</param>
+    void UpdateEditorState(float _deltaTime);
+
+    /// <summary>
+    /// パラメータからノートを検索
+    /// </summary>
+    /// <param name="_laneIndex"> レーンインデックス</param>
+    /// <param name="_targetTime"> ターゲット時間</param>
+    /// <param name="_tolerance"> 許容誤差</param>
+    /// <returns> 見つかったノートのインデックス(なければ -1)</returns>
+    int32_t FindNoteAtTime(uint32_t _laneIndex, float _targetTime, float _tolerance = 0.05f) const;
+
+    /// <summary>
+    /// ノートを時間でソート
+    /// </summary>
+    void SortNotesByTime();
+
+
+    // =========================================
+    // 描画
+    // ==========================================
+
+    /// <summary>
+    /// ノートを描画
+    /// </summary>
+    void DrawNotes();
+
+    void DrawNote(const NoteData& _note) const;
+
+private:
+
+
+    BeatMapLoader* beatMapLoader_ = nullptr;
+    EditorCoordinate editorCoordinate_;
+
+    // 譜面データ
+    BeatMapData currentBeatMapData_; // 現在編集中の譜面データ
+    std::string currentFilePath_; // 現在編集中のファイルパス
+    bool isModified_ = false; // 譜面が変更されたかどうかのフラグ
+
+    // エディター状態
+    float currentTime_ = 0.0f; // 現在の時間
+    bool isPlaying_ = false; // 再生中かどうかのフラグ
+    float playSpeed_ = 1.0f; // 再生速度
+
+    // 選択状態
+    std::vector<size_t> selectedNoteIndices_; // 選択中のノートインデックス
+    bool gridSnapEnabled_ = true; // グリッドスナップの有効/無効
+    float snapInterval_ = 1.0f / 4.0f; //1/4拍
+
+    std::vector<UISprite> noteSprites_; // ノートのスプライトリスト 描画用
+
+};
