@@ -33,6 +33,11 @@ public:
     /// <param name="_height">画面高さ</param>
     void SetScreenSize(float _width, float _height);
 
+    
+    float GetLaneLeftX(uint32_t _laneIndex) const;
+    float GetLaneRightX(uint32_t _laneIndex) const;
+
+
     // ========================================
     // 座標変換
     // ========================================
@@ -131,6 +136,10 @@ public:
     float GetLaneWidth() const { return laneWidth_; }
     uint32_t GetLaneCount() const { return laneCount_; }
     float GetPixelsPerSecond() const { return pixelsPerSecond_ * zoom_; }
+    float GetEditAreaX() const { return editAreaX_; }
+    float GetEditAreaWidth() const { return editAreaWidth_; }
+    float GetLaneMargin() const { return laneMargin_; }
+
 
 
     // 内部計算用

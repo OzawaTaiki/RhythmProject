@@ -9,7 +9,7 @@ EditorCoordinate::EditorCoordinate() :
     laneMargin_(0.0f),
     zoom_(1.0f),
     scrollOffset_(0.0f),
-    pixelsPerSecond_(100.0f),  // 1秒=100ピクセル（基準値
+    pixelsPerSecond_(1000.0f),  // 1秒=100ピクセル（基準値
     cachedVisibleStartTime_(0.0f),
     cachedVisibleEndTime_(0.0f),
     visibleRangeDirty_(true)
@@ -38,6 +38,25 @@ void EditorCoordinate::SetScreenSize(float _width, float _height)
 
     UpdateLayout();
     InvalidateVisibleRange();
+}
+
+float EditorCoordinate::GetLaneLeftX(uint32_t _laneIndex) const
+{
+    if (_laneIndex >= laneCount_) {
+        return 0.0f;  // 無効なレーン
+    }
+    // レーンの左端X座標を返す
+    float laneX = editAreaX_ + (_laneIndex * (laneWidth_ + laneMargin_));
+    return laneX;
+}
+
+float EditorCoordinate::GetLaneRightX(uint32_t _laneIndex) const
+{
+    if (_laneIndex >= laneCount_) {
+        return 0.0f;  // 無効なレーン
+    }
+    // レーンの右端X座標を返す
+    return GetLaneLeftX(_laneIndex) + laneWidth_;
 }
 
 float EditorCoordinate::TimeToScreenY(float _time) const
@@ -92,7 +111,7 @@ int32_t EditorCoordinate::ScreenXToLane(float _screenX) const
 
 void EditorCoordinate::SetZoom(float _zoom)
 {
-    zoom_ = std::clamp(_zoom, 0.1f, 10.0f); // ズーム倍率を制限
+    zoom_ = std::clamp(_zoom, 0.1f, 1000.0f); // ズーム倍率を制限
     InvalidateVisibleRange();
 }
 

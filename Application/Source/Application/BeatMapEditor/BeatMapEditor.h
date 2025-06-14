@@ -1,14 +1,19 @@
 #pragma once
 
 #include <Features/UI/UISprite.h>
+#include <Features/Camera/Camera/Camera.h>
 
 #include <Application/BeatMapEditor/EditorCoordinate.h>
 #include <Application/BeatMapLoader/BeatMapData.h>
 
 #include <string>
 #include <cstdint>
+#include <vector>
+#include <memory>
 
-class Camera;
+
+class Input;
+class LineDrawer;
 
 class BeatMapLoader;
 
@@ -117,6 +122,8 @@ private:
     void SortNotesByTime();
 
 
+    bool IsNoteSelected(uint32_t _noteIndex) const;
+
     // =========================================
     // 描画
     // ==========================================
@@ -126,10 +133,37 @@ private:
     /// </summary>
     void DrawNotes();
 
-    void DrawNote(const NoteData& _note) const;
+    /// <summary>
+    /// ノートを描画
+    /// </summary>
+    void DrawNote(const NoteData& _note);
+
+    /// <summary>
+    /// レーンを描画
+    /// </summary>
+    void DrawLanes();
+
+    /// <summary>
+    /// グリッドラインを描画
+    /// </summary>
+    void DrawGridLines();
+
+    /// <summary>
+    /// 再生ヘッドを描画
+    /// </summary>
+    void DrawPlayhead();// 現在再生している位置のマーカー
+
+    /// <summary>
+    /// UIを描画
+    /// </summary>
+    void DrawUI();
 
 private:
 
+    LineDrawer* lineDrawer_ = nullptr; // ライン描画クラスへのポインタ
+    Input* input_ = nullptr; // 入力管理クラスへのポインタ
+
+    Camera for2dCamera_; // 2D描画用のカメラ
 
     BeatMapLoader* beatMapLoader_ = nullptr;
     EditorCoordinate editorCoordinate_;
@@ -149,6 +183,17 @@ private:
     bool gridSnapEnabled_ = true; // グリッドスナップの有効/無効
     float snapInterval_ = 1.0f / 4.0f; //1/4拍
 
-    std::vector<UISprite> noteSprites_; // ノートのスプライトリスト 描画用
+    uint32_t noteIndex_ = 0; // ノートのインデックスカウンター
+    std::vector<std::unique_ptr<UISprite>> noteSprites_; // ノートのスプライトリスト 描画用
+
+
+    //=========================================
+    // 描画用
+
+    std::vector<std::unique_ptr<UISprite>> laneSprites_; // レーンのスプライト
+    std::vector<std::unique_ptr<UISprite>> gridLineSprites_; // グリッドラインのスプライト
+
+
+
 
 };

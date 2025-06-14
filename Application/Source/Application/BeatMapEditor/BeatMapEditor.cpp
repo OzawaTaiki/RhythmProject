@@ -1,13 +1,19 @@
 #include "BeatMapEditor.h"
 
-#include <Application/BeatMapLoader/BeatMapLoader.h>
+#include <Features/LineDrawer/LineDrawer.h>
 #include <Debug/Debug.h>
+#include <System/Input/Input.h>
+
+#include <Application/BeatMapLoader/BeatMapLoader.h>
 
 
 void BeatMapEditor::Initialize()
 {
+    input_ = Input::GetInstance();
+    lineDrawer_ = LineDrawer::GetInstance();
+
     beatMapLoader_ = BeatMapLoader::GetInstance();
-    editorCoordinate_.Initialize(Vector2(1280.0f, 720.0f), 4); // 初期画面サイズとレーン数を設定
+    editorCoordinate_.Initialize(Vector2(1280.0f/2.0f, 720.0f), 4); // 初期画面サイズとレーン数を設定
 
 
     currentBeatMapData_ = BeatMapData(); // 現在の譜面データを初期化
@@ -17,18 +23,71 @@ void BeatMapEditor::Initialize()
 
     playSpeed_ = 1.0f; // 再生速度を初期化
 
+
+    for2dCamera_.Initialize(CameraType::Orthographic, Vector2(1280.0f, 720.0f)); // 2Dカメラの初期化
+    for2dCamera_.matProjection_ = Matrix4x4::Identity();
+    for2dCamera_.matView_= Matrix4x4::Identity();
+    for2dCamera_.UpdateMatrix(); // カメラの行列を更新
+    lineDrawer_->SetCameraPtr2D(&for2dCamera_); // 2Dカメラをライン描画クラスに設定
+
     selectedNoteIndices_.clear(); // 選択中のノートインデックスをクリア
 
     snapInterval_ = 1.0f / 4.0f; // グリッドスナップの間隔を1/4拍に設定
     gridSnapEnabled_ = true; // グリッドスナップを有効に初期化
 
-    const size_t kMaxNoteCount = 1024; // 最大ノート数を設定
+    const size_t kMaxNoteCount = 1 << 10; // 最大ノート数を設定 一旦1024個とする
+    noteSprites_.clear();
     noteSprites_.resize(kMaxNoteCount); // ノートスプライトのリストを予約
+    for (size_t i = 0; i < kMaxNoteCount; ++i)
+    {
+        auto sprite = std::make_unique<UISprite>();
+        sprite->Initialize("NoteSprite_" + std::to_string(i));
+        sprite->SetAnchor(Vector2(0.5f, 0.5f)); // ノートのアンカーを中央に設定
+        sprite->SetSize(Vector2(50.0f, 25.0f)); // ノートのサイズを設定
+
+        noteSprites_[i] = std::move(sprite); // スプライトをリストに格納
+    }
+
+    // レーンのスプライトを初期化
+    laneSprites_.clear();
+    float laneWidth = editorCoordinate_.GetLaneWidth();
+    for (uint32_t i = 0; i < editorCoordinate_.GetLaneCount(); ++i)
+    {
+        auto laneSprite = std::make_unique<UISprite>();
+
+        laneSprite->Initialize("LaneSprite_" + std::to_string(i));
+        laneSprite->SetAnchor(Vector2(0.5f, 0.0f)); // レーンのアンカーを左下に設定
+        laneSprite->SetSize(Vector2(laneWidth, 720.0f)); // レーンのサイズを設定
+        laneSprite->SetPos(Vector2(editorCoordinate_.GetLaneLeftX(i) + laneWidth/2.0f, 0.0f)); // レーンの位置を設定
+        laneSprite->SetColor(Vector4(0.3f, 0.3f, 0.3f, 1.0f));
+
+        laneSprites_.push_back(std::move(laneSprite)); // スプライトをリストに格納
+    }
 
 }
 
 void BeatMapEditor::Update(float _deltaTime)
 {
+#ifdef _DEBUG
+
+    ImGui::Begin("Editor");
+    {
+        if (ImGui::Button("Load BeatMap"))
+        {
+            // 譜面データのロード処理
+            LoadBeatMap("Resources/Data/Game/BeatMap/demo.json"); // 適切なパスに変更してください
+        }
+
+        float zoom = editorCoordinate_.GetZoom();
+        if (ImGui::DragFloat("Zoom", &zoom, 0.01f, 0.01f, 100.0f))
+            editorCoordinate_.SetZoom(zoom);
+
+    }
+    ImGui::End();
+
+
+#endif // _DEBUG
+
     // 入力処理
     HandleInput();
 
@@ -39,12 +98,72 @@ void BeatMapEditor::Update(float _deltaTime)
 void BeatMapEditor::Draw(const Camera* _camera)
 {
     // エディターの描画処理
+    Sprite::PreDraw();
+
+    // laneの描画
+    DrawLanes();
+    // グリッドラインの描画
+    DrawGridLines();
 
     // ノートの描画
-    //DrawNotes();
+    DrawNotes();
 
 
 }
+
+
+void BeatMapEditor::DrawNotes()
+{
+    // ノートの描画処理
+    for (const auto& note : currentBeatMapData_.notes)
+    {
+        DrawNote(note);
+    }
+
+    noteIndex_ = 0; // 描画後にインデックスをリセット
+}
+
+void BeatMapEditor::DrawNote(const NoteData& _note)
+{
+    if (noteIndex_ >= noteSprites_.size())
+    {
+        Debug::Log("Exceeded maximum note sprites limit.\n");
+        return; // 最大ノート数を超えた場合は描画しない
+    }
+
+    float noteX = editorCoordinate_.LaneToScreenX(_note.laneIndex);
+    float noteY = editorCoordinate_.TimeToScreenY(_note.targetTime);
+
+    noteSprites_[noteIndex_]->SetPos(Vector2(noteX, noteY));
+    noteSprites_[noteIndex_]->Draw(); // ノートを描画
+
+    ++noteIndex_;
+}
+
+void BeatMapEditor::DrawLanes()
+{
+    for (size_t i = 0; i < laneSprites_.size(); ++i)
+    {
+        laneSprites_[i]->Draw(); // レーンを描画
+    }
+}
+
+void BeatMapEditor::DrawGridLines()
+{
+    auto gridY = editorCoordinate_.GetGridLinesY(currentBeatMapData_.bpm, 4); // グリッドラインのY座標を取得
+
+    // グリッドラインはLineで描画
+    float gridLeftX = editorCoordinate_.GetEditAreaX();
+    float gridRightX = gridLeftX + editorCoordinate_.GetEditAreaWidth();
+
+    for (float y : gridY)
+    {
+        lineDrawer_->RegisterPoint(Vector2(gridLeftX, y), Vector2(gridRightX, y), Vector4(0.8f, 0.8f, 0.8f, 1.0f));
+    }
+
+
+}
+
 
 void BeatMapEditor::Finalize()
 {
@@ -211,6 +330,30 @@ void BeatMapEditor::MoveSelectedNote(float _newTime)
 void BeatMapEditor::HandleInput()
 {
     // 入力処理の実装
+    // マウスホバーによる選択
+    for (size_t i = 0; i < noteSprites_.size(); ++i) // 現在描画中のノート数まで
+    {
+        if (noteSprites_[i]->IsMousePointerInside())
+        {
+            // ホバー時の視覚的フィードバック
+            noteSprites_[i]->SetColor(Vector4(1.0f, 1.0f, 0.0f, 1.0f)); // 黄色でハイライト
+
+            // クリック検出
+            if (input_->IsMouseTriggered(0))
+            {
+                bool multiSelect = input_->IsKeyPressed(DIK_LSHIFT);
+                SelectNote(i, multiSelect);
+            }
+        }
+        else
+        {
+            // 通常の色に戻す
+            bool isSelected = IsNoteSelected(i);
+            noteSprites_[i]->SetColor(isSelected ?
+                Vector4(0.0f, 1.0f, 0.0f, 1.0f) : // 選択中は緑
+                Vector4(1.0f, 1.0f, 1.0f, 1.0f)); // 通常は白
+        }
+    }
 }
 
 void BeatMapEditor::UpdateEditorState(float _deltaTime)
@@ -247,32 +390,7 @@ void BeatMapEditor::SortNotesByTime()
     isModified_ = true; // ソート後も変更されたフラグを立てる
 }
 
-void BeatMapEditor::DrawNotes()
+bool BeatMapEditor::IsNoteSelected(uint32_t _noteIndex) const
 {
-    // ノートの描画処理
-    for (const auto& note : currentBeatMapData_.notes)
-    {
-        note.laneIndex;
-        note.targetTime;
-        // ノートの描画ロジックを実装
-        // 例: note.laneIndex, note.targetTime, note.noteType などを使用して描画
-
-    }
-}
-
-void BeatMapEditor::DrawNote(const NoteData& _note) const
-{
-    float noteX = editorCoordinate_.LaneToScreenX(_note.laneIndex);
-    float noteY = editorCoordinate_.TimeToScreenY(_note.targetTime);
-
-    for (size_t i = 0; i < noteSprites_.size(); ++i)
-    {
-        if (noteSprites_[i].GetLabel() == _note.noteType)
-        {
-            noteSprites_[i].SetPos(Vector2(noteX, noteY));
-            noteSprites_[i].Draw();
-            return; // 描画が完了したら終了
-        }
-    }
-
+    return std::find(selectedNoteIndices_.begin(), selectedNoteIndices_.end(), _noteIndex) != selectedNoteIndices_.end();
 }
