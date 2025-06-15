@@ -12,7 +12,8 @@ EditorCoordinate::EditorCoordinate() :
     pixelsPerSecond_(1000.0f),  // 1秒=100ピクセル（基準値
     cachedVisibleStartTime_(0.0f),
     cachedVisibleEndTime_(0.0f),
-    visibleRangeDirty_(true)
+    visibleRangeDirty_(true),
+    timeZeroOffsetRatio_(0.2f)
 {
 }
 
@@ -64,13 +65,15 @@ float EditorCoordinate::TimeToScreenY(float _time) const
     // 下がtime=0
     // スクロールオフセットを考慮
     float adjustedTime = _time - scrollOffset_;
-    return screenSize_.y - (adjustedTime * GetPixelsPerSecond());
+    float baseY = screenSize_.y * (1.0f - timeZeroOffsetRatio_);
+    return baseY - (adjustedTime * GetPixelsPerSecond());
 }
 
 float EditorCoordinate::ScreenYToTime(float _screenY) const
 {
     // Y座標から時間を逆算
-    float adjustedTime = (screenSize_.y - _screenY) / GetPixelsPerSecond();
+    float baseY = screenSize_.y * (1.0f - timeZeroOffsetRatio_);
+    float adjustedTime = (baseY - _screenY) / GetPixelsPerSecond();
     return adjustedTime + scrollOffset_;
 }
 
@@ -192,6 +195,13 @@ bool EditorCoordinate::IsNoteVisible(float _noteTime) const
     GetVisibleTimeRange(startTime, endTime);
 
     return _noteTime >= startTime && _noteTime <= endTime;
+}
+
+void EditorCoordinate::SetTimeZeroOffsetRatio(float _ratio)
+{
+    // 0.0f ~ 1.0fの範囲で設定
+    timeZeroOffsetRatio_ = std::clamp(_ratio, 0.0f, 1.0f);
+
 }
 
 void EditorCoordinate::UpdateLayout()

@@ -121,7 +121,9 @@ private:
     /// </summary>
     void SortNotesByTime();
 
-
+    /// <summary>
+    /// ノートが選択されているか確認
+    /// </summary>
     bool IsNoteSelected(uint32_t _noteIndex) const;
 
     // =========================================
@@ -147,6 +149,11 @@ private:
     /// グリッドラインを描画
     /// </summary>
     void DrawGridLines();
+
+    /// <summary>
+    /// ジャッジラインを描画
+    /// </summary>
+    void DrawJudgeLine(); // ジャッジラインを描画
 
     /// <summary>
     /// 再生ヘッドを描画
@@ -183,8 +190,26 @@ private:
     bool gridSnapEnabled_ = true; // グリッドスナップの有効/無効
     float snapInterval_ = 1.0f / 4.0f; //1/4拍
 
+    // =========================================
+    // エディター座標系
+
+    float scrollOffset_ = 0.0f; // スクロールオフセット
+
     uint32_t noteIndex_ = 0; // ノートのインデックスカウンター
+    uint32_t bridgeIndex_ = 0; // ブリッジのインデックスカウンター
     std::vector<std::unique_ptr<UISprite>> noteSprites_; // ノートのスプライトリスト 描画用
+
+    struct NoteColor
+    {
+        Vector4 defaultColor; // デフォルトのノート色
+        Vector4 hoverColor; // ホバー時の色
+        Vector4 selectedColor; // 選択時の色
+    };
+
+    NoteColor normalNoteColor_;
+    NoteColor longNoteColor_; // ロングノートの色設定
+
+    std::vector<uint32_t> drawNoteIndices_; // 描画するノートのインデックスリスト
 
 
     //=========================================
@@ -193,7 +218,12 @@ private:
     std::vector<std::unique_ptr<UISprite>> laneSprites_; // レーンのスプライト
     std::vector<std::unique_ptr<UISprite>> gridLineSprites_; // グリッドラインのスプライト
 
+    std::vector<std::unique_ptr<UISprite>> noteBridges_; // ブリッジのスプライト
+    std::vector<std::unique_ptr<UISprite>> longNoteEnd_; // ロングノートの終端スプライト
 
+    std::unique_ptr<UISprite> judgeLineSprite_; // ジャッジラインのスプライト
+
+    std::unique_ptr<UISprite> playheadSprite_; // 再生ヘッドのスプライト
 
 
 };

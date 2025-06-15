@@ -127,6 +127,8 @@ public:
     bool IsNoteVisible(float _noteTime) const;
 
 
+
+
     // ========================================
     // 設定取得
     // ========================================
@@ -139,13 +141,16 @@ public:
     float GetEditAreaX() const { return editAreaX_; }
     float GetEditAreaWidth() const { return editAreaWidth_; }
     float GetLaneMargin() const { return laneMargin_; }
+    float GetTimeZeroOffsetRatio() const { return timeZeroOffsetRatio_; }
 
 
+    void SetTimeZeroOffsetRatio(float _ratio);
 
+
+private:
     // 内部計算用
     void UpdateLayout();
     void InvalidateVisibleRange();
-private:
 
     Vector2 screenSize_; // 画面サイズ
     uint32_t laneCount_; // レーン数
@@ -165,4 +170,6 @@ private:
     mutable float cachedVisibleStartTime_;
     mutable float cachedVisibleEndTime_;
     mutable bool visibleRangeDirty_;
+
+    float timeZeroOffsetRatio_;
 };
