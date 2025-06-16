@@ -8,7 +8,7 @@
 
 // TODO いろいろ
 // ホールド終端を選択してdurationを変更できるように
-//
+// ブリッジに重ねてノーツを置けてしまう
 
 void BeatMapEditor::Initialize()
 {
@@ -116,6 +116,17 @@ void BeatMapEditor::Initialize()
     previewNoteSprite_->Initialize("PreviewNoteSprite");
     previewNoteSprite_->SetAnchor(Vector2(0.5f, 0.5f)); // プレビューのアンカーを中央に設定
     previewNoteSprite_->SetSize(Vector2(50.0f, 25.0f)); // ノートのサイズを設定
+
+    previewBridgeSprite_ = std::make_unique<UISprite>();
+    previewBridgeSprite_->Initialize("PreviewBridgeSprite");
+    previewBridgeSprite_->SetAnchor(Vector2(0.5f, 1.0f)); // プレビューのアンカーを中央上に設定
+    previewBridgeSprite_->SetSize(Vector2(40.0f, 25.0f)); // ブリッジのサイズを設定
+
+    previewHoldEndSprite_ = std::make_unique<UISprite>();
+    previewHoldEndSprite_->Initialize("PreviewHoldEndSprite");
+    previewHoldEndSprite_->SetAnchor(Vector2(0.5f, 0.5f)); // プレビューのアンカーを中央に設定
+    previewHoldEndSprite_->SetSize(Vector2(50.0f, 25.0f)); // ロングノート終端のサイズを設定
+
 
     // color
     normalNoteColor_.defaultColor = Vector4(0.31f, 0.76f, 0.97f, 1.0f); // デフォルトのノート色
@@ -343,9 +354,6 @@ void BeatMapEditor::DrawUI()
     ImGui::End();
 
 #endif // _DEBUG
-
-
-
 }
 
 void BeatMapEditor::DrawPreviewNote()
@@ -372,6 +380,28 @@ void BeatMapEditor::DrawPreviewNote()
             color = longNoteColor_.defaultColor; // ロングノートの色を設定
             color.w = previewAlpha_; // アルファ値を設定
             previewNoteSprite_->SetColor(color);
+
+            if (isCreatingLongNote_)
+            {
+                float posX = editorCoordinate_.LaneToScreenX(longNoteStartLane_);
+                float posY = editorCoordinate_.TimeToScreenY(longNoteStartTime_);
+                previewNoteSprite_->SetPos(Vector2(posX, posY));
+
+                // ロングノートの終端のプレビューを描画
+                float holdDuration = editorCoordinate_.ScreenYToTime(mousePos.y) - editorCoordinate_.ScreenYToTime(posY);
+                if (holdDuration > 0.0f)
+                {
+                    previewHoldEndSprite_->SetPos(Vector2(posX, previewY));
+                    previewHoldEndSprite_->SetColor(color);
+                    previewHoldEndSprite_->Draw();
+                }
+                // ブリッジのプレビューを描画
+                previewBridgeSprite_->SetPos(Vector2(posX, posY));
+                previewBridgeSprite_->SetColor(color);
+                previewBridgeSprite_->SetSize(Vector2(40.0f, holdDuration * editorCoordinate_.GetPixelsPerSecond()));
+                previewBridgeSprite_->Draw();
+
+            }
         }
         previewNoteSprite_->Draw();
     }
@@ -685,10 +715,33 @@ void BeatMapEditor::HandleInput()
             }
             else if (currentEditorMode_ == EditorMode::PlaceLongNote)
             {
-                PlaceNote(laneIndex, targetTime, "hold", 1.0f); // ロングノートを配置（デフォルトのホールド時間は1秒
+                isCreatingLongNote_ = true; // ロングノートの作成フラグを立てる
+                longNoteStartTime_ = targetTime; // ロングノートの開始時間を記録
+                longNoteStartLane_ = laneIndex; // ロングノートの開始レーンを記録
+
+                previewBridgeSprite_->SetPos(Vector2(editorCoordinate_.LaneToScreenX(longNoteStartLane_), editorCoordinate_.TimeToScreenY(longNoteStartTime_))); // ブリッジの位置を設定
+
+            }
+        }
+
+        if (isCreatingLongNote_)
+        {
+            if (input_->IsMouseReleased(0)) // 左クリックを離したとき
+            {
+                Vector2 mousePos = input_->GetMousePosition(); // マウスの位置を取得
+
+                float targetTime = editorCoordinate_.ScreenYToTime(mousePos.y); // マウスのY座標を時間に変換
+                float holdDuration = targetTime - longNoteStartTime_; // ホールド時間を計算
+
+                if (holdDuration > 0.001f) // ホールド時間が0.001秒以上の場合のみ配置
+                {
+                    PlaceNote(longNoteStartLane_, longNoteStartTime_, "hold", holdDuration); // ロングノートを配置
+                }
+                isCreatingLongNote_ = false; // ロングノートの作成フラグを下ろす
             }
         }
     }
+
 
     if (input_->IsKeyTriggered(DIK_ESCAPE))
     {

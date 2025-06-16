@@ -228,11 +228,13 @@ private:
     EditorMode currentEditorMode_ = EditorMode::Select; // 現在のエディターモード
     bool isCreatingLongNote_ = false; // ロングノートを作成中かどうかのフラグ
     float longNoteStartTime_ = 0.0f; // ロングノートの開始時間
-    uint32_t longNoteStartLane_ = 0; // ロングノートの開始レーン
+    int32_t longNoteStartLane_ = 0; // ロングノートの開始レーン
 
 
     // 配置プレビュー
     std::unique_ptr<UISprite> previewNoteSprite_; // ノート配置プレビュー用のスプライト
+    std::unique_ptr<UISprite> previewBridgeSprite_; // ロングノート配置プレビュー用のスプライト
+    std::unique_ptr<UISprite> previewHoldEndSprite_; // ロングノート終端配置プレビュー用のスプライト
     float previewAlpha_ = 0.5f; // プレビューの透明度
 
 
