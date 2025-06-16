@@ -165,6 +165,9 @@ private:
     /// </summary>
     void DrawUI();
 
+
+    void DrawPreviewNote();
+
 private:
 
     LineDrawer* lineDrawer_ = nullptr; // ライン描画クラスへのポインタ
@@ -177,7 +180,7 @@ private:
 
     // 譜面データ
     BeatMapData currentBeatMapData_; // 現在編集中の譜面データ
-    std::string currentFilePath_; // 現在編集中のファイルパス
+    std::string currentFilePath_ = "Resources/Data/Game/BeatMap/demo.json"; // 現在編集中のファイルパス
     bool isModified_ = false; // 譜面が変更されたかどうかのフラグ
 
     // エディター状態
@@ -210,6 +213,28 @@ private:
     NoteColor longNoteColor_; // ロングノートの色設定
 
     std::vector<uint32_t> drawNoteIndices_; // 描画するノートのインデックスリスト
+
+
+    enum class EditorMode
+    {
+        Select,
+        PlaceNormalNote,
+        PlaceLongNote,
+        Delete,
+
+        Count // モードの数
+    };
+
+    EditorMode currentEditorMode_ = EditorMode::Select; // 現在のエディターモード
+    bool isCreatingLongNote_ = false; // ロングノートを作成中かどうかのフラグ
+    float longNoteStartTime_ = 0.0f; // ロングノートの開始時間
+    uint32_t longNoteStartLane_ = 0; // ロングノートの開始レーン
+
+
+    // 配置プレビュー
+    std::unique_ptr<UISprite> previewNoteSprite_; // ノート配置プレビュー用のスプライト
+    float previewAlpha_ = 0.5f; // プレビューの透明度
+
 
 
     //=========================================
