@@ -126,6 +126,14 @@ private:
     /// </summary>
     bool IsNoteSelected(uint32_t _noteIndex) const;
 
+    /// <summary>
+    /// ホールド終端から対応するノートインデックスを取得
+    /// </summary>
+    /// <param name="_laneIndex">レーンインデックス</param>
+    /// <param name="_targetTime">ターゲットタイム</param>
+    /// <returns></returns>
+    int32_t GetNoteIndexFromHoldEnd(uint32_t _laneIndex, float _targetTime) const;
+
     // =========================================
     // 描画
     // ==========================================
@@ -199,7 +207,7 @@ private:
     float scrollOffset_ = 0.0f; // スクロールオフセット
 
     uint32_t noteIndex_ = 0; // ノートのインデックスカウンター
-    uint32_t bridgeIndex_ = 0; // ブリッジのインデックスカウンター
+    uint32_t holdNoteIndex_ = 0; // ブリッジのインデックスカウンター
     std::vector<std::unique_ptr<UISprite>> noteSprites_; // ノートのスプライトリスト 描画用
 
     struct NoteColor
@@ -213,6 +221,9 @@ private:
     NoteColor longNoteColor_; // ロングノートの色設定
 
     std::vector<uint32_t> drawNoteIndices_; // 描画するノートのインデックスリスト
+
+    bool isSelectingHoldEnd_ = false; // ロングノート終端を選択中かどうかのフラグ
+    int32_t selectNoteIndex_ = -1; // 選択中のノートインデックス
 
 
     enum class EditorMode
@@ -246,7 +257,7 @@ private:
     std::vector<std::unique_ptr<UISprite>> gridLineSprites_; // グリッドラインのスプライト
 
     std::vector<std::unique_ptr<UISprite>> noteBridges_; // ブリッジのスプライト
-    std::vector<std::unique_ptr<UISprite>> longNoteEnd_; // ロングノートの終端スプライト
+    std::vector<std::unique_ptr<UISprite>> holdNoteEnd_; // ロングノートの終端スプライト
 
     std::unique_ptr<UISprite> judgeLineSprite_; // ジャッジラインのスプライト
 

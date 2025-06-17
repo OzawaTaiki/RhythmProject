@@ -7,7 +7,6 @@
 #include <Application/BeatMapLoader/BeatMapLoader.h>
 
 // TODO いろいろ
-// ホールド終端を選択してdurationを変更できるように
 // ブリッジに重ねてノーツを置けてしまう
 
 void BeatMapEditor::Initialize()
@@ -51,8 +50,8 @@ void BeatMapEditor::Initialize()
         noteSprites_[i] = std::move(sprite); // スプライトをリストに格納
     }
 
-    longNoteEnd_.clear(); // ロングノートの終端スプライトをクリア
-    longNoteEnd_.reserve(kMaxNoteCount / 2); // 終端スプライトのリストを予約
+    holdNoteEnd_.clear(); // ロングノートの終端スプライトをクリア
+    holdNoteEnd_.reserve(kMaxNoteCount / 2); // 終端スプライトのリストを予約
     noteBridges_.clear(); // ノートとスプライトのブリッジをクリア
     noteBridges_.reserve(kMaxNoteCount / 2); // ブリッジのリストを予約
     for (size_t i = 0; i < kMaxNoteCount / 2; ++i)
@@ -62,7 +61,7 @@ void BeatMapEditor::Initialize()
         longNoteEndSprite->SetAnchor(Vector2(0.5f, 0.5f)); // ロングノートの終端のアンカーを中央に設定
         longNoteEndSprite->SetSize(Vector2(50.0f, 25.0f)); // ロングノートの終端のサイズを設定
 
-        longNoteEnd_.push_back(std::move(longNoteEndSprite)); // 終端スプライトをリストに格納
+        holdNoteEnd_.push_back(std::move(longNoteEndSprite)); // 終端スプライトをリストに格納
 
 
         auto bridgeSprite = std::make_unique<UISprite>();
@@ -177,7 +176,7 @@ void BeatMapEditor::Draw(const Camera* _camera)
 void BeatMapEditor::DrawNotes()
 {
     noteIndex_ = 0; // ノートのインデックスをリセット
-    bridgeIndex_ = 0; // ブリッジのインデックスをリセット
+    holdNoteIndex_ = 0; // ブリッジのインデックスをリセット
 
     drawNoteIndices_.clear();
 
@@ -227,20 +226,20 @@ void BeatMapEditor::DrawNote(const NoteData& _note)
         Vector4 color = noteSprites_[noteIndex_]->GetColor();
         // ブリッジの描画
         {
-            noteBridges_[bridgeIndex_]->SetPos(Vector2(noteX, noteY)); // ブリッジの位置を設定
-            noteBridges_[bridgeIndex_]->SetColor(color);
-            noteBridges_[bridgeIndex_]->SetSize(Vector2(40.0f, editorCoordinate_.GetPixelsPerSecond() * _note.holdDuration)); // ブリッジのサイズを設定
-            noteBridges_[bridgeIndex_]->Draw(); // ブリッジを描画
+            noteBridges_[holdNoteIndex_]->SetPos(Vector2(noteX, noteY)); // ブリッジの位置を設定
+            noteBridges_[holdNoteIndex_]->SetColor(color);
+            noteBridges_[holdNoteIndex_]->SetSize(Vector2(40.0f, editorCoordinate_.GetPixelsPerSecond() * _note.holdDuration)); // ブリッジのサイズを設定
+            noteBridges_[holdNoteIndex_]->Draw(); // ブリッジを描画
         }
 
         // 終端ノートの描画
         {
-            longNoteEnd_[bridgeIndex_]->SetPos(Vector2(noteX, noteY - editorCoordinate_.GetPixelsPerSecond() * _note.holdDuration)); // 終端ノートの位置を設定
-            longNoteEnd_[bridgeIndex_]->SetColor(color); // 終端ノートの色を設定
-            longNoteEnd_[bridgeIndex_]->Draw(); // 終端ノートを描画
+            holdNoteEnd_[holdNoteIndex_]->SetPos(Vector2(noteX, noteY - editorCoordinate_.GetPixelsPerSecond() * _note.holdDuration)); // 終端ノートの位置を設定
+            holdNoteEnd_[holdNoteIndex_]->SetColor(color); // 終端ノートの色を設定
+            holdNoteEnd_[holdNoteIndex_]->Draw(); // 終端ノートを描画
         }
 
-        ++bridgeIndex_; // ブリッジのインデックスをインクリメント
+        ++holdNoteIndex_; // ブリッジのインデックスをインクリメント
     }
 
     noteSprites_[noteIndex_]->SetPos(Vector2(noteX, noteY));
@@ -260,7 +259,7 @@ void BeatMapEditor::DrawLanes()
 
 void BeatMapEditor::DrawGridLines()
 {
-    auto gridY = editorCoordinate_.GetGridLinesY(currentBeatMapData_.bpm, 4); // グリッドラインのY座標を取得
+    auto gridY = editorCoordinate_.GetGridLinesY(currentBeatMapData_.bpm, 1.0f / snapInterval_); // グリッドラインのY座標を取得
 
     // グリッドラインはLineで描画
     float gridLeftX = editorCoordinate_.GetEditAreaX();
@@ -332,10 +331,10 @@ void BeatMapEditor::DrawUI()
         }
 
 
-        ImGui::DragFloat("Current Time", &currentTime_, 0.01f, 0.0f, 1000.0f); // 現在の時間を調整するスライダー
-        ImGui::DragFloat("Play Speed", &playSpeed_, 0.01f, 0.1f, 10.0f); // 再生速度を調整するスライダー
+        ImGui::DragFloat("Current Time", &currentTime_, 0.01f, 0.0f, 1000.0f);
+        ImGui::DragFloat("Play Speed", &playSpeed_, 0.01f, 0.1f, 10.0f);
         static float zoom = editorCoordinate_.GetZoom();
-        if(ImGui::DragFloat("Zoom", &zoom, 0.01f, 0.1f, 10.0f)) // ズームレベルを調整するスライダー
+        if(ImGui::DragFloat("Zoom", &zoom, 0.01f, 0.1f, 10.0f))
         {
             editorCoordinate_.SetZoom(zoom); // ズームレベルを設定
         }
@@ -350,6 +349,14 @@ void BeatMapEditor::DrawUI()
             currentTime_ = 0.0f; // 時間をリセット
         }
         ImGui::Checkbox("Grid Snap", &gridSnapEnabled_); // グリッドスナップのチェックボックス
+        // グリッドスナップの間隔を選択するラジオボタン
+        static int snapIntervalIndex = 2;
+        ImGui::RadioButton("1/1", &snapIntervalIndex, 0);
+        ImGui::RadioButton("1/2", &snapIntervalIndex, 1);
+        ImGui::RadioButton("1/4", &snapIntervalIndex, 2);
+        ImGui::RadioButton("1/8", &snapIntervalIndex, 3);
+        ImGui::RadioButton("1/16", &snapIntervalIndex, 4);
+        snapInterval_ = 1.0f / std::powf(2.0f, static_cast<float>(snapIntervalIndex));
     }
     ImGui::End();
 
@@ -365,6 +372,10 @@ void BeatMapEditor::DrawPreviewNote()
 
         // プレビューのノートを描画
         int32_t laneIndex = editorCoordinate_.ScreenXToLane(mousePos.x); // マウスのX座標をレーンに変換
+        if (laneIndex < 0 || laneIndex >= static_cast<int32_t>(editorCoordinate_.GetLaneCount()))
+        {
+            return; // レーン外なら描画しない
+        }
         float previewX = editorCoordinate_.LaneToScreenX(laneIndex); // レーンのX座標を取得
         float previewY = mousePos.y;
         previewNoteSprite_->SetPos(Vector2(previewX, previewY));
@@ -474,7 +485,9 @@ void BeatMapEditor::PlaceNote(uint32_t _laneIndex, float _targetTime, const std:
     }
 
     if (gridSnapEnabled_) {
-        _targetTime = editorCoordinate_.SnapTimeToGrid(_targetTime, currentBeatMapData_.bpm, 4);
+        int divi = static_cast<int>( 1.0f / snapInterval_);
+        _targetTime = editorCoordinate_.SnapTimeToGrid(_targetTime, currentBeatMapData_.bpm, divi);
+        _holdDuration = editorCoordinate_.SnapTimeToGrid(_holdDuration, currentBeatMapData_.bpm, divi);
     }
 
     int32_t exisingNote = FindNoteAtTime(_laneIndex, _targetTime, 0.05f);
@@ -482,6 +495,7 @@ void BeatMapEditor::PlaceNote(uint32_t _laneIndex, float _targetTime, const std:
         Debug::Log("Note already exists at this position\n");
         return;  // 重複なら配置しない
     }
+
 
     // ノートを配置
     NoteData newNote;
@@ -557,7 +571,7 @@ void BeatMapEditor::MoveSelectedNote(float _newTime)
     // グリッドスナップ
     if (gridSnapEnabled_)
     {
-        _newTime = editorCoordinate_.SnapTimeToGrid(_newTime, currentBeatMapData_.bpm, 4);
+        _newTime = editorCoordinate_.SnapTimeToGrid(_newTime, currentBeatMapData_.bpm, 1.0f / snapInterval_);
     }
 
     for (size_t index : selectedNoteIndices_)
@@ -627,6 +641,49 @@ void BeatMapEditor::HandleInput()
         }
     }
 
+    for (size_t i = 0; i < holdNoteIndex_; ++i)
+    {
+        auto& note = holdNoteEnd_[i];
+
+        if (note->IsMousePointerInside())
+        {
+            int32_t startNoteIndex = GetNoteIndexFromHoldEnd(editorCoordinate_.ScreenXToLane(note->GetPos().x), editorCoordinate_.ScreenYToTime(note->GetPos().y));
+            if (startNoteIndex < 0)
+                continue;
+
+            int32_t actualNoteIndex = drawNoteIndices_[startNoteIndex]; // 実際のノートインデックスを取得
+
+            // ホバー時の視覚的フィードバック
+            if (currentBeatMapData_.notes[actualNoteIndex].noteType == "hold")
+            {
+                noteSprites_[i]->SetColor(longNoteColor_.hoverColor); // ロングノートのホバー色を設定
+            }
+
+            if (input_->IsMouseTriggered(0))
+            {
+                isSelectingHoldEnd_ = true; // ホールド終端の選択フラグを立てる
+                selectNoteIndex_ = actualNoteIndex; // 選択されたノートのインデックスを保存
+                selected = true; // 選択状態にする
+            }
+        }
+    }
+
+    if (isSelectingHoldEnd_)
+    {
+        // ホールド終端が選択されている場合、マウスの位置に応じてノートを移動
+        Vector2 mousePos = input_->GetMousePosition();
+        float newTime = editorCoordinate_.ScreenYToTime(mousePos.y);
+        float newHoldDuration = newTime - currentBeatMapData_.notes[selectNoteIndex_].targetTime; // 新しいホールド時間を計算
+        currentBeatMapData_.notes[selectNoteIndex_].holdDuration = (std::max)(newHoldDuration, 0.0f); // ホールド時間を更新（負の値は許可しない）
+
+        if (input_->IsMouseReleased(0)) // マウスの左ボタンが離されたとき
+        {
+            isSelectingHoldEnd_ = false; // ホールド終端の選択フラグを下ろす
+            selectNoteIndex_ = -1; // 選択されたノートのインデックスをリセット
+        }
+    }
+
+
     // 選択していない
     if (!selected)
     {
@@ -673,7 +730,8 @@ void BeatMapEditor::HandleInput()
         Vector2 mousePos = input_->GetMousePosition();
         // スクリーン座標から時間に変換
         float targetTime = editorCoordinate_.ScreenYToTime(mousePos.y);
-        currentTime_ = targetTime; // 現在の時間を更新
+        currentTime_ = (std::max)(targetTime, 0.0f); // 負の時間を防ぐ
+
     }
 
     //  Mode切り替え
@@ -719,7 +777,7 @@ void BeatMapEditor::HandleInput()
                 longNoteStartTime_ = targetTime; // ロングノートの開始時間を記録
                 longNoteStartLane_ = laneIndex; // ロングノートの開始レーンを記録
 
-                previewBridgeSprite_->SetPos(Vector2(editorCoordinate_.LaneToScreenX(longNoteStartLane_), editorCoordinate_.TimeToScreenY(longNoteStartTime_))); // ブリッジの位置を設定
+                //previewBridgeSprite_->SetPos(Vector2(editorCoordinate_.LaneToScreenX(longNoteStartLane_), editorCoordinate_.TimeToScreenY(longNoteStartTime_))); // ブリッジの位置を設定
 
             }
         }
@@ -735,7 +793,7 @@ void BeatMapEditor::HandleInput()
 
                 if (holdDuration > 0.001f) // ホールド時間が0.001秒以上の場合のみ配置
                 {
-                    PlaceNote(longNoteStartLane_, longNoteStartTime_, "hold", holdDuration); // ロングノートを配置
+                    PlaceNote(longNoteStartLane_, longNoteStartTime_, "hold", holdDuration); // ロングノートを配置x
                 }
                 isCreatingLongNote_ = false; // ロングノートの作成フラグを下ろす
             }
@@ -789,4 +847,20 @@ void BeatMapEditor::SortNotesByTime()
 bool BeatMapEditor::IsNoteSelected(uint32_t _noteIndex) const
 {
     return std::find(selectedNoteIndices_.begin(), selectedNoteIndices_.end(), _noteIndex) != selectedNoteIndices_.end();
+}
+
+int32_t BeatMapEditor::GetNoteIndexFromHoldEnd(uint32_t _laneIndex, float _targetTime) const
+{
+    for (size_t i = 0; i < currentBeatMapData_.notes.size(); ++i)
+    {
+        const NoteData& note = currentBeatMapData_.notes[i];
+        if (note.laneIndex == _laneIndex &&
+            note.noteType == "hold" &&
+            std::abs(note.targetTime + note.holdDuration - _targetTime) <= 0.05f)
+        {
+            return static_cast<int32_t>(i); // ノートのインデックスを返す
+        }
+    }
+    return static_cast<int32_t>(-1); // 見つからなかった場合は無効なインデックスを返す
+
 }
