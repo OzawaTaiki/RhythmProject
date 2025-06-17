@@ -52,7 +52,6 @@ private:
     void CreateNewBeatMap(const std::string& _audioFilePath);
 
 
-
     ///---------------------
     /// 譜面編集
 
@@ -133,6 +132,12 @@ private:
     /// <param name="_targetTime">ターゲットタイム</param>
     /// <returns></returns>
     int32_t GetNoteIndexFromHoldEnd(uint32_t _laneIndex, float _targetTime) const;
+
+
+    /// <summary>
+    /// 状態のリセット
+    /// </summary>
+    void Reset();
 
     // =========================================
     // 描画

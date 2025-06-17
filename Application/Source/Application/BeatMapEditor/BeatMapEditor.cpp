@@ -2,12 +2,16 @@
 
 #include <Features/LineDrawer/LineDrawer.h>
 #include <Debug/Debug.h>
+#include <Debug/ImGuiHelper.h>
 #include <System/Input/Input.h>
 
 #include <Application/BeatMapLoader/BeatMapLoader.h>
 
+#include <fstream>
+
 // TODO いろいろ
 // ブリッジに重ねてノーツを置けてしまう
+// zoom スクロール grid分割 全部キーボードあるいはマウスでできるように
 
 void BeatMapEditor::Initialize()
 {
@@ -135,6 +139,7 @@ void BeatMapEditor::Initialize()
     longNoteColor_.defaultColor = Vector4(0.40f, 0.73f, 0.42f, 1.0f); // デフォルトのロングノート色
     longNoteColor_.hoverColor = Vector4(0.98f, 0.83f, 0.51f, 1.0f); // ホバー時の色
     longNoteColor_.selectedColor = Vector4(0.97f, 0.98f, 0.01f, 1.0f); // 選択時の色
+
 }
 
 void BeatMapEditor::Update(float _deltaTime)
@@ -306,10 +311,16 @@ void BeatMapEditor::DrawUI()
 
     ImGui::Begin("BeatMap Editor");
     {
-        ImGui::InputText("File Path", (&currentFilePath_)->data(), 512); // ファイルパスの入力フィールド
+        ImGuiHelper::InputText("File Path", currentFilePath_); // ファイルパスの入力フィールド
+
         if (ImGui::Button("Load BeatMap"))
         {
             LoadBeatMap(currentFilePath_); // 譜面のロード
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Save BeatMap"))
+        {
+            SaveBeatMap(currentFilePath_); // 譜面の保存
         }
 
         if(ImGui::CollapsingHeader("Information", ImGuiTreeNodeFlags_DefaultOpen))
@@ -443,6 +454,7 @@ void BeatMapEditor::LoadBeatMap(const std::string& _beatMapPath)
     // ロードが完了するまで待機
     if (future.get())
     {
+        Reset(); // エディターの状態をリセット
         currentBeatMapData_ = beatMapLoader_->GetLoadedBeatMapData();
         currentFilePath_ = _beatMapPath; // 現在のファイルパスを更新
     }
@@ -458,7 +470,38 @@ void BeatMapEditor::LoadBeatMap(const std::string& _beatMapPath)
 void BeatMapEditor::SaveBeatMap(const std::string& _beatMapPath)
 {
     // 譜面データを保存
-    // のち実装
+
+    json j;
+    j["title"] = currentBeatMapData_.title;
+    j["artist"] = currentBeatMapData_.artist;
+    j["audioFilePath"] = currentBeatMapData_.audioFilePath;
+    j["bpm"] = currentBeatMapData_.bpm;
+    j["offset"] = currentBeatMapData_.offset;
+    j["difficultyLevel"] = currentBeatMapData_.difficultyLevel;
+
+    for (const auto& note : currentBeatMapData_.notes)
+    {
+        json noteJson;
+        noteJson["laneIndex"] = note.laneIndex;
+        noteJson["targetTime"] = note.targetTime;
+        noteJson["noteType"] = note.noteType;
+        noteJson["holdDuration"] = note.holdDuration;
+        j["notes"].push_back(noteJson);
+    }
+
+    std::ofstream outFile(_beatMapPath);
+    if (!outFile.is_open())
+    {
+        Debug::Log("Failed to open file for saving: " + _beatMapPath + "\n");
+        return;
+    }
+
+    outFile << j.dump(4); // JSONを整形して書き出し
+    outFile.close();
+    currentFilePath_ = _beatMapPath; // 現在のファイルパスを更新
+    isModified_ = false; // 保存後は変更されていない状態にする
+    Debug::Log("Beatmap saved successfully to: " + _beatMapPath + "\n");
+
 }
 
 void BeatMapEditor::CreateNewBeatMap(const std::string& _audioFilePath)
@@ -585,6 +628,7 @@ void BeatMapEditor::MoveSelectedNote(float _newTime)
     isModified_ = true;
     SortNotesByTime();
 }
+
 void BeatMapEditor::HandleInput()
 {
     bool selected = false;
@@ -647,16 +691,27 @@ void BeatMapEditor::HandleInput()
 
         if (note->IsMousePointerInside())
         {
-            int32_t startNoteIndex = GetNoteIndexFromHoldEnd(editorCoordinate_.ScreenXToLane(note->GetPos().x), editorCoordinate_.ScreenYToTime(note->GetPos().y));
-            if (startNoteIndex < 0)
+            int32_t actualNoteIndex = GetNoteIndexFromHoldEnd(editorCoordinate_.ScreenXToLane(note->GetPos().x), editorCoordinate_.ScreenYToTime(note->GetPos().y));
+            if (actualNoteIndex < 0)
                 continue;
 
-            int32_t actualNoteIndex = drawNoteIndices_[startNoteIndex]; // 実際のノートインデックスを取得
+            int32_t drawNoteIndex = -1;
+            for (size_t j = 0; j < drawNoteIndices_.size(); ++j)
+            {
+                if (drawNoteIndices_[j] == actualNoteIndex)
+                {
+                    drawNoteIndex = j;
+                    break;
+                }
+            }
+
+            if (drawNoteIndex < 0)
+                continue; // 描画されていないノートは無視
 
             // ホバー時の視覚的フィードバック
             if (currentBeatMapData_.notes[actualNoteIndex].noteType == "hold")
             {
-                noteSprites_[i]->SetColor(longNoteColor_.hoverColor); // ロングノートのホバー色を設定
+                noteSprites_[drawNoteIndex]->SetColor(longNoteColor_.hoverColor); // ロングノートのホバー色を設定
             }
 
             if (input_->IsMouseTriggered(0))
@@ -863,4 +918,18 @@ int32_t BeatMapEditor::GetNoteIndexFromHoldEnd(uint32_t _laneIndex, float _targe
     }
     return static_cast<int32_t>(-1); // 見つからなかった場合は無効なインデックスを返す
 
+}
+
+void BeatMapEditor::Reset()
+{
+    currentBeatMapData_ = BeatMapData(); // 譜面データを初期化
+    isModified_ = false; // 変更されていない状態にする
+    currentTime_ = 0.0f; // 現在の時間を初期化
+    isPlaying_ = false; // 再生状態を初期化
+    scrollOffset_ = 0.0f; // スクロールオフセットを初期化
+    selectedNoteIndices_.clear(); // 選択中のノートインデックスをクリア
+    currentEditorMode_ = EditorMode::Select; // エディターモードをノーマルに設定
+    drawNoteIndices_.clear();
+    noteIndex_ = 0;
+    holdNoteIndex_ = 0;
 }
