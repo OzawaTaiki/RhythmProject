@@ -155,7 +155,6 @@ void Lane::OnEvent(const GameEvent& _event)
                 return;
             }
 
-            //TODO : レーンエフェクト
             // レーンエフェクトを開始
             if (data->laneIndex >= laneEffects_.size())
             {

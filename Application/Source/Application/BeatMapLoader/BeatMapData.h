@@ -17,15 +17,15 @@ struct NoteData
 // 譜面データ構造体
 struct BeatMapData
 {
-    std::string title; // 曲のタイトル
-    std::string artist; // アーティスト名 仮
-    std::string audioFilePath; // 音声ファイルのパス
-    float bpm; // tempo
-    float offset; // オフセット時間
+    std::string title = "None"; // 曲のタイトル
+    std::string artist = "unknown"; // アーティスト名 仮
+    std::string audioFilePath ="none"; // 音声ファイルのパス
+    float bpm = 120.0f; // tempo
+    float offset=0.0f; // オフセット時間
 
-    uint32_t difficultyLevel; // 難易度レベル : 仮
+    uint32_t difficultyLevel = 3; // 難易度レベル : 仮
 
-    std::vector<NoteData> notes; // ノートデータのリスト
+    std::vector<NoteData> notes = {}; // ノートデータのリスト
 
     BeatMapData() : bpm(0.0f), offset(0.0f), difficultyLevel(0) {}
 

@@ -52,6 +52,9 @@
     <Filter Include="Application\Effects\TapEffects">
       <UniqueIdentifier>{1becb388-379b-4a7f-a968-049ec8f0f527}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\BeatMapEditor">
+      <UniqueIdentifier>{42d12039-f238-4928-b0c9-82f58e97bf2d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -117,6 +120,12 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Scene\ResultScene.cpp">
       <Filter>Application\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\BeatMapEditor\BeatMapEditor.cpp">
+      <Filter>Application\BeatMapEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\BeatMapEditor\EditorCoordinate.cpp">
+      <Filter>Application\BeatMapEditor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -200,6 +209,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Scene\ResultScene.h">
       <Filter>Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\BeatMapEditor\EditorCoordinate.h">
+      <Filter>Application\BeatMapEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\BeatMapEditor\BeatMapEditor.h">
+      <Filter>Application\BeatMapEditor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

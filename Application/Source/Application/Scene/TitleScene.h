@@ -8,6 +8,8 @@
 #include <System/Time/Stopwatch.h>
 #include <Features/Effect/Manager/ParticleSystem.h>
 
+#include <Application/BeatMapEditor/BeatMapEditor.h>
+
 
 class TitleScene : public BaseScene
 {
@@ -34,5 +36,8 @@ private:
     ParticleSystem* particleSystem_ = nullptr;
 
     std::shared_ptr<LightGroup> lightGroup_ = nullptr;
+
+    // Application
+    std::unique_ptr<BeatMapEditor> beatMapEditor_ = nullptr; // ビートマップエディターのインスタンス
 
 };

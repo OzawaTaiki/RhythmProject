@@ -23,6 +23,17 @@ void TitleScene::Initialize(SceneData* _sceneData)
 
 
     LightingSystem::GetInstance()->SetActiveGroup(lightGroup_);
+
+
+
+    //---------------------------------
+    // Application
+    //---------------------------------
+
+    beatMapEditor_ = std::make_unique<BeatMapEditor>();
+    beatMapEditor_->Initialize();
+
+
 }
 
 void TitleScene::Update()
@@ -37,6 +48,18 @@ void TitleScene::Update()
 
 #endif // _DEBUG
 
+    /// ---------------------------------
+    /// Application
+    {
+        beatMapEditor_->Update(static_cast<float>(Time::GetDeltaTime<float>()));
+
+
+
+    }
+    /// Application ここまで
+    /// -----------------------------------
+
+ 
     if (enableDebugCamera_)
     {
         debugCamera_.Update();
@@ -57,7 +80,7 @@ void TitleScene::Update()
 
 void TitleScene::Draw()
 {
-
+    beatMapEditor_->Draw(&SceneCamera_);
 }
 
 void TitleScene::DrawShadow(){}
