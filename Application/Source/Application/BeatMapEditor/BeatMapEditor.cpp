@@ -6,6 +6,7 @@
 #include <System/Input/Input.h>
 
 #include <Application/BeatMapLoader/BeatMapLoader.h>
+#include <Utility/FileDialog/FileDialog.h>
 
 #include <fstream>
 
@@ -264,7 +265,7 @@ void BeatMapEditor::DrawLanes()
 
 void BeatMapEditor::DrawGridLines()
 {
-    auto gridY = editorCoordinate_.GetGridLinesY(currentBeatMapData_.bpm, 1.0f / snapInterval_); // グリッドラインのY座標を取得
+    auto gridY = editorCoordinate_.GetGridLinesY(currentBeatMapData_.bpm, static_cast<int>(1.0f / snapInterval_)); // グリッドラインのY座標を取得
 
     // グリッドラインはLineで描画
     float gridLeftX = editorCoordinate_.GetEditAreaX();
@@ -309,17 +310,21 @@ void BeatMapEditor::DrawUI()
 {
 #ifdef _DEBUG
 
+    static std::string filter = FileFilterBuilder::GetFilterString(FileFilterBuilder::FilterType::DataFiles);
+
     ImGui::Begin("BeatMap Editor");
     {
-        ImGuiHelper::InputText("File Path", currentFilePath_); // ファイルパスの入力フィールド
+        //ImGuiHelper::InputText("File Path", currentFilePath_); // ファイルパスの入力フィールド
 
         if (ImGui::Button("Load BeatMap"))
         {
+            currentFilePath_ = FileDialog::OpenFile((filter));
             LoadBeatMap(currentFilePath_); // 譜面のロード
         }
         ImGui::SameLine();
         if (ImGui::Button("Save BeatMap"))
         {
+            currentFilePath_ = FileDialog::OpenFile((filter));
             SaveBeatMap(currentFilePath_); // 譜面の保存
         }
 
@@ -614,7 +619,7 @@ void BeatMapEditor::MoveSelectedNote(float _newTime)
     // グリッドスナップ
     if (gridSnapEnabled_)
     {
-        _newTime = editorCoordinate_.SnapTimeToGrid(_newTime, currentBeatMapData_.bpm, 1.0f / snapInterval_);
+        _newTime = editorCoordinate_.SnapTimeToGrid(_newTime, currentBeatMapData_.bpm, static_cast<int>(1.0f / snapInterval_));
     }
 
     for (size_t index : selectedNoteIndices_)
@@ -696,7 +701,7 @@ void BeatMapEditor::HandleInput()
                 continue;
 
             int32_t drawNoteIndex = -1;
-            for (size_t j = 0; j < drawNoteIndices_.size(); ++j)
+            for (int32_t j = 0; j < drawNoteIndices_.size(); ++j)
             {
                 if (drawNoteIndices_[j] == actualNoteIndex)
                 {
