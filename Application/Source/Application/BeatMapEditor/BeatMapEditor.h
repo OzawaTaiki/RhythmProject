@@ -193,7 +193,7 @@ private:
 
     // 譜面データ
     BeatMapData currentBeatMapData_; // 現在編集中の譜面データ
-    std::string currentFilePath_ = "Resources/Data/Game/BeatMap/demo.json"; // 現在編集中のファイルパス
+    std::string currentFilePath_ = ""; // 現在編集中のファイルパス
     bool isModified_ = false; // 譜面が変更されたかどうかのフラグ
 
     // エディター状態
@@ -230,6 +230,9 @@ private:
     bool isSelectingHoldEnd_ = false; // ロングノート終端を選択中かどうかのフラグ
     int32_t selectNoteIndex_ = -1; // 選択中のノートインデックス
 
+    bool isMovingSelectedNote_ = false; // 選択中のノートを移動中かどうかのフラグ
+    int32_t lastSelectedNoteIndex_ = -1;// 最後に選択されたノートのインデックス
+
 
     enum class EditorMode
     {
@@ -254,6 +257,19 @@ private:
     float previewAlpha_ = 0.5f; // プレビューの透明度
 
 
+    struct SaveInfo
+    {
+        std::string title = "None"; // 曲のタイトル
+        std::string artist = "unknown"; // アーティスト名
+        std::string audioFilePath = "none"; // 音声ファイルのパス
+        float bpm = 120.0f; // テンポ
+        float offset = 0.0f; // オフセット時間
+        uint32_t difficultyLevel = 3; // 難易度レベル : 仮
+    };
+
+
+    std::unique_ptr<UISprite> dummy_editArea_;
+    std::unique_ptr<UISprite> dummy_window_;
 
     //=========================================
     // 描画用

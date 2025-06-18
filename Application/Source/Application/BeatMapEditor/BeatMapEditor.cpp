@@ -141,6 +141,18 @@ void BeatMapEditor::Initialize()
     longNoteColor_.hoverColor = Vector4(0.98f, 0.83f, 0.51f, 1.0f); // ホバー時の色
     longNoteColor_.selectedColor = Vector4(0.97f, 0.98f, 0.01f, 1.0f); // 選択時の色
 
+    dummy_editArea_ = std::make_unique<UISprite>();
+    dummy_editArea_->Initialize("DummySprite");
+    dummy_editArea_->SetPos(Vector2(editorCoordinate_.GetEditAreaX(), 0));
+    dummy_editArea_->SetAnchor(Vector2(0.0f, 0.0f));// ダミースプライトのアンカーを左上に設定
+    dummy_editArea_->SetSize(Vector2(editorCoordinate_.GetEditAreaWidth(), 720)); // ダミースプライトのサイズを設定
+
+    dummy_window_ = std::make_unique<UISprite>();
+    dummy_window_->Initialize("DummyWindowSprite");
+    dummy_window_->SetPos(Vector2(0, 0));
+    dummy_window_->SetAnchor(Vector2(0.0f, 0.0f)); // ダミーウィンドウのアンカーを左上に設定
+    dummy_window_->SetSize(Vector2(1280.0f, 720.0f)); // ダミーウィンドウのサイズを設定
+
 }
 
 void BeatMapEditor::Update(float _deltaTime)
@@ -325,7 +337,30 @@ void BeatMapEditor::DrawUI()
         if (ImGui::Button("Save BeatMap"))
         {
             currentFilePath_ = FileDialog::OpenFile((filter));
-            SaveBeatMap(currentFilePath_); // 譜面の保存
+            ImGui::OpenPopup("Save Confirmation");
+            //SaveBeatMap(currentFilePath_); // 譜面の保存
+        }
+        if (ImGui::BeginPopupModal("Save Confirmation", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::Text("SavePath : %s", currentFilePath_.c_str());
+            ImGui::Separator();
+
+            ImGuiHelper::InputText("Title", currentBeatMapData_.title); // タイトルの入力フィールド
+            ImGui::DragFloat("BPM", &currentBeatMapData_.bpm, 0.1f, 0.1f, 1000.0f); // BPMの入力フィールド
+            ImGui::DragFloat("Offset", &currentBeatMapData_.offset, 0.01f, -100.0f, 100.0f); // オフセットの入力フィールド
+
+            if(ImGui::Button("ok"))
+            {
+                SaveBeatMap(currentFilePath_); // 譜面の保存
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
         }
 
         if(ImGui::CollapsingHeader("Information", ImGuiTreeNodeFlags_DefaultOpen))
@@ -349,7 +384,8 @@ void BeatMapEditor::DrawUI()
 
         ImGui::DragFloat("Current Time", &currentTime_, 0.01f, 0.0f, 1000.0f);
         ImGui::DragFloat("Play Speed", &playSpeed_, 0.01f, 0.1f, 10.0f);
-        static float zoom = editorCoordinate_.GetZoom();
+        static float zoom = 0;
+        zoom = editorCoordinate_.GetZoom();
         if(ImGui::DragFloat("Zoom", &zoom, 0.01f, 0.1f, 10.0f))
         {
             editorCoordinate_.SetZoom(zoom); // ズームレベルを設定
@@ -600,6 +636,7 @@ void BeatMapEditor::SelectNote(uint32_t _noteIndex, bool _multiSelect)
         selectedNoteIndices_.push_back(_noteIndex);
     }
 
+    lastSelectedNoteIndex_ = _noteIndex; // 最後に選択されたノートのインデックスを保存
     Debug::Log("Selected note at index " + std::to_string(_noteIndex) + "\n");
 }
 
@@ -609,7 +646,7 @@ void BeatMapEditor::ClearSelection()
     selectedNoteIndices_.clear(); // 選択中のノートインデックスをクリア
 }
 
-void BeatMapEditor::MoveSelectedNote(float _newTime)
+void BeatMapEditor::MoveSelectedNote( float _newTime)
 {
     if (selectedNoteIndices_.empty())
     {
@@ -622,73 +659,108 @@ void BeatMapEditor::MoveSelectedNote(float _newTime)
         _newTime = editorCoordinate_.SnapTimeToGrid(_newTime, currentBeatMapData_.bpm, static_cast<int>(1.0f / snapInterval_));
     }
 
+
     for (size_t index : selectedNoteIndices_)
     {
         if (index < currentBeatMapData_.notes.size())
         {
-            currentBeatMapData_.notes[index].targetTime = _newTime;
+            float addTime = _newTime - currentBeatMapData_.notes[lastSelectedNoteIndex_].targetTime;
+            currentBeatMapData_.notes[index].targetTime += addTime;
         }
     }
 
     isModified_ = true;
-    SortNotesByTime();
 }
 
 void BeatMapEditor::HandleInput()
 {
     bool selected = false;
+    // マウスがエディターエリア内にあるかチェック
+    bool mouseInsideEditorArea = dummy_editArea_->IsMousePointerInside();
+    if (!dummy_window_->IsMousePointerInside())
+        return;// ダミーウィンドウ外なら何もしない
+
+    if (mouseInsideEditorArea)
+    {
+        ImGui::Begin("BeatMap Editor");
+
+        ImGui::Text("mouse Inside Editor Area");
+
+        ImGui::End();
+    }
 
     // 入力処理の実装
     // マウスホバーによる選択
-    for (size_t i = 0; i < noteIndex_; ++i) // 現在描画中のノート数まで
+    if(!isMovingSelectedNote_)
     {
-        uint32_t actualNoteIndex = drawNoteIndices_[i]; // 実際のノートインデックスを取得
-        if (noteSprites_[i]->IsMousePointerInside())
+        for (size_t i = 0; i < noteIndex_; ++i) // 現在描画中のノート数まで
         {
-            // ホバー時の視覚的フィードバック
-            if (currentBeatMapData_.notes[actualNoteIndex].noteType == "normal")
+            uint32_t actualNoteIndex = drawNoteIndices_[i]; // 実際のノートインデックスを取得
+            if (noteSprites_[i]->IsMousePointerInside())
             {
-                noteSprites_[i]->SetColor(normalNoteColor_.hoverColor); // ノーマルノートのホバー色を設定
-            }
-            else if (currentBeatMapData_.notes[actualNoteIndex].noteType == "hold")
-            {
-                noteSprites_[i]->SetColor(longNoteColor_.hoverColor); // ロングノートのホバー色を設定
+                // ホバー時の視覚的フィードバック
+                if (currentBeatMapData_.notes[actualNoteIndex].noteType == "normal")
+                {
+                    noteSprites_[i]->SetColor(normalNoteColor_.hoverColor); // ノーマルノートのホバー色を設定
+                }
+                else if (currentBeatMapData_.notes[actualNoteIndex].noteType == "hold")
+                {
+                    noteSprites_[i]->SetColor(longNoteColor_.hoverColor); // ロングノートのホバー色を設定
+                }
+                else
+                {
+                    noteSprites_[i]->SetColor(Vector4(1.0f, 1.0f, 0.0f, 1.0f)); // その他のノートは黄色に設定
+                }
+
+                // クリック検出
+                if (input_->IsMouseTriggered(0))
+                {
+                    bool multiSelect = input_->IsKeyPressed(DIK_LSHIFT);
+                    SelectNote(actualNoteIndex, multiSelect);
+                    selected = true;
+                    isMovingSelectedNote_ = true; // 選択したノートを移動可能にするフラグを立てる
+                }
             }
             else
             {
-                noteSprites_[i]->SetColor(Vector4(1.0f, 1.0f, 0.0f, 1.0f)); // その他のノートは黄色に設定
-            }
+                // 通常の色に戻す
+                bool isSelected = IsNoteSelected(actualNoteIndex);
+                Vector4 color;
 
-            // クリック検出
-            if (input_->IsMouseTriggered(0))
-            {
-                bool multiSelect = input_->IsKeyPressed(DIK_LSHIFT);
-                SelectNote(actualNoteIndex, multiSelect);
-                selected = true;
-            }
-        }
-        else
-        {
-            // 通常の色に戻す
-            bool isSelected = IsNoteSelected(actualNoteIndex);
-            Vector4 color;
+                if (currentBeatMapData_.notes[actualNoteIndex].noteType == "normal")
+                {
+                    color = isSelected ? normalNoteColor_.selectedColor : normalNoteColor_.defaultColor; // ノーマルノートの色
+                }
+                else if (currentBeatMapData_.notes[actualNoteIndex].noteType == "hold")
+                {
+                    color = isSelected ? longNoteColor_.selectedColor : longNoteColor_.defaultColor; // ロングノートの色
+                }
+                else
+                {
+                    color = isSelected ? Vector4(1.0f, 1.0f, 0.0f, 1.0f) : Vector4(1.0f, 1.0f, 1.0f, 1.0f); // その他のノートは白色
+                }
 
-            if (currentBeatMapData_.notes[actualNoteIndex].noteType == "normal")
-            {
-                color = isSelected ? normalNoteColor_.selectedColor : normalNoteColor_.defaultColor; // ノーマルノートの色
+                noteSprites_[i]->SetColor(color); // ノートの色を設定
             }
-            else if (currentBeatMapData_.notes[actualNoteIndex].noteType == "hold")
-            {
-                color = isSelected ? longNoteColor_.selectedColor : longNoteColor_.defaultColor; // ロングノートの色
-            }
-            else
-            {
-                color = isSelected ? Vector4(1.0f, 1.0f, 0.0f, 1.0f) : Vector4(1.0f, 1.0f, 1.0f, 1.0f); // その他のノートは白色
-            }
-
-            noteSprites_[i]->SetColor(color); // ノートの色を設定
         }
     }
+
+    if (isMovingSelectedNote_ && input_->IsMouseReleased(0))
+    {
+        isMovingSelectedNote_ = false; // マウスの左ボタンが離されたとき、移動フラグを下ろす
+        SortNotesByTime();
+    }
+
+    if (isMovingSelectedNote_)
+    {
+        // 選択されたノートを移動
+        Vector2 mousePos = input_->GetMousePosition();
+
+        float newTime = editorCoordinate_.ScreenYToTime(mousePos.y);
+        MoveSelectedNote(newTime); // 選択されたノートの時間を更新
+        selected = true; // ノートが移動されたので選択状態にする
+    }
+
 
     for (size_t i = 0; i < holdNoteIndex_; ++i)
     {
@@ -745,7 +817,7 @@ void BeatMapEditor::HandleInput()
 
 
     // 選択していない
-    if (!selected)
+    if (!selected && mouseInsideEditorArea)
     {
         // クリックしたときリセット
         if (input_->IsMouseTriggered(0))
@@ -758,17 +830,30 @@ void BeatMapEditor::HandleInput()
     float wheelDelta = input_->GetMouseWheel();
     if (wheelDelta != 0.0f)
     {
-        // スクロール量に応じて時間を更新
-        float addedTime = wheelDelta * 0.1f / editorCoordinate_.GetZoom();
-        // スクロール速度を調整
-        // ゆっくりスクロールできるように。
-        if (input_->IsKeyPressed(DIK_LSHIFT))
+        if (!mouseInsideEditorArea)
         {
-            addedTime *= 0.1f;
+                // スクロール量に応じて時間を更新
+            float addedTime = wheelDelta * 0.1f / editorCoordinate_.GetZoom();
+            // スクロール速度を調整
+            // ゆっくりスクロールできるように。
+            if (input_->IsKeyPressed(DIK_LSHIFT))
+            {
+                addedTime *= 0.1f;
+            }
+            scrollOffset_ += addedTime; // 現在の時間を更新
+            scrollOffset_ = (std::max)(scrollOffset_, 0.0f);
+            editorCoordinate_.SetScrollOffset(scrollOffset_); // スクロールオフセットを更新
         }
-        scrollOffset_ += addedTime; // 現在の時間を更新
-        scrollOffset_ = (std::max)(scrollOffset_, 0.0f);
-        editorCoordinate_.SetScrollOffset(scrollOffset_); // スクロールオフセットを更新
+        else
+        {
+            float addedZoom = wheelDelta * 0.1f; // ホイールの動きに応じてズームを調整
+            if (input_->IsKeyPressed(DIK_LSHIFT))
+            {
+                addedZoom *= 0.1f;
+            }
+            editorCoordinate_.SetZoom(editorCoordinate_.GetZoom() + addedZoom); // ズームを更新
+
+        }
     }
 
 
@@ -836,9 +921,6 @@ void BeatMapEditor::HandleInput()
                 isCreatingLongNote_ = true; // ロングノートの作成フラグを立てる
                 longNoteStartTime_ = targetTime; // ロングノートの開始時間を記録
                 longNoteStartLane_ = laneIndex; // ロングノートの開始レーンを記録
-
-                //previewBridgeSprite_->SetPos(Vector2(editorCoordinate_.LaneToScreenX(longNoteStartLane_), editorCoordinate_.TimeToScreenY(longNoteStartTime_))); // ブリッジの位置を設定
-
             }
         }
 
@@ -859,9 +941,31 @@ void BeatMapEditor::HandleInput()
             }
         }
     }
+    if (currentEditorMode_ == EditorMode::Delete)
+    {
+        if (input_->IsMouseTriggered(0)) // 左クリックでノートを削除
+        {
+            for (size_t i = 0; i < noteIndex_; ++i) // 現在描画中のノート数まで
+            {
+                uint32_t actualNoteIndex = drawNoteIndices_[i]; // 実際のノートインデックスを取得
+                if (noteSprites_[i]->IsMousePointerInside())
+                {
+                    DeleteNote(actualNoteIndex); // ノートを削除
+                    break; // 一つ削除したらループを抜ける
+                }
+            }
+        }
+    }
 
 
-    if (input_->IsKeyTriggered(DIK_ESCAPE))
+    if (input_->IsKeyPressed(DIK_LCONTROL) && input_->IsKeyTriggered(DIK_DOWN))
+    {
+        // CTRL + DOWNで選択中のノートを下に移動
+        scrollOffset_ = 0;
+        editorCoordinate_.SetScrollOffset(scrollOffset_);
+    }
+
+    if (input_->IsKeyTriggered(DIK_ESCAPE) && mouseInsideEditorArea)
     {
         // ESCキーで選択をクリア
         ClearSelection();
