@@ -7,6 +7,7 @@
 
 #include <Application/BeatMapLoader/BeatMapLoader.h>
 #include <Utility/FileDialog/FileDialog.h>
+#include <Utility/StringUtils/StringUitls.h>
 
 #include <fstream>
 
@@ -322,7 +323,9 @@ void BeatMapEditor::DrawUI()
 {
 #ifdef _DEBUG
 
-    static std::string filter = FileFilterBuilder::GetFilterString(FileFilterBuilder::FilterType::DataFiles);
+    FileFilterBuilder filterBuilder;
+    filterBuilder.AddSeparateExtensions(FileFilterBuilder::FilterType::DataFiles);
+    static std::string filter  = filterBuilder.Build();
 
     ImGui::Begin("BeatMap Editor");
     {
@@ -334,11 +337,22 @@ void BeatMapEditor::DrawUI()
             LoadBeatMap(currentFilePath_); // 譜面のロード
         }
         ImGui::SameLine();
-        if (ImGui::Button("Save BeatMap"))
+        ImGui::BeginDisabled(currentFilePath_ == "");
         {
-            currentFilePath_ = FileDialog::OpenFile((filter));
-            ImGui::OpenPopup("Save Confirmation");
-            //SaveBeatMap(currentFilePath_); // 譜面の保存
+            if (ImGui::Button("Save BeatMap"))
+            {
+                currentFilePath_ = FileDialog::SaveFile(filter);
+                ImGui::OpenPopup("Save Confirmation");
+                //SaveBeatMap(currentFilePath_); // 譜面の保存
+            }
+        }
+        ImGui::EndDisabled();
+
+        ImGui::SameLine();
+        if (ImGui::Button("New BeatMap"))
+        {
+            std::string newFilePath = FileDialog::CreateFile(filter);
+            CreateNewBeatMap(newFilePath, "");
         }
         if (ImGui::BeginPopupModal("Save Confirmation", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
         {
@@ -510,7 +524,12 @@ void BeatMapEditor::LoadBeatMap(const std::string& _beatMapPath)
 
 void BeatMapEditor::SaveBeatMap(const std::string& _beatMapPath)
 {
-    // 譜面データを保存
+    std::string filePath = _beatMapPath;
+    std::string extension = StringUtils::GetExtension(filePath);
+    if (extension != ".json")
+    {
+        filePath += ".json"; // 拡張子がない場合は.jsonを追加
+    }
 
     json j;
     j["title"] = currentBeatMapData_.title;
@@ -530,29 +549,31 @@ void BeatMapEditor::SaveBeatMap(const std::string& _beatMapPath)
         j["notes"].push_back(noteJson);
     }
 
-    std::ofstream outFile(_beatMapPath);
+    std::ofstream outFile(filePath);
     if (!outFile.is_open())
     {
-        Debug::Log("Failed to open file for saving: " + _beatMapPath + "\n");
+        Debug::Log("Failed to open file for saving: " + filePath + "\n");
         return;
     }
 
     outFile << j.dump(4); // JSONを整形して書き出し
     outFile.close();
-    currentFilePath_ = _beatMapPath; // 現在のファイルパスを更新
+    currentFilePath_ = filePath; // 現在のファイルパスを更新
     isModified_ = false; // 保存後は変更されていない状態にする
-    Debug::Log("Beatmap saved successfully to: " + _beatMapPath + "\n");
+    Debug::Log("Beatmap saved successfully to: " + filePath + "\n");
 
 }
 
-void BeatMapEditor::CreateNewBeatMap(const std::string& _audioFilePath)
+void BeatMapEditor::CreateNewBeatMap(const std::string& _filePath, const std::string& _audioFilePath)
 {
+    Reset();
+
     currentBeatMapData_ = BeatMapData(); // 新しい譜面データを初期化
     currentBeatMapData_.audioFilePath = _audioFilePath; // 音声ファイルパスを設定
     currentBeatMapData_.bpm = 120.0f; // デフォルトBPMを設定
     currentBeatMapData_.offset = 0.0f; // デフォルトオフセットを設定
 
-    currentFilePath_ = "";
+    currentFilePath_ = _filePath;
     isModified_ = true; // 新規作成なので変更された状態にする
     currentTime_ = 0.0f; // 現在の時間を初期化
     isPlaying_ = false; // 再生状態を初期化

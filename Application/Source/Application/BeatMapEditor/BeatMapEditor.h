@@ -49,7 +49,7 @@ private:
     /// 新しい譜面データを作成
     /// </summary>
     /// <param name="_audioFilePath">作成する音楽ファイルパス</param>
-    void CreateNewBeatMap(const std::string& _audioFilePath);
+    void CreateNewBeatMap(const std::string& _filePath, const std::string& _audioFilePath);
 
 
     ///---------------------
