@@ -57,6 +57,8 @@ private:
     Lane* lane_ = nullptr;
     std::list<std::shared_ptr<Note>> notes_;
 
+    bool autoPlay_ = false;
+
     BeatMapData beatMapData_;
 
     bool playing_ = true;

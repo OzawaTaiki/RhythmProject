@@ -44,6 +44,22 @@ void NotesSystem::Update(float _deltaTime)
             continue;
         }
 
+        if (autoPlay_)
+        {
+            // ノートが判定ラインを超えたら消す
+            if ((*it)->GetPosition().z <= judgeLinePosition_)
+            {
+                // 判定を行う
+                JudgeResultData noteJudgeData(NoteJudgeType::Perfect, (*it)->GetLaneIndex());
+                EventManager::GetInstance()->DispatchEvent(
+                    GameEvent("JudgeResult", &noteJudgeData)
+                );
+                (*it)->Judge();
+                continue;
+            }
+
+        }
+
         // ノーツは次のフレームで消す
         if (((*it)->GetPosition().z - noteSize_ / 2.0f) < judgeLinePosition_ - (noteSpeed_ * missJudgeThreshold_))
         {
@@ -238,6 +254,7 @@ void NotesSystem::DebugWindow()
     {
         Reload();
     }
+    ImGui::Checkbox("AutoPlay", &autoPlay_);
 
     static int laneIndex = 0;
     ImGui::InputInt("LaneIndex", &laneIndex);
