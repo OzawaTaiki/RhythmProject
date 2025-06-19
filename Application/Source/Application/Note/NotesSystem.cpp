@@ -20,6 +20,7 @@ NotesSystem::~NotesSystem()
 #endif // _DEBUG
 }
 
+// TODO : 描画と更新の最適化
 void NotesSystem::Initialize(float _noteSpeed, float _noteSize)
 {
     if (lane_ == nullptr)        throw std::runtime_error("Lane is not initialized.");
@@ -121,8 +122,19 @@ void NotesSystem::Reload()
             CreateLongNote(note);
         }
     }
+    isReloaded_ = true;
     stopwatch_->Start();
 
+}
+
+bool NotesSystem::IsReloaded()
+{
+    if (isReloaded_)
+    {
+        isReloaded_ = false;
+        return true;
+    }
+    return false;
 }
 
 void NotesSystem::CreateNormalNote(uint32_t _laneIndex, float _speed,float _targetTime)

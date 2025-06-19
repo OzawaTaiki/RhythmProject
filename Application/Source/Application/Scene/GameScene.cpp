@@ -12,6 +12,8 @@ GameScene::~GameScene()
 {
 }
 
+// TODO ; やりたいこと にゅうりょく精度アップ
+// 別スレッドで入力取得するように。 それと入力された時間を記録
 void GameScene::Initialize(SceneData* _sceneData)
 {
     SceneCamera_.Initialize();
@@ -72,14 +74,12 @@ void GameScene::Initialize(SceneData* _sceneData)
     notesSystem_->SetMissJudgeThreshold(noteJudge_->GetMissJudgeThreshold());
 
     beatMapLoader_ = BeatMapLoader::GetInstance();
-    beatMapLoadFuture_ = beatMapLoader_->LoadBeatMap("Resources/Data/Game/BeatMap/demo.json");
+    beatMapLoadFuture_ = beatMapLoader_->LoadBeatMap("Resources/Data/Game/BeatMap/demo_copy.json");
 
     beatManager_ = std::make_unique<BeatManager>();
-    beatManager_->Initialize(100.0f);
+    beatManager_->Initialize(100);
     beatManager_->SetStopWatch(stopwatch_.get());
-    beatManager_->SetEnableSound(false);
-
-
+    //beatManager_->SetEnableSound(false);
 
 #ifdef _DEBUG
     noteJudge_->SetIsDrawLine(true);
@@ -110,7 +110,15 @@ void GameScene::Update()
         enableDebugCamera_ = !enableDebugCamera_;
     }
     stopwatch_->ShowDebugWindow();
+    float time = voiceInstance_->GetElapsedTime();
+    ImGui::Text("Elapsed Time: %.2f", time);
 
+    if(input_->IsKeyTriggered(DIK_SPACE))
+    {
+        float time = voiceInstance_->GetElapsedTime();
+        float stopWatchTime = stopwatch_->GetElapsedTime<float>();
+        Debug::Log("\n\nVoiceInstance Elapsed Time: " + std::to_string(time) + "\n\n");
+    }
 
     judgeResult_->DebugWindow();
 
@@ -125,6 +133,22 @@ void GameScene::Update()
     {
         beatManager_->SetBPM(bpm);
     }
+
+    static float volume = 0.2f;
+    if (ImGui::DragFloat("music Vol", &volume, 0.01f))
+        voiceInstance_->SetVolume(volume);
+
+    static float offset = 0.6f;
+    ImGui::DragFloat("offset", &offset, 0.001f);
+    if (notesSystem_->IsReloaded())
+    {
+        beatManager_->SetOffset(offset);
+        voiceInstance_->Stop();
+        voiceInstance_.reset();
+        voiceInstance_ = soundInstance_->Play(volume); // ボリュームとオフセットを設定して再生
+        beatManager_->Reset();
+    }
+
 
     noteJudge_->SetPosition(judgeLine_->GetPosition());
     noteJudge_->SetLaneTotalWidth(lane_->GetLaneTotalWidth());
@@ -248,17 +272,22 @@ bool GameScene::IsComplateLoadBeatMap()
         // bpmを設定
         static float bpm = beatMapLoader_->GetLoadedBeatMapData().bpm;
         beatManager_->SetBPM(bpm);
+        beatManager_->SetOffset(beatMapLoader_->GetLoadedBeatMapData().offset);
+        std::string audioFilePath = beatMapLoader_->GetLoadedBeatMapData().audioFilePath;
+        soundInstance_ = AudioSystem::GetInstance()->Load(audioFilePath);
 
-        //std::string audioFilePath = beatMapLoader_->GetLoadedBeatMapData().audioFilePath;
-        //uint32_t handle = Audio::GetInstance()->SoundLoadWave(audioFilePath);
 
         // ロード完了
         Debug::Log("BeatMap Loaded Successfully\n");
 
         // 開始する
         beatManager_->Start();
+        if (soundInstance_)
+        {
+            voiceInstance_ = soundInstance_->Play(0.3f); // ボリューム0.5で再生
+            beatManager_->SetMusicVoiceInstance(voiceInstance_);
+        }
         stopwatch_->Start();
-
         notesSystem_->playing(true);
 
         isBeatMapLoaded_ = true;

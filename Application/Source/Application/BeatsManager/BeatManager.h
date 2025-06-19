@@ -1,8 +1,11 @@
 #pragma once
-
+#include <System/Audio/SoundInstance.h>
+#include <System/Audio/VoiceInstance.h>
 #include <System/Time/Stopwatch.h>
+
 #include <string>
 #include <cstdint>
+#include <memory>
 
 class BeatManager
 {
@@ -40,6 +43,9 @@ public:
     // BPM変更
     void SetBPM(float bpm);
 
+    // 開始オフセット設定
+    void SetOffset(float offset) { offset_ = offset; }
+
     // ボリューム設定
     void SetVolume(float volume) { volume_ = volume; }
 
@@ -50,16 +56,22 @@ public:
 
     void SetEnableSound(bool enable) { soundEnabled_ = enable; }
 
+    void SetMusicVoiceInstance(std::shared_ptr<VoiceInstance> voiceInstance) { musicVoiceInstance_ = voiceInstance; }
+
 private:
     Stopwatch* stopwatch_;
     float bpm_ = 120.0f;       // 1分あたりの拍数
     float offset_ = 0.0f;      // 開始オフセット（秒）
+    const float defaultOffset_ = 0.15f;
     int lastBeat_ = 0;        // 最後に処理した拍数
     bool playing_ = false;     // 再生中かどうか
 
     // サウンド関連
-    uint32_t soundHandle_ = 0;
-    uint32_t voiceHandle_ = 0;
+    std::shared_ptr<SoundInstance> soundInstance_; // サウンドインスタンス
+    std::shared_ptr<VoiceInstance> voiceInstance_; // ボイスインスタンス
+
+    std::shared_ptr<VoiceInstance> musicVoiceInstance_; // 音楽のボイスインスタンス
+
     float volume_ = 0.5f;
     bool soundEnabled_ = true;
 

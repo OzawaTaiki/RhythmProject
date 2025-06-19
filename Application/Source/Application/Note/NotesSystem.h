@@ -8,6 +8,8 @@
 #include <Application/Note/Note.h>
 #include <Application/BeatMapLoader/BeatMapData.h>
 
+#include <System/Audio/SoundInstance.h>
+
 // STL
 #include <list>
 #include <memory>
@@ -35,6 +37,10 @@ public:
     void Reload();
 
     void playing(bool _playing) { playing_ = _playing; }
+
+    void SetMusicSoundInstance(std::shared_ptr<SoundInstance> _musicSoundInstance) { musicSoundInstance_ = _musicSoundInstance; }
+
+    bool IsReloaded();
 
 private:
 
@@ -64,4 +70,9 @@ private:
     bool playing_ = true;
 
     Stopwatch* stopwatch_;
+
+    bool isReloaded_ = false;
+
+    // 再生している音楽データ
+    std::shared_ptr<SoundInstance> musicSoundInstance_ = nullptr;
 };

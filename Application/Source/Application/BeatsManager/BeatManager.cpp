@@ -1,16 +1,14 @@
 #include "BeatManager.h"
-#include <System/Audio/Audio.h>
+#include <System/Audio/AudioSystem.h>
 #include <System/Time/GameTime.h>
 #include <Debug/Debug.h>
 #include <cmath>
 
-BeatManager::BeatManager() : 
-    bpm_(120.0f), 
-    offset_(0.0f), 
-    lastBeat_(0), 
+BeatManager::BeatManager() :
+    bpm_(120.0f),
+    offset_(0.0f),
+    lastBeat_(0),
     playing_(false),
-    soundHandle_(0),
-    voiceHandle_(0),
     volume_(0.5f),
     soundEnabled_(true)
 {
@@ -22,21 +20,19 @@ void BeatManager::Initialize(float bpm, float offset, const std::string& soundPa
     offset_ = offset;
     lastBeat_ = -1;
     playing_ = false;
-    
+
     // サウンドを読み込む
     if (soundEnabled_)
     {
-        soundHandle_ = Audio::GetInstance()->SoundLoadWave(soundPath);
+        soundInstance_ = AudioSystem::GetInstance()->Load(soundPath);
     }
 }
 
 void BeatManager::Update()
 {
     if (!playing_) return;
-    
-    // ストップウォッチを更新
-    //stopwatch_->Update();
-    
+    if (!musicVoiceInstance_ && !musicVoiceInstance_->IsPlaying())return;
+
     // 新しい拍かチェック
     if (IsNewBeat() && soundEnabled_)
     {
@@ -44,7 +40,8 @@ void BeatManager::Update()
         Debug::Log("Beat Triggered: " + std::to_string(GetNearestBeat()) + "\n");
         //Debug::Log("Elapsed Time: " + std::to_string(stopwatch_->GetElapsedTime<float>()) + "\n");
 
-        voiceHandle_ = Audio::GetInstance()->SoundPlay(soundHandle_, volume_, false, true);
+        if(soundInstance_)
+            voiceInstance_ = soundInstance_->Play(volume_);
     }
 }
 
@@ -64,11 +61,11 @@ void BeatManager::Stop()
     {
         playing_ = false;
         //stopwatch_->Stop();
-        
+
         // 音を停止
-        if (soundEnabled_)
+        if (soundEnabled_ && voiceInstance_)
         {
-            Audio::GetInstance()->SoundStop(voiceHandle_);
+            voiceInstance_->Stop();
         }
     }
 }
@@ -77,23 +74,23 @@ void BeatManager::Reset()
 {
     //stopwatch_->Reset();
     lastBeat_ = 0;
-    
+
     // 音を停止
-    if (soundEnabled_)
+    if (soundEnabled_ && voiceInstance_)
     {
-        Audio::GetInstance()->SoundStop(voiceHandle_);
+        voiceInstance_->Stop();
     }
 }
 
 float BeatManager::GetCurrentBeat() const
 {
-    float currentTime = stopwatch_->GetElapsedTime<float>() - offset_;
+    float currentTime = musicVoiceInstance_->GetElapsedTime() - ( offset_);
     return currentTime / GetSecondsPerBeat();
 }
 
 int BeatManager::GetNearestBeat() const
 {
-    return static_cast<int>(std::round(GetCurrentBeat()));
+    return static_cast<int>(std::floor(GetCurrentBeat()));
 }
 
 bool BeatManager::IsNewBeat()
@@ -111,7 +108,7 @@ bool BeatManager::IsBeatTriggered(float tolerance) const
 {
     float currentBeat = GetCurrentBeat();
     float fractionalPart = currentBeat - std::floor(currentBeat);
-    
+
     // 拍のタイミング内かをチェック
     return (fractionalPart < tolerance || fractionalPart > (1.0f - tolerance));
 }

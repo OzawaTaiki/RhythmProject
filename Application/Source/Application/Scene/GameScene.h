@@ -7,6 +7,10 @@
 #include <Features/LineDrawer/LineDrawer.h>
 #include <System/Time/Stopwatch.h>
 #include <Features/Effect/Manager/ParticleSystem.h>
+#include <System/Audio/SoundInstance.h>
+#include <System/Audio/VoiceInstance.h>
+#include <System/Audio/AudioSystem.h>
+
 
 // Application
 #include <Application/Lane/Lane.h>
@@ -68,4 +72,7 @@ private:
 
     bool isBeatMapLoaded_ = false;
     int frameCount_ = 0;
+
+    std::shared_ptr<SoundInstance> soundInstance_ = nullptr;
+    std::shared_ptr<VoiceInstance> voiceInstance_ = nullptr;
 };
