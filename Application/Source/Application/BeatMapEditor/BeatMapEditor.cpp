@@ -4,6 +4,7 @@
 #include <Debug/Debug.h>
 #include <Debug/ImGuiHelper.h>
 #include <System/Input/Input.h>
+#include <System/Audio/AudioSystem.h>
 
 #include <Application/BeatMapLoader/BeatMapLoader.h>
 #include <Utility/FileDialog/FileDialog.h>
@@ -14,6 +15,7 @@
 // TODO いろいろ
 // ブリッジに重ねてノーツを置けてしまう
 // zoom スクロール grid分割 全部キーボードあるいはマウスでできるように
+// 流しながらノート入力したーい
 
 void BeatMapEditor::Initialize()
 {
@@ -423,6 +425,53 @@ void BeatMapEditor::DrawUI()
         ImGui::RadioButton("1/8", &snapIntervalIndex, 3);
         ImGui::RadioButton("1/16", &snapIntervalIndex, 4);
         snapInterval_ = 1.0f / std::powf(2.0f, static_cast<float>(snapIntervalIndex));
+
+        ImGui::SeparatorText("Music Control");
+        if (ImGui::Button("Load Music"))
+        {
+            std::string musicFilePath = FileDialog::OpenFile("Audio Files (*.wav;)\0*.wav;\0");
+            if (!musicFilePath.empty())
+            {
+                // 音楽ファイルのパスを設定
+                currentBeatMapData_.audioFilePath = musicFilePath;
+                // 音楽をロード
+                musicSoundInstance_ = AudioSystem::GetInstance()->Load(musicFilePath);
+            }
+        }
+        ImGui::BeginDisabled(!musicSoundInstance_ ); // 音楽がロードされていない場合は無効化
+        {
+            if(ImGui::Button("Play Begin"))
+            {
+                RestartMusic();
+            }
+            ImGui::SameLine();
+
+            if (ImGui::Button("Play Curren Time"))
+            {
+                PlayMusic();
+            }
+            ImGui::SameLine();
+            ImGui::BeginDisabled(!musicVoiceInstance_|| !musicVoiceInstance_->IsPlaying()); // 音楽が再生中でない場合は無効化
+            {
+                if (ImGui::Button("Stop Music"))
+                {
+                    StopMusic();
+                }
+            }
+            ImGui::EndDisabled(); // 無効化終了
+        }
+        ImGui::EndDisabled();
+
+
+
+        ImGui::Text("Music File : %s", currentBeatMapData_.audioFilePath.empty() ? "None" : currentBeatMapData_.audioFilePath.c_str());
+        ImGui::Text("Music Duration: %.2f seconds", musicSoundInstance_ ? musicSoundInstance_->GetDuration() : 0.0f); // 音楽の再生時間を表示
+        if (ImGui::DragFloat("Volume", &volume_, 0.01f, 0.0f, 1.0f)) // 音量の入力フィールド
+        {
+            if (musicVoiceInstance_)
+                musicVoiceInstance_->SetVolume(volume_);
+        }
+
     }
     ImGui::End();
 
@@ -512,6 +561,13 @@ void BeatMapEditor::LoadBeatMap(const std::string& _beatMapPath)
         Reset(); // エディターの状態をリセット
         currentBeatMapData_ = beatMapLoader_->GetLoadedBeatMapData();
         currentFilePath_ = _beatMapPath; // 現在のファイルパスを更新
+
+        std::string musicFilePath = currentBeatMapData_.audioFilePath;
+        if (!musicFilePath.empty())
+        {
+            // 音声ファイルのパスが設定されている場合は、音声をロード
+            musicSoundInstance_ = AudioSystem::GetInstance()->Load(musicFilePath);
+        }
     }
     else
     {
@@ -881,6 +937,11 @@ void BeatMapEditor::HandleInput()
     if (input_->IsKeyTriggered(DIK_SPACE))
     {
         isPlaying_ = !isPlaying_; // スペースキーで再生/停止を切り替え
+        if (isPlaying_)
+            PlayMusic();
+        else
+            StopMusic();
+
         if (!isPlaying_)
         {
             // 停止時は現在の時間をスクロールオフセットに設定
@@ -1002,7 +1063,6 @@ void BeatMapEditor::UpdateEditorState(float _deltaTime)
         editorCoordinate_.SetScrollOffset(currentTime_);
     }
 
-    //editorCoordinate_.SetScrollOffset(scrollOffset_);
 }
 
 int32_t BeatMapEditor::FindNoteAtTime(uint32_t _laneIndex, float _targetTime, float _tolerance) const
@@ -1062,4 +1122,31 @@ void BeatMapEditor::Reset()
     drawNoteIndices_.clear();
     noteIndex_ = 0;
     holdNoteIndex_ = 0;
+}
+
+void BeatMapEditor::RestartMusic()
+{
+    if (musicSoundInstance_)
+    {
+        StopMusic(); // 既存の音楽を停止
+        musicVoiceInstance_ = musicSoundInstance_->Play(volume_); // 音楽を再生
+    }
+}
+
+void BeatMapEditor::PlayMusic()
+{
+    if (musicSoundInstance_)
+    {
+        StopMusic(); // 既存の音楽を停止
+        musicVoiceInstance_ = musicSoundInstance_->Play(volume_, currentTime_); // 現在の時間から音楽を再生
+    }
+}
+
+void BeatMapEditor::StopMusic()
+{
+    if (musicVoiceInstance_)
+    {
+        musicVoiceInstance_->Stop(); // 音楽を停止
+        musicVoiceInstance_ = nullptr; // 音楽のインスタンスをリセット
+    }
 }
