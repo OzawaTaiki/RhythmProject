@@ -2,9 +2,14 @@
 
 #include <Features/UI/UISprite.h>
 #include <Features/Camera/Camera/Camera.h>
+#include <Features/LineDrawer/LineDrawer.h>
+#include <System/Audio/SoundInstance.h>
+#include <System/Audio/VoiceInstance.h>
+
 
 #include <Application/BeatMapEditor/EditorCoordinate.h>
 #include <Application/BeatMapLoader/BeatMapData.h>
+
 
 #include <string>
 #include <cstdint>
@@ -139,6 +144,21 @@ private:
     /// </summary>
     void Reset();
 
+    /// <summary>
+    /// 音楽を始めから再生
+    /// </summary>
+    void RestartMusic();
+
+    /// <summary>
+    /// 音楽を再生
+    /// </summary>
+    void PlayMusic();
+
+    /// <summary>
+    /// 音楽を停止
+    /// </summary>
+    void StopMusic();
+
     // =========================================
     // 描画
     // ==========================================
@@ -178,7 +198,9 @@ private:
     /// </summary>
     void DrawUI();
 
-
+    /// <summary>
+    /// 配置プレビューのノートを描画
+    /// </summary>
     void DrawPreviewNote();
 
 private:
@@ -195,6 +217,11 @@ private:
     BeatMapData currentBeatMapData_; // 現在編集中の譜面データ
     std::string currentFilePath_ = ""; // 現在編集中のファイルパス
     bool isModified_ = false; // 譜面が変更されたかどうかのフラグ
+
+    // 曲
+    std::shared_ptr<SoundInstance> musicSoundInstance_; // 音楽の音声インスタンス
+    std::shared_ptr<VoiceInstance> musicVoiceInstance_; // 音楽の音声インスタンス
+    float volume_ = 0.3f; // 音量
 
     // エディター状態
     float currentTime_ = 0.0f; // 現在の時間
@@ -257,19 +284,8 @@ private:
     float previewAlpha_ = 0.5f; // プレビューの透明度
 
 
-    struct SaveInfo
-    {
-        std::string title = "None"; // 曲のタイトル
-        std::string artist = "unknown"; // アーティスト名
-        std::string audioFilePath = "none"; // 音声ファイルのパス
-        float bpm = 120.0f; // テンポ
-        float offset = 0.0f; // オフセット時間
-        uint32_t difficultyLevel = 3; // 難易度レベル : 仮
-    };
-
-
-    std::unique_ptr<UISprite> dummy_editArea_;
-    std::unique_ptr<UISprite> dummy_window_;
+    std::unique_ptr<UISprite> dummy_editArea_; // エディターエリア マウス判定用
+    std::unique_ptr<UISprite> dummy_window_; // ウィンドウ マウス判定用
 
     //=========================================
     // 描画用
