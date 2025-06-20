@@ -6,6 +6,9 @@
 
 #include <Application/EventData/JudgeResultData.h>
 
+//TODO : タイミングががが
+// 絶対時間を採用する。 ノートに生成時間とか持たせる。あとtimeはmusicVoiceのを使う
+
 NotesSystem::NotesSystem(Lane* _lane) : lane_(_lane), playing_(false)
 {
 #ifdef _DEBUG
@@ -36,6 +39,8 @@ void NotesSystem::Initialize(float _noteSpeed, float _noteSize)
 
 void NotesSystem::Update(float _deltaTime)
 {
+
+    float elapsedTime = musicVoiceInstance_->GetElapsedTime();
     for (auto it = notes_.begin(); it != notes_.end();)
     {
         // 判定済みのノーツは削除
@@ -72,7 +77,7 @@ void NotesSystem::Update(float _deltaTime)
             (*it)->Judge();
         }
         else if (playing_)
-            (*it)->Update(_deltaTime);
+            (*it)->Update(elapsedTime);
 
         ++it;
     }
@@ -147,49 +152,17 @@ void NotesSystem::CreateNormalNote(uint32_t _laneIndex, float _speed,float _targ
     laneStartPosition.z = judgeLinePosition_ + (_targetTime - elapsedTime) * _speed;
 
     laneStartPosition.y += noteSize_ / 2.0f;
+    Vector3 targetPosition = laneStartPosition;
+    targetPosition.z = judgeLinePosition_;
     auto note = std::make_shared<NomalNote>();
-    note->Initilize(laneStartPosition, _speed, _targetTime,_laneIndex);
+    note->Initilize(laneStartPosition, _targetTime, elapsedTime, targetPosition, _laneIndex);
 
     notes_.emplace_back(note);
 
     lane_->AddNote(_laneIndex, note);
 }
 
-void NotesSystem::CreateLongNote(uint32_t _laneIndex, float _speed, float _targetTime, std::shared_ptr<Note> _nextNote)
-{
-    if (lane_ == nullptr)        throw std::runtime_error("Lane is not initialized.");
 
-    float elapsedTime = stopwatch_->GetElapsedTime<float>();
-
-    Vector3 laneStartPosition = lane_->GetLaneStartPosition(_laneIndex);
-    laneStartPosition.z = judgeLinePosition_ + (_targetTime - elapsedTime) * _speed;
-    laneStartPosition.y += noteSize_ / 2.0f;
-    auto note = std::make_shared<LongNote>();
-
-    note->Initilize(laneStartPosition, _speed, _targetTime, _laneIndex);
-    notes_.emplace_back(note);
-    lane_->AddNote(_laneIndex, note);
-
-
-    // 次のノーツを設定
-    if (_nextNote)
-    {
-
-    }
-    else
-    {
-        /// デバッグ用
-        auto nextNote = std::make_shared<LongNote>();
-        float targetTime = _targetTime + 1.0f;
-        laneStartPosition.z = judgeLinePosition_ + targetTime * _speed;
-        nextNote->Initilize(laneStartPosition, _speed, _targetTime, _laneIndex);
-
-        //note->SetNextNote(nextNote);
-
-        notes_.emplace_back(nextNote);
-        lane_->AddNote(_laneIndex, nextNote);
-    }
-}
 
 void NotesSystem::CreateLongNote(const NoteData& _noteData)
 {
@@ -211,8 +184,10 @@ void NotesSystem::CreateLongNote(const NoteData& _noteData)
     laneStartPosition.z = judgeLinePosition_ + (_noteData.targetTime - elapsedTime) * noteSpeed_;
     laneStartPosition.y += noteSize_ / 2.0f;
 
+    Vector3 targetPosition = laneStartPosition;
+    targetPosition.z = judgeLinePosition_;
     // ノーツの初期化
-    note->Initilize(laneStartPosition, noteSpeed_, _noteData.targetTime, _noteData.laneIndex);
+    note->Initilize(laneStartPosition, _noteData.targetTime, elapsedTime, targetPosition, _noteData.laneIndex);
 
 
 
@@ -225,7 +200,7 @@ void NotesSystem::CreateLongNote(const NoteData& _noteData)
     laneStartPosition.z = judgeLinePosition_ + (targetTime - elapsedTime) * noteSpeed_;
     laneStartPosition.y += noteSize_ / 2.0f;
 
-    nextNote->Initilize(laneStartPosition, noteSpeed_, targetTime, _noteData.laneIndex);
+    nextNote->Initilize(laneStartPosition, targetTime, elapsedTime, targetPosition, _noteData.laneIndex);
     nextNote->SetBeforeNote(note);
 
     // listとレーンに追加
@@ -234,9 +209,6 @@ void NotesSystem::CreateLongNote(const NoteData& _noteData)
 
     notes_.emplace_back(nextNote);
     lane_->AddNote(_noteData.laneIndex, nextNote);
-
-
-
 }
 
 std::shared_ptr<Note> NotesSystem::CreateNextNoteForLongNote(uint32_t _laneIndex, float _speed, float _targetTime)
@@ -250,7 +222,9 @@ std::shared_ptr<Note> NotesSystem::CreateNextNoteForLongNote(uint32_t _laneIndex
 
     float targetTime = _targetTime;
     laneStartPosition.z = judgeLinePosition_ + targetTime * _speed;
-    nextNote->Initilize(laneStartPosition, _speed, _targetTime, _laneIndex);
+    Vector3 targetPosition = laneStartPosition;
+    targetPosition.z = judgeLinePosition_;
+    nextNote->Initilize(laneStartPosition, targetTime, elapsedTime, targetPosition, _laneIndex);
 
     return nextNote;
 }

@@ -37,11 +37,10 @@ void BeatManager::Update()
     if (IsNewBeat() && soundEnabled_)
     {
         // 拍に合わせて音を鳴らす
-        Debug::Log("Beat Triggered: " + std::to_string(GetNearestBeat()) + "\n");
-        //Debug::Log("Elapsed Time: " + std::to_string(stopwatch_->GetElapsedTime<float>()) + "\n");
-
-        if(soundInstance_)
+        if (soundInstance_)
+        {
             voiceInstance_ = soundInstance_->Play(volume_);
+        }
     }
 }
 
@@ -84,7 +83,7 @@ void BeatManager::Reset()
 
 float BeatManager::GetCurrentBeat() const
 {
-    float currentTime = musicVoiceInstance_->GetElapsedTime() - ( offset_);
+    float currentTime = musicVoiceInstance_->GetElapsedTime() - offset_;
     return currentTime / GetSecondsPerBeat();
 }
 

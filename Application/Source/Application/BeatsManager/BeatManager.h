@@ -62,7 +62,6 @@ private:
     Stopwatch* stopwatch_;
     float bpm_ = 120.0f;       // 1分あたりの拍数
     float offset_ = 0.0f;      // 開始オフセット（秒）
-    const float defaultOffset_ = 0.15f;
     int lastBeat_ = 0;        // 最後に処理した拍数
     bool playing_ = false;     // 再生中かどうか
 

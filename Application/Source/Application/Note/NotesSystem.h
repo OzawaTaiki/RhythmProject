@@ -38,7 +38,9 @@ public:
 
     void playing(bool _playing) { playing_ = _playing; }
 
-    void SetMusicSoundInstance(std::shared_ptr<SoundInstance> _musicSoundInstance) { musicSoundInstance_ = _musicSoundInstance; }
+    void SetAutoPlay(bool _autoPlay) { autoPlay_ = _autoPlay; }
+
+    void SetMusicVoiceInstance(std::shared_ptr<VoiceInstance> _voiceInstance) { musicVoiceInstance_ = _voiceInstance; }
 
     bool IsReloaded();
 
@@ -46,7 +48,6 @@ private:
 
     void CreateNormalNote(uint32_t _laneIndex, float _speed, float _targetTime);
 
-    void CreateLongNote(uint32_t _laneIndex, float _speed, float _targetTime,std::shared_ptr<Note> _beforeNote);
     void CreateLongNote(const NoteData& _noteData);
     std::shared_ptr<Note> CreateNextNoteForLongNote(uint32_t _laneIndex, float _speed, float _targetTime);
 
@@ -74,5 +75,6 @@ private:
     bool isReloaded_ = false;
 
     // 再生している音楽データ
-    std::shared_ptr<SoundInstance> musicSoundInstance_ = nullptr;
+    std::shared_ptr<VoiceInstance> musicVoiceInstance_ = nullptr;
+
 };

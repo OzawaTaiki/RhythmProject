@@ -2,7 +2,7 @@
 
 #include <Features/LineDrawer/LineDrawer.h>
 
-void Note::Initilize(const Vector3 _position, float _speed, float _targetTime, uint32_t _laneIndex)
+void Note::Initilize(const Vector3 _position, float _targetTime, float _generatedTime, const Vector3& _targetPosition, uint32_t _laneIndex)
 {
     model_ = std::make_unique<ObjectModel>("note");
     model_->Initialize("cube/cube.obj");
@@ -14,16 +14,20 @@ void Note::Initilize(const Vector3 _position, float _speed, float _targetTime, u
     model_->scale_.z = 0.5f;
     model_->scale_.y = 0.1f;
 
-    speed_ = _speed;
-    targetTime_ = _targetTime;
     laneIndex_ = _laneIndex;
+
+    targetTime_ = _targetTime;
+    generateTime_ = _generatedTime;
+    generatePosition_ = _position;
+    targetPosition_ = _targetPosition;
 
     model_->Update();
 }
 
-void Note::Update(float _deltaTime)
+void Note::Update(float _elapseTime)
 {
-    model_->translate_ += direction * speed_ * _deltaTime;
+    float t = _elapseTime / targetTime_;
+    model_->translate_ = Vector3::Lerp(generatePosition_, targetPosition_, t);
 
     model_->Update();
 }
@@ -33,14 +37,21 @@ void Note::Draw(const Camera* _camera)
     model_->Draw(_camera, 0, color_);
 }
 
-void NomalNote::Initilize(const Vector3 _position, float _speed, float _targetTime, uint32_t _laneIndex)
+void Note::Judge()
 {
-    Note::Initilize(_position, _speed, _targetTime,_laneIndex);
+    isJudged_ = true; // 判定済みにする
+    //TODO: 音鳴らす
+    // event発行？soundInstance持たせる？
 }
 
-void NomalNote::Update(float _deltaTime)
+void NomalNote::Initilize(const Vector3 _position, float _targetTime, float _generatedTime, const Vector3& _targetPosition, uint32_t _laneIndex)
 {
-    Note::Update(_deltaTime);
+    Note::Initilize(_position, _targetTime, _generatedTime, _targetPosition, _laneIndex);
+}
+
+void NomalNote::Update(float _elapseTime)
+{
+    Note::Update(_elapseTime);
 }
 
 void NomalNote::Draw(const Camera* _camera)
@@ -56,18 +67,18 @@ LongNote::~LongNote()
     }
 }
 
-void LongNote::Initilize(const Vector3 _position, float _speed, float _targetTime, uint32_t _laneIndex)
+void LongNote::Initilize(const Vector3 _position, float _targetTime, float _generatedTime, const Vector3& _targetPosition, uint32_t _laneIndex)
 {
-    Note::Initilize(_position, _speed, _targetTime, _laneIndex);
+    Note::Initilize(_position, _targetTime, _generatedTime, _targetPosition,_laneIndex);
 
     noteBridge_ = std::make_unique<ObjectModel>("noteBridge");
     noteBridge_->Initialize("pY1x1p01Plane");// y+向きpivot(010)
     noteBridge_->useQuaternion_ = true;
 }
 
-void LongNote::Update(float _deltaTime)
+void LongNote::Update(float _elapseTime)
 {
-    Note::Update(_deltaTime);
+    Note::Update(_elapseTime);
 
 
     if (beforeNote_)

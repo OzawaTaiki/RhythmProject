@@ -10,6 +10,11 @@
 
 GameScene::~GameScene()
 {
+    if (voiceInstance_)
+    {
+        voiceInstance_->Stop();
+        voiceInstance_.reset();
+    }
 }
 
 // TODO ; やりたいこと にゅうりょく精度アップ
@@ -124,9 +129,14 @@ void GameScene::Update()
 
     if(ImGui::Button("stop"))
         beatManager_->Stop();
-    if (ImGui::Button("play"))
+    if (ImGui::Button("play##beat"))
         beatManager_->Start();
 
+
+    if (ImGui::Button("play##music"))
+    {
+        voiceInstance_->Play();
+    }
     static float bpm = 120;
     ImGui::DragFloat("BPM", &bpm, 0.1f);
     if (ImGui::Button("SetBPM"))
@@ -279,15 +289,26 @@ bool GameScene::IsComplateLoadBeatMap()
 
         // ロード完了
         Debug::Log("BeatMap Loaded Successfully\n");
+        if(soundInstance_)
+            voiceInstance_ = soundInstance_->GenerateVoiceInstance(0.3f);
+        if (voiceInstance_)
+        {
+            beatManager_->SetMusicVoiceInstance(voiceInstance_);
+            notesSystem_->SetMusicVoiceInstance(voiceInstance_);
+        }
+        else
+        {
+            Debug::Log("Error: Failed to create voice instance for sound: " + audioFilePath + "\n");
+            assert(false);
+        }
 
         // 開始する
         beatManager_->Start();
-        if (soundInstance_)
+        if (voiceInstance_)
         {
-            voiceInstance_ = soundInstance_->Play(0.3f); // ボリューム0.5で再生
-            beatManager_->SetMusicVoiceInstance(voiceInstance_);
+            voiceInstance_->Play();
         }
-        stopwatch_->Start();
+        //stopwatch_->Start();
         notesSystem_->playing(true);
 
         isBeatMapLoaded_ = true;
