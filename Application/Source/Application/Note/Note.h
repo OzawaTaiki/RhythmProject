@@ -13,8 +13,8 @@ public:
     Note() = default;
     virtual ~Note() = default;
 
-   virtual void Initilize(const Vector3 _position,float _speed,float _targetTime, uint32_t _laneIndex);
-   virtual void Update(float _deltaTime);
+    virtual void Initilize(const Vector3 _position, float _targetTime, float _generatedTime, const Vector3& _targetPosition, uint32_t _laneIndex);
+   virtual void Update(float _elapseTime);
    virtual void Draw(const Camera* _camera);
 
    float GetTargetTime() const { return targetTime_; }
@@ -24,20 +24,20 @@ public:
    uint32_t GetLaneIndex() const { return laneIndex_; }
 
    bool IsJudged() const { return isJudged_; }
-   virtual void Judge() { isJudged_ = true; }
+   virtual void Judge();
 
 protected:
 
     std::unique_ptr<ObjectModel> model_ = nullptr;
     Vector4 color_ = { 1,1,1,1 };
 
-    uint32_t laneIndex_ = 0;
-
-    float speed_ = 0.0f;
-
     float targetTime_ = 0.0f;
 
-    const Vector3 direction = { 0,0,-1 };
+    uint32_t laneIndex_ = 0; // レーンインデックス
+
+    float generateTime_ = 0.0f; // ノーツが生成された時間
+    Vector3 generatePosition_ = { 0,0,0 }; // ノーツが生成された位置
+    Vector3 targetPosition_ = { 0,0,0 }; // ノーツの目標位置
 
     bool isJudged_ = false;
 };
@@ -50,8 +50,8 @@ public:
     ~NomalNote() override = default;
 
 
-    void Initilize(const Vector3 _position, float _speed, float _targetTime, uint32_t _laneIndex) override;
-    void Update(float _deltaTime) override;
+    void Initilize(const Vector3 _position, float _targetTime, float _generatedTime, const Vector3& _targetPosition, uint32_t _laneIndex) override;
+    void Update(float _elapseTime) override;
     void Draw(const Camera* _camera) override;
 
 
@@ -66,8 +66,8 @@ class LongNote : public Note
 public:
     LongNote() = default;
     ~LongNote() override;
-    void Initilize(const Vector3 _position, float _speed, float _targetTime, uint32_t _laneIndex) override;
-    void Update(float _deltaTime) override;
+    void Initilize(const Vector3 _position, float _targetTime, float _generatedTime, const Vector3& _targetPosition, uint32_t _laneIndex) override;
+    void Update(float _elapseTime) override;
     void Draw(const Camera* _camera) override;
 
     virtual void Judge() override;
