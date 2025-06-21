@@ -94,7 +94,10 @@ public:
     /// <param name="_endTime"> 終了時間</param>
     void GetVisibleTimeRange(float& _startTime,float& _endTime) const;
 
-
+    void SetTopMargin(float _margin);
+    void SetBottomMargin(float _margin);
+    void SetVerticalMargins(float _topMargin, float _bottomMargin);
+    void SetVerticalMargins(const Vector2& _margin);
 
     // ========================================
     // グリッドライン
@@ -143,6 +146,10 @@ public:
     float GetLaneMargin() const { return laneMargin_; }
     float GetTimeZeroOffsetRatio() const { return timeZeroOffsetRatio_; }
 
+    float GetTopMargin() const { return topMargin_; }
+    float GetBottomMargin() const { return bottomMargin_; }
+
+    float GetEditAreaHeight() const { return screenSize_.y - topMargin_ - bottomMargin_; }
 
     void SetTimeZeroOffsetRatio(float _ratio);
 
@@ -160,6 +167,9 @@ private:
     float editAreaWidth_;    // 編集エリアの幅
     float laneWidth_;        // 1レーンの幅
     float laneMargin_;       // レーン間の余白
+
+    float topMargin_; // 上部マージン
+    float bottomMargin_; // 下部マージン
 
     float zoom_ ; // ズーム倍率
     float scrollOffset_; // スクロールオフセット

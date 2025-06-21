@@ -30,7 +30,7 @@ public:
 
 
     void Initialize();
-    void Update(float _deltaTime);
+    void Update();
     void Draw(const Camera* _camera);
     void Finalize();
 
@@ -108,8 +108,7 @@ private:
     /// <summary>
     /// エディターの状態更新
     /// </summary>
-    /// <param name="_deltaTime">deltaTime</param>
-    void UpdateEditorState(float _deltaTime);
+    void UpdateEditorState();
 
     /// <summary>
     /// パラメータからノートを検索
@@ -226,7 +225,6 @@ private:
     // エディター状態
     float currentTime_ = 0.0f; // 現在の時間
     bool isPlaying_ = false; // 再生中かどうかのフラグ
-    float playSpeed_ = 1.0f; // 再生速度
 
     // 選択状態
     std::vector<size_t> selectedNoteIndices_; // 選択中のノートインデックス

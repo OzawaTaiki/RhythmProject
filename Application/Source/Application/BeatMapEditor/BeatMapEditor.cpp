@@ -15,7 +15,9 @@
 // TODO いろいろ
 // ブリッジに重ねてノーツを置けてしまう
 // zoom スクロール grid分割 全部キーボードあるいはマウスでできるように
+// 最低限 Undoは実装したい
 // 流しながらノート入力したーい
+// targetTimeをもとに再生を行う
 
 void BeatMapEditor::Initialize()
 {
@@ -23,15 +25,13 @@ void BeatMapEditor::Initialize()
     lineDrawer_ = LineDrawer::GetInstance();
 
     beatMapLoader_ = BeatMapLoader::GetInstance();
-    editorCoordinate_.Initialize(Vector2(1280.0f/2.0f, 720.0f), 4); // 初期画面サイズとレーン数を設定
-
+    editorCoordinate_.Initialize(Vector2(1280.0f / 4.0f, 720.0f), 4); // 初期画面サイズとレーン数を設定
+    editorCoordinate_.SetTimeZeroOffsetRatio(0.1f);
 
     currentBeatMapData_ = BeatMapData(); // 現在の譜面データを初期化
     isModified_ = false; // 譜面が変更されていない状態に初期化
     currentTime_ = 0.0f; // 現在の時間を初期化
     isPlaying_ = false; // 再生状態を初期化
-
-    playSpeed_ = 1.0f; // 再生速度を初期化
 
 
     for2dCamera_.Initialize(CameraType::Orthographic, Vector2(1280.0f, 720.0f)); // 2Dカメラの初期化
@@ -89,8 +89,8 @@ void BeatMapEditor::Initialize()
 
         laneSprite->Initialize("LaneSprite_" + std::to_string(i));
         laneSprite->SetAnchor(Vector2(0.5f, 0.0f)); // レーンのアンカーを中央下に設定
-        laneSprite->SetSize(Vector2(laneWidth, 720.0f)); // レーンのサイズを設定
-        laneSprite->SetPos(Vector2(editorCoordinate_.GetLaneLeftX(i) + laneWidth/2.0f, 0.0f)); // レーンの位置を設定
+        laneSprite->SetSize(Vector2(laneWidth, editorCoordinate_.GetEditAreaHeight())); // レーンのサイズを設定
+        laneSprite->SetPos(Vector2(editorCoordinate_.GetLaneLeftX(i) + laneWidth/2.0f, editorCoordinate_.GetBottomMargin())); // レーンの位置を設定
         laneSprite->SetColor(Vector4(0.3f, 0.3f, 0.3f, 1.0f));
 
         laneSprites_.push_back(std::move(laneSprite)); // スプライトをリストに格納
@@ -146,9 +146,9 @@ void BeatMapEditor::Initialize()
 
     dummy_editArea_ = std::make_unique<UISprite>();
     dummy_editArea_->Initialize("DummySprite");
-    dummy_editArea_->SetPos(Vector2(editorCoordinate_.GetEditAreaX(), 0));
+    dummy_editArea_->SetPos(Vector2(editorCoordinate_.GetEditAreaX(), editorCoordinate_.GetTopMargin()));
     dummy_editArea_->SetAnchor(Vector2(0.0f, 0.0f));// ダミースプライトのアンカーを左上に設定
-    dummy_editArea_->SetSize(Vector2(editorCoordinate_.GetEditAreaWidth(), 720)); // ダミースプライトのサイズを設定
+    dummy_editArea_->SetSize(Vector2(editorCoordinate_.GetEditAreaWidth(), editorCoordinate_.GetEditAreaHeight())); // ダミースプライトのサイズを設定
 
     dummy_window_ = std::make_unique<UISprite>();
     dummy_window_->Initialize("DummyWindowSprite");
@@ -158,14 +158,14 @@ void BeatMapEditor::Initialize()
 
 }
 
-void BeatMapEditor::Update(float _deltaTime)
+void BeatMapEditor::Update()
 {
 
     // 入力処理
     HandleInput();
 
     // エディター状態の更新
-    UpdateEditorState(_deltaTime);
+    UpdateEditorState();
 }
 
 void BeatMapEditor::Draw(const Camera* _camera)
@@ -205,6 +205,12 @@ void BeatMapEditor::DrawNotes()
     float startTime, endTime;
     editorCoordinate_.GetVisibleTimeRange(startTime, endTime);
 
+    float startY = editorCoordinate_.TimeToScreenY(startTime); // 開始時間のY座標
+    float endY = editorCoordinate_.TimeToScreenY(endTime); // 終了時間のY座標
+
+    float s = editorCoordinate_.ScreenYToTime(startY); // 開始時間の秒数
+    float e = editorCoordinate_.ScreenYToTime(endY); // 終了時間の秒数
+
     // ノートの描画処理
     for (uint32_t drawNoteIndex = 0; drawNoteIndex < currentBeatMapData_.notes.size(); ++drawNoteIndex)
     {
@@ -215,11 +221,24 @@ void BeatMapEditor::DrawNotes()
             (note.targetTime + note.holdDuration < startTime ||
             note.targetTime + note.holdDuration > endTime) )
         {
+            if (note.noteType == "normal")
+                continue;
+
             // 可視範囲
             float visibleTimeRange = endTime - startTime;
             // ノートのホールド時間が可視範囲より小さい場合は描画しない
             if (visibleTimeRange > note.holdDuration)
-                continue;
+            {
+                // スタートタイムからの方向ベクトルを取得する
+                float dir1 = note.targetTime - startTime;
+                float dir2 = note.targetTime + note.holdDuration - startTime;
+
+                // 同じ方向なら正の数になる
+                if (dir1 * dir2 > 0.0f)
+                {// ブリッジが画面内に入ることはない
+                    continue;
+                }
+            }
         }
 
         DrawNote(note);
@@ -394,12 +413,10 @@ void BeatMapEditor::DrawUI()
             ImGui::Text("Selected Notes: %zu", selectedNoteIndices_.size());
             ImGui::Text("Grid Snap: %s", gridSnapEnabled_ ? "Enabled" : "Disabled");
 
-            ImGui::Text("Play Speed: %.2f", playSpeed_);
         }
 
 
         ImGui::DragFloat("Current Time", &currentTime_, 0.01f, 0.0f, 1000.0f);
-        ImGui::DragFloat("Play Speed", &playSpeed_, 0.01f, 0.1f, 10.0f);
         static float zoom = 0;
         zoom = editorCoordinate_.GetZoom();
         if(ImGui::DragFloat("Zoom", &zoom, 0.01f, 0.1f, 10.0f))
@@ -1054,15 +1071,25 @@ void BeatMapEditor::HandleInput()
     }
 }
 
-void BeatMapEditor::UpdateEditorState(float _deltaTime)
+void BeatMapEditor::UpdateEditorState()
 {
     if (isPlaying_)
     {
-        currentTime_ += _deltaTime * playSpeed_;
+        currentTime_ = musicVoiceInstance_->GetElapsedTime();
 
         editorCoordinate_.SetScrollOffset(currentTime_);
     }
 
+    if (musicSoundInstance_)
+    {
+        if (currentTime_ > musicSoundInstance_->GetDuration())
+        {
+            isPlaying_ = false; // 音楽の再生が終了したら停止
+            currentTime_ = musicSoundInstance_->GetDuration(); // 現在の時間を音楽の長さに設定
+            scrollOffset_ = currentTime_; // スクロールオフセットを更新
+            editorCoordinate_.SetScrollOffset(scrollOffset_); // エディターのスクロールオフセットを更新
+        }
+    }
 }
 
 int32_t BeatMapEditor::FindNoteAtTime(uint32_t _laneIndex, float _targetTime, float _tolerance) const
