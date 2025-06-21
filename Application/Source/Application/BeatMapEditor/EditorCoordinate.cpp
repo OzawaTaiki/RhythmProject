@@ -1,4 +1,5 @@
 #include "EditorCoordinate.h"
+#include <Debug/Debug.h>
 
 EditorCoordinate::EditorCoordinate() :
     screenSize_(1280.0f, 720.0f),
@@ -13,7 +14,9 @@ EditorCoordinate::EditorCoordinate() :
     cachedVisibleStartTime_(0.0f),
     cachedVisibleEndTime_(0.0f),
     visibleRangeDirty_(true),
-    timeZeroOffsetRatio_(0.2f)
+    timeZeroOffsetRatio_(0.2f),
+    topMargin_(50.0f), // 上部マージン
+    bottomMargin_(50.0f) // 下部マージン
 {
 }
 
@@ -65,14 +68,19 @@ float EditorCoordinate::TimeToScreenY(float _time) const
     // 下がtime=0
     // スクロールオフセットを考慮
     float adjustedTime = _time - scrollOffset_;
-    float baseY = screenSize_.y * (1.0f - timeZeroOffsetRatio_);
+    // offsetを考慮
+    float effectiveHeight = screenSize_.y - topMargin_ - bottomMargin_;
+    float baseY = bottomMargin_ + effectiveHeight *  (1.0f - timeZeroOffsetRatio_);
+
     return baseY - (adjustedTime * GetPixelsPerSecond());
 }
 
 float EditorCoordinate::ScreenYToTime(float _screenY) const
 {
     // Y座標から時間を逆算
-    float baseY = screenSize_.y * (1.0f - timeZeroOffsetRatio_);
+    float effectiveHeight = screenSize_.y - topMargin_ - bottomMargin_;
+    float baseY = bottomMargin_ + effectiveHeight * (1.0f - timeZeroOffsetRatio_);
+
     float adjustedTime = (baseY - _screenY) / GetPixelsPerSecond();
     return adjustedTime + scrollOffset_;
 }
@@ -128,18 +136,41 @@ void EditorCoordinate::GetVisibleTimeRange(float& _startTime, float& _endTime) c
 {
     if (visibleRangeDirty_) {
 
-        cachedVisibleStartTime_ = ScreenYToTime(screenSize_.y);
-        cachedVisibleEndTime_ = ScreenYToTime(0.0f); // 上端は0.0f
+        cachedVisibleStartTime_ = ScreenYToTime(screenSize_.y - bottomMargin_);
+        cachedVisibleEndTime_ = ScreenYToTime(topMargin_); // 上端は0.0f
 
-        float margin = (cachedVisibleEndTime_ - cachedVisibleStartTime_) * 0.1f; // 10%のマージン
-        cachedVisibleEndTime_ += margin;
-        cachedVisibleStartTime_ -= margin;
+        Debug::Log(std::format("Visible Time Range: Start = {:.2f}, End = {:.2f}\n", cachedVisibleStartTime_, cachedVisibleEndTime_));
+        Debug::Log(std::format("startPosY = {:.2f}, endPosY = {:.2f}\n", TimeToScreenY(cachedVisibleStartTime_), TimeToScreenY(cachedVisibleEndTime_)));
 
         visibleRangeDirty_ = false; // 可視範囲が更新されたのでフラグをリセット
     }
 
     _startTime = cachedVisibleStartTime_;
     _endTime = cachedVisibleEndTime_;
+}
+
+void EditorCoordinate::SetTopMargin(float _margin)
+{
+    topMargin_ = std::max(_margin, 0.0f); // マージンは0以上に制限
+    InvalidateVisibleRange();
+}
+
+void EditorCoordinate::SetBottomMargin(float _margin)
+{
+    bottomMargin_ = std::max(_margin, 0.0f); // マージンは0以上に制限
+    InvalidateVisibleRange();
+}
+
+void EditorCoordinate::SetVerticalMargins(float _topMargin, float _bottomMargin)
+{
+    topMargin_ = std::max(_topMargin, 0.0f); // 上部マージンは0以上に制限
+    bottomMargin_ = std::max(_bottomMargin, 0.0f); // 下部マージンは0以上に制限
+    InvalidateVisibleRange();
+}
+
+void EditorCoordinate::SetVerticalMargins(const Vector2& _margin)
+{
+    SetVerticalMargins(_margin.x, _margin.y);
 }
 
 std::vector<float> EditorCoordinate::GetGridLinesY(float _bpm, int _division) const
@@ -166,7 +197,7 @@ std::vector<float> EditorCoordinate::GetGridLinesY(float _bpm, int _division) co
     for (float time = firstGridTime; time <= end; time += gridInterval)
     {
         float screenY = TimeToScreenY(time);
-        if (screenY >= -50.0f && screenY <= screenSize_.y + 50.0f) // 画面内に収まるかチェック
+        if (screenY >= topMargin_ && screenY <= screenSize_.y - bottomMargin_ ) // 画面内に収まるかチェック
         {
             gridLines.push_back(screenY);
         }

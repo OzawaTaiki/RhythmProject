@@ -51,7 +51,7 @@ void TitleScene::Update()
     /// ---------------------------------
     /// Application
     {
-        beatMapEditor_->Update(static_cast<float>(Time::GetDeltaTime<float>()));
+        beatMapEditor_->Update();
 
 
 
@@ -59,7 +59,7 @@ void TitleScene::Update()
     /// Application ここまで
     /// -----------------------------------
 
- 
+
     if (enableDebugCamera_)
     {
         debugCamera_.Update();
