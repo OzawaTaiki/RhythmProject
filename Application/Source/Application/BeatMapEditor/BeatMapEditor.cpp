@@ -372,8 +372,7 @@ void BeatMapEditor::DrawUI()
         ImGui::SameLine();
         if (ImGui::Button("New BeatMap"))
         {
-            std::string newFilePath = FileDialog::CreateFile(filter);
-            CreateNewBeatMap(newFilePath, "");
+            CreateNewBeatMap("newFile", "");
         }
         if (ImGui::BeginPopupModal("Save Confirmation", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
         {
@@ -489,6 +488,14 @@ void BeatMapEditor::DrawUI()
                 musicVoiceInstance_->SetVolume(volume_);
         }
 
+        if (ImGui::Button("Reset LiveMapping"))
+        {
+            liveMapping_.ResetMappingData(); // ライブマッピングのリセット
+        }
+        if (ImGui::Button("Apply LiveMapping"))
+        {
+            ApplyLiveMapping(); // ライブマッピングの適用
+        }
     }
     ImGui::End();
 
@@ -641,16 +648,11 @@ void BeatMapEditor::CreateNewBeatMap(const std::string& _filePath, const std::st
 {
     Reset();
 
-    currentBeatMapData_ = BeatMapData(); // 新しい譜面データを初期化
     currentBeatMapData_.audioFilePath = _audioFilePath; // 音声ファイルパスを設定
     currentBeatMapData_.bpm = 120.0f; // デフォルトBPMを設定
     currentBeatMapData_.offset = 0.0f; // デフォルトオフセットを設定
 
     currentFilePath_ = _filePath;
-    isModified_ = true; // 新規作成なので変更された状態にする
-    currentTime_ = 0.0f; // 現在の時間を初期化
-    isPlaying_ = false; // 再生状態を初期化
-    selectedNoteIndices_.clear(); // 選択中のノートインデックスをクリア
 
 }
 
@@ -766,8 +768,46 @@ void BeatMapEditor::MoveSelectedNote( float _newTime)
     isModified_ = true;
 }
 
+void BeatMapEditor::ApplyLiveMapping()
+{
+    auto notes = liveMapping_.GetMappingData();
+
+    for (const auto& note : notes)
+    {
+        PlaceNote(note.laneIndex, note.targetTime, "normal", 0.0f); // ノーマルノートとして配置
+    }
+}
+
 void BeatMapEditor::HandleInput()
 {
+    if (input_->IsKeyTriggered(DIK_SPACE))
+    {
+        isPlaying_ = !isPlaying_; // スペースキーで再生/停止を切り替え
+        if (isPlaying_)
+            PlayMusic();
+        else
+            StopMusic();
+
+        if (!isPlaying_)
+        {
+            // 停止時は現在の時間をスクロールオフセットに設定
+            scrollOffset_ = currentTime_;
+            editorCoordinate_.SetScrollOffset(currentTime_);
+        }
+    }
+
+    if (currentEditorMode_ == EditorMode::LiveMapping)
+    {
+        if (isPlaying_)
+        {
+            // スナップしたtimeを渡す
+            int divi = static_cast<int>(1.0f / snapInterval_);
+            float time = editorCoordinate_.SnapTimeToGrid(currentTime_, currentBeatMapData_.bpm, divi);
+            liveMapping_.Update(time);
+            return;
+        }
+    }
+
     bool selected = false;
     // マウスがエディターエリア内にあるかチェック
     bool mouseInsideEditorArea = dummy_editArea_->IsMousePointerInside();
@@ -951,21 +991,6 @@ void BeatMapEditor::HandleInput()
     }
 
 
-    if (input_->IsKeyTriggered(DIK_SPACE))
-    {
-        isPlaying_ = !isPlaying_; // スペースキーで再生/停止を切り替え
-        if (isPlaying_)
-            PlayMusic();
-        else
-            StopMusic();
-
-        if (!isPlaying_)
-        {
-            // 停止時は現在の時間をスクロールオフセットに設定
-            scrollOffset_ = currentTime_;
-            editorCoordinate_.SetScrollOffset(currentTime_);
-        }
-    }
 
     // ホイールクリックでcurrentTimeをセット
     if (input_->IsMouseTriggered(2))
@@ -994,6 +1019,11 @@ void BeatMapEditor::HandleInput()
     else if (input_->IsKeyTriggered(DIK_4))
     {
         currentEditorMode_ = EditorMode::Delete; // 削除モード
+    }
+    else if (input_->IsKeyTriggered(DIK_5))
+    {
+        currentEditorMode_ = EditorMode::LiveMapping; // ライブマッピングモード
+        liveMapping_.Initialize(editorCoordinate_.GetLaneCount());
     }
 
     if (input_->IsKeyTriggered(DIK_TAB))
