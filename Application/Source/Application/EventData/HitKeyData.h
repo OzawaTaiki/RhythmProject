@@ -7,9 +7,9 @@
 struct HitKeyData : public EventData
 {
     uint32_t laneIndex = 0; // レーンインデックス
-    double keyTriggeredTimestamp = 0.0; // キーが押された時間
+    float keyTriggeredTimestamp = 0.0f; // キーが押された時間
 
-    HitKeyData(uint32_t _laneIndex, double _timestamp)
+    HitKeyData(uint32_t _laneIndex, float _timestamp)
         : laneIndex(_laneIndex), keyTriggeredTimestamp(_timestamp) {
     }
 };

@@ -64,7 +64,7 @@ private:
 
     BeatMapLoader* beatMapLoader_ = nullptr;
 
-    std::unique_ptr<Stopwatch> stopwatch_ = nullptr;
+    //std::unique_ptr<Stopwatch> stopwatch_ = nullptr;
 
     std::unique_ptr<BeatManager> beatManager_ = nullptr;
 

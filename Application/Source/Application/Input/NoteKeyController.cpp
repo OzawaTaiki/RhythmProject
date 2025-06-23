@@ -14,14 +14,15 @@ NoteKeyController::NoteKeyController()
 NoteKeyController::~NoteKeyController()
 {
     EventManager::GetInstance()->AddEventListener("HoldKey", this);
+
+    stopWatch_ = nullptr;
+    musicVoiceInstance_ = nullptr;
+
 }
 
-void NoteKeyController::Initialize(Stopwatch* _stopWatch, NoteJudge* _noteJudge)
+void NoteKeyController::Initialize( NoteJudge* _noteJudge)
 {
     input_ = Input::GetInstance();
-
-    if (_stopWatch == nullptr)        throw std::runtime_error("Stopwatch is not initialized.");
-    stopWatch_ = _stopWatch;
 
     if (_noteJudge == nullptr)        throw std::runtime_error("NoteJudge is not initialized.");
     noteJudge_ = _noteJudge;
@@ -39,6 +40,12 @@ void NoteKeyController::Initialize(Stopwatch* _stopWatch, NoteJudge* _noteJudge)
 
 void NoteKeyController::Update()
 {
+    if (musicVoiceInstance_ == nullptr)
+    {
+        throw std::runtime_error("Music voice instance is not set.");
+        return;
+    }
+
     uint32_t laneIndex = 0xffffffff;
 
     for (uint32_t i = 0; i < laneKeyBindings_.size(); ++i)
@@ -61,12 +68,13 @@ void NoteKeyController::Update()
 
     if (laneIndex != 0xffffffff)
     {
+        // イベント発行          To Lane.cpp
         EventManager::GetInstance()->DispatchEvent(
-            GameEvent("HitKey", new HitKeyData(laneIndex, stopWatch_->GetElapsedTime<double>()))
+            GameEvent("HitKey", new HitKeyData(laneIndex, musicVoiceInstance_->GetElapsedTime()))
         );
     }
 
-    if (!HoldKey)        return;
+    if (!holdKey_)        return;
 
 
     laneIndex = 0xffffffff;
@@ -76,15 +84,16 @@ void NoteKeyController::Update()
         if (input_->IsKeyReleased(laneKeyBindings_[i]))
         {
             laneIndex = i;
-            HoldKey = false;
+            holdKey_ = false;
             break;
         }
     }
 
     if (laneIndex != 0xffffffff)
     {
+        // イベント発行          To Lane.cpp
         EventManager::GetInstance()->DispatchEvent(
-            GameEvent("ReleaseKey", new ReleaseKeyData(laneIndex, stopWatch_->GetElapsedTime<double>()))
+            GameEvent("ReleaseKey", new ReleaseKeyData(laneIndex, musicVoiceInstance_->GetElapsedTime()))
         );
     }
 
@@ -107,9 +116,18 @@ void NoteKeyController::OnEvent(const GameEvent& _event)
         auto data = static_cast<HitKeyData*>(_event.GetData());
         if (data)
         {
-            HoldKey = true;
+            holdKey_ = true;
         }
     }
+}
+
+void NoteKeyController::SetMusicVoiceInstance(VoiceInstance* _voiceInstance)
+{
+    // nullチェック
+    if (_voiceInstance == nullptr)
+        throw std::runtime_error("VoiceInstance is not initialized.");
+
+    musicVoiceInstance_ = _voiceInstance;
 }
 
 void NoteKeyController::InitializeJsonBinder()

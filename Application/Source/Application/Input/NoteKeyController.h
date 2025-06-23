@@ -6,6 +6,7 @@
 #include <Features/Json/JsonBinder.h>
 #include <Features/Event/EventListener.h>
 #include <Features/UI/UISprite.h>
+#include <System/Audio/VoiceInstance.h>
 
 // Application
 #include <Application/Lane/Lane.h>
@@ -21,12 +22,18 @@ public:
     NoteKeyController();
     ~NoteKeyController();
 
-    void Initialize(Stopwatch* _stopWatch, NoteJudge* _noteJudge);
+    void Initialize( NoteJudge* _noteJudge);
     void Update();
     void Draw();
 
     void OnEvent(const GameEvent& _event) override;
 
+
+    /// <summary>
+    /// 音楽の音声インスタンスを設定
+    /// </summary>
+    /// <param name="_voiceInstance">音声インスタンスのポインタ </param>
+    void SetMusicVoiceInstance(VoiceInstance* _voiceInstance);
 private:
 
     void InitializeJsonBinder();
@@ -37,9 +44,10 @@ private:
     NoteJudge* noteJudge_;          // 判定用（所有権なし）
     Input* input_;
 
-    
-    bool HoldKey = false; // キーを押しているかどうか
-    
+    VoiceInstance* musicVoiceInstance_; // 音楽の音声インスタンス
+
+    bool holdKey_ = false; // キーを押しているかどうか
+
 
     // キー設定
     std::vector<uint32_t> laneKeyBindings_;
