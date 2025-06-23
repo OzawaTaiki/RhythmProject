@@ -10,6 +10,7 @@
 #include <Application/BeatMapEditor/EditorCoordinate.h>
 #include <Application/BeatMapLoader/BeatMapData.h>
 
+#include <Application/BeatMapEditor/LiveMapping/LiveMapping.h>
 
 #include <string>
 #include <cstdint>
@@ -95,6 +96,10 @@ private:
     /// <param name="_deltaTime">新しい時間</param>
     void MoveSelectedNote(float _newTime);
 
+    /// <summary>
+    /// ライブマッピングを適用
+    /// </summary>
+    void ApplyLiveMapping();
 
     ///---------------------
     /// 内部処理関連
@@ -265,6 +270,7 @@ private:
         PlaceNormalNote,
         PlaceLongNote,
         Delete,
+        LiveMapping,
 
         Count // モードの数
     };
@@ -274,6 +280,7 @@ private:
     float longNoteStartTime_ = 0.0f; // ロングノートの開始時間
     int32_t longNoteStartLane_ = 0; // ロングノートの開始レーン
 
+    LiveMapping liveMapping_;
 
     // 配置プレビュー
     std::unique_ptr<UISprite> previewNoteSprite_; // ノート配置プレビュー用のスプライト

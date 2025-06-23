@@ -55,6 +55,9 @@
     <Filter Include="Application\BeatMapEditor">
       <UniqueIdentifier>{42d12039-f238-4928-b0c9-82f58e97bf2d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\BeatMapEditor\LiveMapping">
+      <UniqueIdentifier>{83c39ab7-9b96-4399-95d0-f76404b6a61d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -126,6 +129,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\BeatMapEditor\EditorCoordinate.cpp">
       <Filter>Application\BeatMapEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\BeatMapEditor\LiveMapping\LiveMapping.cpp">
+      <Filter>Application\BeatMapEditor\LiveMapping</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -215,6 +221,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\BeatMapEditor\BeatMapEditor.h">
       <Filter>Application\BeatMapEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\BeatMapEditor\LiveMapping\LiveMapping.h">
+      <Filter>Application\BeatMapEditor\LiveMapping</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
