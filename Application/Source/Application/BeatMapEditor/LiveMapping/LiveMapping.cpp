@@ -17,7 +17,7 @@ void LiveMapping::Initialize(int32_t _laneCount)
 
 void LiveMapping::Update(float _elapsedTime)
 {
-    for (size_t i = 0; i < laneKeyBindings_.size(); ++i)
+    for (uint32_t i = 0; i < laneKeyBindings_.size(); ++i)
     {
         // キーが押されたかチェック
         if (input_->IsKeyTriggered(laneKeyBindings_[i]))
