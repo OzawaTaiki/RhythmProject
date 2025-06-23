@@ -61,6 +61,7 @@ void NotesSystem::Update(float _deltaTime)
                     GameEvent("JudgeResult", &noteJudgeData)
                 );
                 (*it)->Judge();
+                Debug::Log(std::format("note judged : elapse time{} laneIndex:{}\n", elapsedTime, (*it)->GetLaneIndex()));
                 continue;
             }
 
@@ -146,7 +147,7 @@ void NotesSystem::CreateNormalNote(uint32_t _laneIndex, float _speed,float _targ
 {
     if (lane_ == nullptr)        throw std::runtime_error("Lane is not initialized.");
 
-    float elapsedTime = stopwatch_->GetElapsedTime<float>();
+    float elapsedTime = 0.0f;//stopwatch_->GetElapsedTime<float>();
 
     Vector3 laneStartPosition = lane_->GetLaneStartPosition(_laneIndex);
     laneStartPosition.z = judgeLinePosition_ + (_targetTime - elapsedTime) * _speed;
@@ -176,7 +177,7 @@ void NotesSystem::CreateLongNote(const NoteData& _noteData)
     std::shared_ptr<LongNote> note = std::make_shared<LongNote>();
 
     // 経過時間
-    float elapsedTime = stopwatch_->GetElapsedTime<float>();
+    float elapsedTime = 0.0f;//stopwatch_->GetElapsedTime<float>();
 
     // ノーツの開始位置を計算
     Vector3 laneStartPosition = lane_->GetLaneStartPosition(_noteData.laneIndex);
@@ -215,7 +216,7 @@ std::shared_ptr<Note> NotesSystem::CreateNextNoteForLongNote(uint32_t _laneIndex
 {
     auto nextNote = std::make_shared<LongNote>();
 
-    float elapsedTime = stopwatch_->GetElapsedTime<float>();
+    float elapsedTime = 0.0f;// stopwatch_->GetElapsedTime<float>();
 
     Vector3 laneStartPosition = lane_->GetLaneStartPosition(_laneIndex);
     laneStartPosition.y += noteSize_ / 2.0f;

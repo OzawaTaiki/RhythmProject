@@ -48,15 +48,12 @@ void GameScene::Initialize(SceneData* _sceneData)
     ///---------------------------------
     GenerateModels();
 
-    stopwatch_ = std::make_unique<Stopwatch>(true, "default");
-    stopwatch_->Reset();
 
     lane_ = std::make_unique<Lane>();
     lane_->Initialize();
 
     notesSystem_ = std::make_unique<NotesSystem>(lane_.get());
     notesSystem_->Initialize(30.0f, 1.0f);
-    notesSystem_->SetStopwatch(stopwatch_.get());
 
     judgeLine_ = std::make_unique<JudgeLine>();
     judgeLine_->Initialize();
@@ -73,7 +70,7 @@ void GameScene::Initialize(SceneData* _sceneData)
     judgeResult_->Initialize();
 
     noteKeyController_ = std::make_unique<NoteKeyController>();
-    noteKeyController_->Initialize(stopwatch_.get(), noteJudge_.get());
+    noteKeyController_->Initialize( noteJudge_.get());
 
     notesSystem_->SetJudgeLinePosition(judgeLine_->GetPosition());
     notesSystem_->SetMissJudgeThreshold(noteJudge_->GetMissJudgeThreshold());
@@ -83,7 +80,6 @@ void GameScene::Initialize(SceneData* _sceneData)
 
     beatManager_ = std::make_unique<BeatManager>();
     beatManager_->Initialize(100);
-    beatManager_->SetStopWatch(stopwatch_.get());
     //beatManager_->SetEnableSound(false);
 
 #ifdef _DEBUG
@@ -103,25 +99,18 @@ void GameScene::Update()
     if (!IsComplateLoadBeatMap())
         return;
 
-    stopwatch_->Update();
-    if (input_->IsKeyTriggered(DIK_R))
-    {
-        notesSystem_->Reload();
-    }
 
 #ifdef _DEBUG
     if (input_->IsKeyTriggered(DIK_F1))
     {
         enableDebugCamera_ = !enableDebugCamera_;
     }
-    stopwatch_->ShowDebugWindow();
     float time = voiceInstance_->GetElapsedTime();
     ImGui::Text("Elapsed Time: %.2f", time);
 
     if(input_->IsKeyTriggered(DIK_SPACE))
     {
         float time = voiceInstance_->GetElapsedTime();
-        float stopWatchTime = stopwatch_->GetElapsedTime<float>();
         Debug::Log("\n\nVoiceInstance Elapsed Time: " + std::to_string(time) + "\n\n");
     }
 
@@ -150,13 +139,16 @@ void GameScene::Update()
 
     static float offset = 0.6f;
     ImGui::DragFloat("offset", &offset, 0.001f);
-    if (notesSystem_->IsReloaded())
+    
+    if (input_->IsKeyTriggered(DIK_R))
     {
         beatManager_->SetOffset(offset);
         voiceInstance_->Stop();
         voiceInstance_.reset();
         voiceInstance_ = soundInstance_->Play(volume); // ボリュームとオフセットを設定して再生
+        notesSystem_->SetMusicVoiceInstance(voiceInstance_);
         beatManager_->Reset();
+        notesSystem_->Reload();
     }
 
 
@@ -295,6 +287,7 @@ bool GameScene::IsComplateLoadBeatMap()
         {
             beatManager_->SetMusicVoiceInstance(voiceInstance_);
             notesSystem_->SetMusicVoiceInstance(voiceInstance_);
+            noteKeyController_->SetMusicVoiceInstance(voiceInstance_.get());
         }
         else
         {
@@ -308,7 +301,6 @@ bool GameScene::IsComplateLoadBeatMap()
         {
             voiceInstance_->Play();
         }
-        //stopwatch_->Start();
         notesSystem_->playing(true);
 
         isBeatMapLoaded_ = true;
