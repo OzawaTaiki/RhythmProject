@@ -144,6 +144,14 @@ void BeatMapEditor::Initialize()
     longNoteColor_.hoverColor = Vector4(0.98f, 0.83f, 0.51f, 1.0f); // ホバー時の色
     longNoteColor_.selectedColor = Vector4(0.97f, 0.98f, 0.01f, 1.0f); // 選択時の色
 
+
+    areaSelectionSprite_ = std::make_unique<UISprite>();
+    areaSelectionSprite_->Initialize("AreaSelectionSprite");
+    areaSelectionSprite_->SetAnchor(Vector2(0.0f, 0.0f)); // 範囲選択のアンカーを左上に設定
+    areaSelectionSprite_->SetColor(Vector4(0.0f, 0.5f, 1.0f, 0.3f)); // 範囲選択の色を設定
+    areaSelectionSprite_->SetSize(Vector2(0.0f, 0.0f)); // 範囲選択の初期サイズを設定
+
+
     dummy_editArea_ = std::make_unique<UISprite>();
     dummy_editArea_->Initialize("DummySprite");
     dummy_editArea_->SetPos(Vector2(editorCoordinate_.GetEditAreaX(), editorCoordinate_.GetTopMargin()));
@@ -191,6 +199,8 @@ void BeatMapEditor::Draw(const Camera* _camera)
     DrawPlayhead();
 
     DrawUI();
+
+    DrawSelectionArea();
 
 }
 
@@ -557,6 +567,14 @@ void BeatMapEditor::DrawPreviewNote()
     }
 }
 
+void BeatMapEditor::DrawSelectionArea()
+{
+    if (isDragging_)
+    {
+        areaSelectionSprite_->Draw();
+    }
+}
+
 void BeatMapEditor::Finalize()
 {
     // 保存確認
@@ -723,7 +741,7 @@ void BeatMapEditor::SelectNote(uint32_t _noteIndex, bool _multiSelect)
         return;
     }
 
-    if (!_multiSelect) {
+    if (!_multiSelect && !isRangeSelected_) {
         selectedNoteIndices_.clear();
     }
 
@@ -740,6 +758,7 @@ void BeatMapEditor::SelectNote(uint32_t _noteIndex, bool _multiSelect)
 void BeatMapEditor::ClearSelection()
 {
     selectedNoteIndices_.clear(); // 選択中のノートインデックスをクリア
+    isRangeSelected_ = false; // 範囲選択フラグをリセット
 }
 
 void BeatMapEditor::MoveSelectedNote( float _newTime)
@@ -813,15 +832,6 @@ void BeatMapEditor::HandleInput()
     bool mouseInsideEditorArea = dummy_editArea_->IsMousePointerInside();
     if (!dummy_window_->IsMousePointerInside())
         return;// ダミーウィンドウ外なら何もしない
-
-    if (mouseInsideEditorArea)
-    {
-        ImGui::Begin("BeatMap Editor");
-
-        ImGui::Text("mouse Inside Editor Area");
-
-        ImGui::End();
-    }
 
     // 入力処理の実装
     // マウスホバーによる選択
@@ -999,9 +1009,46 @@ void BeatMapEditor::HandleInput()
         Vector2 mousePos = input_->GetMousePosition();
         // スクリーン座標から時間に変換
         float targetTime = editorCoordinate_.ScreenYToTime(mousePos.y);
-        currentTime_ = (std::max)(targetTime, 0.0f); // 負の時間を防ぐ
+        if (musicSoundInstance_)
+        {
+            currentTime_ = std::clamp(targetTime, 0.0f, musicSoundInstance_->GetDuration()); // 音楽の再生時間を超えないように制限
+        }
+        else
+        {
+            currentTime_ = (std::max)(targetTime, 0.0f); // 負の時間を防ぐ
+        }
 
     }
+
+    // 移動させていない かつ 左クリック
+    if (!isMovingSelectedNote_ && input_->IsMouseTriggered(0))
+    {
+        isDragging_ = true; // ドラッグ開始フラグを立てる
+        // マウスの位置を取得
+        dragStartPosition_ = input_->GetMousePosition();
+        areaSelectionSprite_->SetPos(dragStartPosition_); // ドラッグ開始位置を設定
+
+    }
+
+    if (isDragging_)
+    {
+        if (input_->IsMouseReleased(0)) // 左クリックを離したとき
+        {
+            CheckSelectionArea(); // 選択エリアをチェック
+            dragEndPosition_ = input_->GetMousePosition(); // ドラッグ終了位置を取得
+            isDragging_ = false; // ドラッグ終了フラグを下ろす
+        }
+        else
+        {
+
+            dragEndPosition_ = input_->GetMousePosition(); // ドラッグ終了位置を取得
+            Vector2 size = dragEndPosition_ - dragStartPosition_; // ドラッグのサイズを計算
+
+            areaSelectionSprite_->SetSize(size); // ドラッグのサイズを設定
+            CheckSelectionArea(); // 選択エリアをチェック
+        }
+    }
+
 
     //  Mode切り替え
     if (input_->IsKeyTriggered(DIK_1))
@@ -1164,6 +1211,52 @@ int32_t BeatMapEditor::GetNoteIndexFromHoldEnd(uint32_t _laneIndex, float _targe
         }
     }
     return static_cast<int32_t>(-1); // 見つからなかった場合は無効なインデックスを返す
+
+}
+
+void BeatMapEditor::CheckSelectionArea()
+{
+    if (!isDragging_)
+        return; // ドラッグ中でない場合は何もしない
+
+    Vector2 areaStart = dragStartPosition_; // ドラッグ開始位置
+    Vector2 areaEnd = dragEndPosition_; // ドラッグ終了位置
+
+    // 選択エリアの左上と右下の座標を計算
+    float left = (std::min)(areaStart.x, areaEnd.x);
+    float right = (std::max)(areaStart.x, areaEnd.x);
+    float top = (std::min)(areaStart.y, areaEnd.y);
+    float bottom = (std::max)(areaStart.y, areaEnd.y);
+
+    selectedNoteIndices_.clear(); // 選択中のノートインデックスをクリア
+
+    for (size_t i = 0; i < noteIndex_; ++i) // 現在描画中のノート数まで
+    {
+        uint32_t actualNoteIndex = drawNoteIndices_[i]; // 実際のノートインデックスを取得
+        NoteData& note = currentBeatMapData_.notes[actualNoteIndex];
+
+        // ノートの位置を取得
+        float noteX = editorCoordinate_.LaneToScreenX(note.laneIndex);
+        float noteY = editorCoordinate_.TimeToScreenY(note.targetTime);
+
+        // ノートが選択エリア内にあるかチェック
+        if (noteX >= left   &&
+            noteX <= right  &&
+            noteY >= top    &&
+            noteY <= bottom)
+        {
+            selectedNoteIndices_.push_back(actualNoteIndex); // 選択中のノートインデックスに追加
+        }
+    }
+
+    if (!selectedNoteIndices_.empty())
+    {
+        isRangeSelected_ = true; // 範囲選択が行われたフラグを立てる
+    }
+    else
+    {
+        isRangeSelected_ = false; // 範囲選択が行われなかった場合はフラグを下ろす
+    }
 
 }
 

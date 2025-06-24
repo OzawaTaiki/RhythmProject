@@ -144,6 +144,11 @@ private:
 
 
     /// <summary>
+    /// 範囲選択エリアのチェック
+    /// </summary>
+    void CheckSelectionArea(); // 範囲選択エリアのチェック
+
+    /// <summary>
     /// 状態のリセット
     /// </summary>
     void Reset();
@@ -206,6 +211,11 @@ private:
     /// 配置プレビューのノートを描画
     /// </summary>
     void DrawPreviewNote();
+
+    /// <summary>
+    /// 範囲選択エリアを描画
+    /// </summary>
+    void DrawSelectionArea();
 
 private:
 
@@ -287,6 +297,18 @@ private:
     std::unique_ptr<UISprite> previewBridgeSprite_; // ロングノート配置プレビュー用のスプライト
     std::unique_ptr<UISprite> previewHoldEndSprite_; // ロングノート終端配置プレビュー用のスプライト
     float previewAlpha_ = 0.5f; // プレビューの透明度
+
+
+    /// 範囲選択のための変数たち
+    // ドラッグしているか
+    bool isDragging_ = false;
+    // ドラッグ開始座標
+    Vector2 dragStartPosition_ = { 0.0f, 0.0f };
+    // ドラッグ終了座標
+    Vector2 dragEndPosition_ = { 0.0f, 0.0f };
+    // 範囲選択をしたか
+    bool isRangeSelected_ = false; // 範囲選択をしたかどうかのフラグ
+    std::unique_ptr<UISprite> areaSelectionSprite_; // 範囲選択用のスプライト
 
 
     std::unique_ptr<UISprite> dummy_editArea_; // エディターエリア マウス判定用
