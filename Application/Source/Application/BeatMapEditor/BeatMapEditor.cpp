@@ -13,9 +13,10 @@
 #include <fstream>
 
 // TODO いろいろ
-// ブリッジに重ねてノーツを置けてしまう
-// zoom スクロール grid分割 全部キーボードあるいはマウスでできるように
-// 最低限 Undoは実装したい
+/// ブリッジに重ねてノーツを置けてしまう
+/// zoom スクロール grid分割 全部キーボードあるいはマウスでできるように
+/// 最低限 Undoは実装したい
+/// BPM調整するやつ
 // 流しながらノート入力したーい
 // targetTimeをもとに再生を行う
 
@@ -27,6 +28,9 @@ void BeatMapEditor::Initialize()
     beatMapLoader_ = BeatMapLoader::GetInstance();
     editorCoordinate_.Initialize(Vector2(1280.0f / 4.0f, 720.0f), 4); // 初期画面サイズとレーン数を設定
     editorCoordinate_.SetTimeZeroOffsetRatio(0.1f);
+
+    beatManager_ = std::make_unique<BeatManager>();
+    beatManager_->Initialize(120.0f, 0.0f); // 初期BPMとオフセットを設定
 
     currentBeatMapData_ = BeatMapData(); // 現在の譜面データを初期化
     isModified_ = false; // 譜面が変更されていない状態に初期化
@@ -443,6 +447,7 @@ void BeatMapEditor::DrawUI()
             currentTime_ = 0.0f; // 時間をリセット
         }
         ImGui::Checkbox("Grid Snap", &gridSnapEnabled_); // グリッドスナップのチェックボックス
+        ImGui::Checkbox("enable Beats", &enableBeats_);
         // グリッドスナップの間隔を選択するラジオボタン
         static int snapIntervalIndex = 2;
         ImGui::RadioButton("1/1", &snapIntervalIndex, 0);
@@ -1152,6 +1157,11 @@ void BeatMapEditor::UpdateEditorState()
 {
     if (isPlaying_)
     {
+        if (beatManager_)
+        {
+            beatManager_->SetEnableSound(enableBeats_);
+            beatManager_->Update();
+        }
         currentTime_ = musicVoiceInstance_->GetElapsedTime();
 
         editorCoordinate_.SetScrollOffset(currentTime_);
@@ -1280,6 +1290,13 @@ void BeatMapEditor::RestartMusic()
     {
         StopMusic(); // 既存の音楽を停止
         musicVoiceInstance_ = musicSoundInstance_->Play(volume_); // 音楽を再生
+        if (beatManager_)
+        {
+            beatManager_->SetMusicVoiceInstance(musicVoiceInstance_); // ビートマネージャーに音楽のインスタンスを設定
+            beatManager_->SetBPM(currentBeatMapData_.bpm); // BPMを設定
+            beatManager_->SetOffset(currentBeatMapData_.offset); // オフセットを設定
+            beatManager_->Start(); // ビートマネージャーを開始
+        }
     }
 }
 
@@ -1289,6 +1306,13 @@ void BeatMapEditor::PlayMusic()
     {
         StopMusic(); // 既存の音楽を停止
         musicVoiceInstance_ = musicSoundInstance_->Play(volume_, currentTime_); // 現在の時間から音楽を再生
+        if (beatManager_)
+        {
+            beatManager_->SetMusicVoiceInstance(musicVoiceInstance_); // ビートマネージャーに音楽のインスタンスを設定
+            beatManager_->SetBPM(currentBeatMapData_.bpm); // BPMを設定
+            beatManager_->SetOffset(currentBeatMapData_.offset); // オフセットを設定
+            beatManager_->Start(); // ビートマネージャーを開始
+        }
     }
 }
 
@@ -1296,6 +1320,7 @@ void BeatMapEditor::StopMusic()
 {
     if (musicVoiceInstance_)
     {
+        beatManager_->Reset();
         musicVoiceInstance_->Stop(); // 音楽を停止
         musicVoiceInstance_ = nullptr; // 音楽のインスタンスをリセット
     }

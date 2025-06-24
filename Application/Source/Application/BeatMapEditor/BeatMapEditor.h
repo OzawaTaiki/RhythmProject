@@ -9,6 +9,7 @@
 
 #include <Application/BeatMapEditor/EditorCoordinate.h>
 #include <Application/BeatMapLoader/BeatMapData.h>
+#include <Application/BeatsManager/BeatManager.h>
 
 #include <Application/BeatMapEditor/LiveMapping/LiveMapping.h>
 
@@ -225,6 +226,9 @@ private:
     Camera for2dCamera_; // 2D描画用のカメラ
 
     BeatMapLoader* beatMapLoader_ = nullptr;
+    std::unique_ptr<BeatManager> beatManager_ = nullptr;
+    bool enableBeats_ = false;
+
     EditorCoordinate editorCoordinate_;
 
     // 譜面データ
