@@ -20,7 +20,7 @@ public:
     NotesSystem(Lane* _lane);
     ~NotesSystem();
 
-    void Initialize(float _noteSpeed, float _noteSize);
+    void Initialize(float _noteSpeed, float _noteSize, float _startOffsetTime = 2.0f);
     void Update(float _deltaTime);
     void DrawNotes(const Camera* _camera);
 
@@ -44,6 +44,8 @@ public:
 
     bool IsReloaded();
 
+    void Start() { isStarted_ = true; }
+
 private:
 
     void CreateNormalNote(uint32_t _laneIndex, float _speed, float _targetTime);
@@ -60,6 +62,10 @@ private:
     float judgeLinePosition_ = 0.0f;
     // miss判定で消えるまでの猶予座標
     float missJudgeThreshold_ = 3.0f;
+
+    bool isStarted_ = false; // ゲーム開始オフセット時間を超えたかどうか
+    float waitTimer_ = 0.0f; // ゲーム開始オフセット時間を超えるまでのタイマ
+    float startOffsetTime_ = 0.0f; // ゲーム開始オフセット時間
 
     Lane* lane_ = nullptr;
     std::list<std::shared_ptr<Note>> notes_;
