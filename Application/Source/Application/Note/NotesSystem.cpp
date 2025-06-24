@@ -6,8 +6,11 @@
 
 #include <Application/EventData/JudgeResultData.h>
 
+#include <Math/MyLib.h>
+
 //TODO : タイミングががが
 // 絶対時間を採用する。 ノートに生成時間とか持たせる。あとtimeはmusicVoiceのを使う
+// 最初のnoteが少し速い気がする
 
 NotesSystem::NotesSystem(Lane* _lane) : lane_(_lane), playing_(false)
 {
@@ -24,12 +27,14 @@ NotesSystem::~NotesSystem()
 }
 
 // TODO : 描画と更新の最適化
-void NotesSystem::Initialize(float _noteSpeed, float _noteSize)
+void NotesSystem::Initialize(float _noteSpeed, float _noteSize, float _startOffsetTime)
 {
     if (lane_ == nullptr)        throw std::runtime_error("Lane is not initialized.");
 
     noteSpeed_ = _noteSpeed;
     noteSize_ = _noteSize;
+
+    startOffsetTime_ = _startOffsetTime;
 
     notes_.clear();
 
@@ -39,8 +44,15 @@ void NotesSystem::Initialize(float _noteSpeed, float _noteSize)
 
 void NotesSystem::Update(float _deltaTime)
 {
-
     float elapsedTime = musicVoiceInstance_->GetElapsedTime();
+
+    if(!isStarted_)
+    {
+        waitTimer_ += _deltaTime;
+        elapsedTime = Lerp(-startOffsetTime_, 0.0f, waitTimer_ / startOffsetTime_);
+    }
+
+
     for (auto it = notes_.begin(); it != notes_.end();)
     {
         // 判定済みのノーツは削除
@@ -116,7 +128,7 @@ void NotesSystem::Reload()
 {
     notes_.clear();
     lane_->Reset();
-    stopwatch_->Reset();
+    //stopwatch_->Reset();
     for (const auto& note : beatMapData_.notes)
     {
         if (note.noteType == "normal")
@@ -129,7 +141,7 @@ void NotesSystem::Reload()
         }
     }
     isReloaded_ = true;
-    stopwatch_->Start();
+    //stopwatch_->Start();
 
 }
 
@@ -147,7 +159,7 @@ void NotesSystem::CreateNormalNote(uint32_t _laneIndex, float _speed,float _targ
 {
     if (lane_ == nullptr)        throw std::runtime_error("Lane is not initialized.");
 
-    float elapsedTime = 0.0f;//stopwatch_->GetElapsedTime<float>();
+    float elapsedTime = -startOffsetTime_;//stopwatch_->GetElapsedTime<float>();
 
     Vector3 laneStartPosition = lane_->GetLaneStartPosition(_laneIndex);
     laneStartPosition.z = judgeLinePosition_ + (_targetTime - elapsedTime) * _speed;
@@ -177,7 +189,7 @@ void NotesSystem::CreateLongNote(const NoteData& _noteData)
     std::shared_ptr<LongNote> note = std::make_shared<LongNote>();
 
     // 経過時間
-    float elapsedTime = 0.0f;//stopwatch_->GetElapsedTime<float>();
+    float elapsedTime = -startOffsetTime_;//stopwatch_->GetElapsedTime<float>();
 
     // ノーツの開始位置を計算
     Vector3 laneStartPosition = lane_->GetLaneStartPosition(_noteData.laneIndex);
@@ -216,7 +228,7 @@ std::shared_ptr<Note> NotesSystem::CreateNextNoteForLongNote(uint32_t _laneIndex
 {
     auto nextNote = std::make_shared<LongNote>();
 
-    float elapsedTime = 0.0f;// stopwatch_->GetElapsedTime<float>();
+    float elapsedTime = -startOffsetTime_;// stopwatch_->GetElapsedTime<float>();
 
     Vector3 laneStartPosition = lane_->GetLaneStartPosition(_laneIndex);
     laneStartPosition.y += noteSize_ / 2.0f;
@@ -251,7 +263,7 @@ void NotesSystem::DebugWindow()
 
     if (ImGui::Button("CreateNormalNote"))
     {
-        float elapseTime = stopwatch_->GetElapsedTime<float>();
+        float elapseTime = 0;//stopwatch_->GetElapsedTime<float>();
         CreateNormalNote(laneIndex, noteSpeed_, targetTime + elapseTime);
     }
 
@@ -260,7 +272,7 @@ void NotesSystem::DebugWindow()
         NoteData data;
         data.holdDuration = 1.0f; // デフォルトのホールド時間
         data.laneIndex = laneIndex;
-        data.targetTime = targetTime + 1 + stopwatch_->GetElapsedTime<float>();
+        data.targetTime = targetTime + 1 + 0;// stopwatch_->GetElapsedTime<float>();
         CreateLongNote(data);
 
     }

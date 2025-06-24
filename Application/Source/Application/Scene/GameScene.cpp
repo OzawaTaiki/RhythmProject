@@ -19,6 +19,8 @@ GameScene::~GameScene()
 
 // TODO ; やりたいこと にゅうりょく精度アップ
 // 別スレッドで入力取得するように。 それと入力された時間を記録
+
+// ロード終了から開始までの待機時間を設定 すぐに始まらんように
 void GameScene::Initialize(SceneData* _sceneData)
 {
     SceneCamera_.Initialize();
@@ -88,7 +90,6 @@ void GameScene::Initialize(SceneData* _sceneData)
     noteJudge_->SetIsDrawLine(false);
 #endif // _DEBUG
     isBeatMapLoaded_ = false;
-    frameCount_ = 0;
 
 }
 
@@ -99,72 +100,23 @@ void GameScene::Update()
     if (!IsComplateLoadBeatMap())
         return;
 
+    // ごちゃついてきたから少し整理
+    /*
+        isWating は曲を再生するまでの待機状態を表すフラグ
+        これが真のときは noteは動いていてほしい 描画もしてくれ
+        負のときは？ それはすでにゲームが始まっている状態 なにも制限する必要はない
+        -> 特に制限する必要はなく 時間がたったら音楽を再生するだけ
+        なので、ゲーム開始オフセット時間を超えたら falseにする(必要ある?wkrn)
 
-#ifdef _DEBUG
-    if (input_->IsKeyTriggered(DIK_F1))
-    {
-        enableDebugCamera_ = !enableDebugCamera_;
-    }
-    float time = voiceInstance_->GetElapsedTime();
-    ImGui::Text("Elapsed Time: %.2f", time);
+    */
 
-    if(input_->IsKeyTriggered(DIK_SPACE))
-    {
-        float time = voiceInstance_->GetElapsedTime();
-        Debug::Log("\n\nVoiceInstance Elapsed Time: " + std::to_string(time) + "\n\n");
-    }
+    UpdateGameStartOffset();
 
-    judgeResult_->DebugWindow();
-
-    if(ImGui::Button("stop"))
-        beatManager_->Stop();
-    if (ImGui::Button("play##beat"))
-        beatManager_->Start();
-
-
-    if (ImGui::Button("play##music"))
-    {
-        voiceInstance_->Play();
-    }
-    static float bpm = 120;
-    ImGui::DragFloat("BPM", &bpm, 0.1f);
-    if (ImGui::Button("SetBPM"))
-    {
-        beatManager_->SetBPM(bpm);
-    }
-
-    static float volume = 0.2f;
-    if (ImGui::DragFloat("music Vol", &volume, 0.01f))
-        voiceInstance_->SetVolume(volume);
-
-    static float offset = 0.6f;
-    ImGui::DragFloat("offset", &offset, 0.001f);
-    
-    if (input_->IsKeyTriggered(DIK_R))
-    {
-        beatManager_->SetOffset(offset);
-        voiceInstance_->Stop();
-        voiceInstance_.reset();
-        voiceInstance_ = soundInstance_->Play(volume); // ボリュームとオフセットを設定して再生
-        notesSystem_->SetMusicVoiceInstance(voiceInstance_);
-        beatManager_->Reset();
-        notesSystem_->Reload();
-    }
-
-
-    noteJudge_->SetPosition(judgeLine_->GetPosition());
-    noteJudge_->SetLaneTotalWidth(lane_->GetLaneTotalWidth());
-    noteJudge_->SetSpeed(notesSystem_->GetNoteSpeed());
-
-#endif // _DEBUG
-    beatManager_->Update();
-
-    if(Input::GetInstance()->IsKeyTriggered(DIK_F2))
-        beatManager_->SetBPM(100);
-
+    ImGui();
 
 #pragma region Application
 
+    beatManager_->Update();
     notesSystem_->Update(static_cast<float> (GameTime::GetInstance()->GetDeltaTime()));
     lane_->Update();
     noteKeyController_->Update();
@@ -295,16 +247,94 @@ bool GameScene::IsComplateLoadBeatMap()
             assert(false);
         }
 
-        // 開始する
-        beatManager_->Start();
-        if (voiceInstance_)
-        {
-            voiceInstance_->Play();
-        }
-        notesSystem_->playing(true);
 
+        notesSystem_->playing(true); // noteはながれてほしいから
         isBeatMapLoaded_ = true;
+        isWatingForStart_ = true; // 譜面読み込み完了したら開始待機状態にする
     }
 
     return isBeatMapLoaded_;
+}
+
+void GameScene::UpdateGameStartOffset()
+{
+    if (!isWatingForStart_)
+        return;
+
+    // 時間になったら 音楽等再生 trueを返す
+        // タイマー更新
+    waitTimer_ += static_cast<float>(GameTime::GetInstance()->GetDeltaTime());
+    // ゲーム開始オフセット時間を超えたら
+    if (waitTimer_ >= gameStartOffset_)
+    {
+        isWatingForStart_ = false;
+        waitTimer_ = 0.0f;
+        // ゲーム開始
+        beatManager_->Start();
+        notesSystem_->Start();
+        if (voiceInstance_)
+            voiceInstance_->Play();
+    }
+}
+
+void GameScene::ImGui()
+{
+#ifdef _DEBUG
+    if (input_->IsKeyTriggered(DIK_F1))
+    {
+        enableDebugCamera_ = !enableDebugCamera_;
+    }
+    float time = voiceInstance_->GetElapsedTime();
+    ImGui::Text("Elapsed Time: %.2f", time);
+
+    if (input_->IsKeyTriggered(DIK_SPACE))
+    {
+        float time = voiceInstance_->GetElapsedTime();
+        Debug::Log("\n\nVoiceInstance Elapsed Time: " + std::to_string(time) + "\n\n");
+    }
+
+    judgeResult_->DebugWindow();
+
+    if (ImGui::Button("stop"))
+        beatManager_->Stop();
+    if (ImGui::Button("play##beat"))
+        beatManager_->Start();
+
+
+    if (ImGui::Button("play##music"))
+    {
+        voiceInstance_->Play();
+    }
+    static float bpm = 120;
+    ImGui::DragFloat("BPM", &bpm, 0.1f);
+    if (ImGui::Button("SetBPM"))
+    {
+        beatManager_->SetBPM(bpm);
+    }
+
+    static float volume = 0.2f;
+    if (ImGui::DragFloat("music Vol", &volume, 0.01f))
+        voiceInstance_->SetVolume(volume);
+
+    static float offset = 0.6f;
+    ImGui::DragFloat("offset", &offset, 0.001f);
+
+    if (input_->IsKeyTriggered(DIK_R))
+    {
+        beatManager_->SetOffset(offset);
+        voiceInstance_->Stop();
+        voiceInstance_.reset();
+        voiceInstance_ = soundInstance_->Play(volume); // ボリュームとオフセットを設定して再生
+        notesSystem_->SetMusicVoiceInstance(voiceInstance_);
+        beatManager_->Reset();
+        notesSystem_->Reload();
+    }
+
+
+    noteJudge_->SetPosition(judgeLine_->GetPosition());
+    noteJudge_->SetLaneTotalWidth(lane_->GetLaneTotalWidth());
+    noteJudge_->SetSpeed(notesSystem_->GetNoteSpeed());
+
+#endif // _DEBUG
+
 }

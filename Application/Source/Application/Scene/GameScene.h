@@ -43,6 +43,12 @@ private:
     /// <returns> 読み込み完了 or 読み込み済みなら true </returns>
     bool IsComplateLoadBeatMap();
 
+    /// <summary>
+    /// ゲーム開始オフセット処理の更新
+    /// </summary>
+    void UpdateGameStartOffset();
+
+
     // シーン関連
     Camera SceneCamera_ = {};
     DebugCamera debugCamera_ = {};
@@ -71,8 +77,15 @@ private:
     std::future<bool> beatMapLoadFuture_ = {};
 
     bool isBeatMapLoaded_ = false;
-    int frameCount_ = 0;
+
+    bool isWatingForStart_ = false;
+    float gameStartOffset_ = 2.0f;
+    float waitTimer_ = 0.0f;
 
     std::shared_ptr<SoundInstance> soundInstance_ = nullptr;
     std::shared_ptr<VoiceInstance> voiceInstance_ = nullptr;
+
+    void ImGui();
+
+
 };
