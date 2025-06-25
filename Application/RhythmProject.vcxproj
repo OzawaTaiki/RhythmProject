@@ -98,6 +98,7 @@
     <ClCompile Include="Source\Application\BeatMapEditor\LiveMapping\LiveMapping.cpp" />
     <ClCompile Include="Source\Application\BeatMapLoader\BeatMapLoader.cpp" />
     <ClCompile Include="Source\Application\BeatsManager\BeatManager.cpp" />
+    <ClCompile Include="Source\Application\Core\GameCore.cpp" />
     <ClCompile Include="Source\Application\Effects\LaneEffect\LaneEffect.cpp" />
     <ClCompile Include="Source\Application\Effects\TapEffects\HitparticleModifier.cpp" />
     <ClCompile Include="Source\Application\Effects\TapEffects\LightPillarModifier.cpp" />
@@ -130,6 +131,7 @@
     <ClInclude Include="Source\Application\BeatMapLoader\BeatMapData.h" />
     <ClInclude Include="Source\Application\BeatMapLoader\BeatMapLoader.h" />
     <ClInclude Include="Source\Application\BeatsManager\BeatManager.h" />
+    <ClInclude Include="Source\Application\Core\GameCore.h" />
     <ClInclude Include="Source\Application\Effects\LaneEffect\LaneEffect.h" />
     <ClInclude Include="Source\Application\Effects\TapEffects\HitparticleModifier.h" />
     <ClInclude Include="Source\Application\Effects\TapEffects\LightPillarModifier.h" />
