@@ -20,7 +20,6 @@ GameScene::~GameScene()
 // TODO ; やりたいこと にゅうりょく精度アップ
 // 別スレッドで入力取得するように。 それと入力された時間を記録
 
-// ロード終了から開始までの待機時間を設定 すぐに始まらんように
 void GameScene::Initialize(SceneData* _sceneData)
 {
     SceneCamera_.Initialize();
@@ -51,32 +50,6 @@ void GameScene::Initialize(SceneData* _sceneData)
     GenerateModels();
 
 
-    lane_ = std::make_unique<Lane>();
-    lane_->Initialize();
-
-    notesSystem_ = std::make_unique<NotesSystem>(lane_.get());
-    notesSystem_->Initialize(30.0f, 1.0f);
-
-    judgeLine_ = std::make_unique<JudgeLine>();
-    judgeLine_->Initialize();
-
-
-
-    noteJudge_ = std::make_unique<NoteJudge>();
-    noteJudge_->Initialize();
-    noteJudge_->SetPosition(judgeLine_->GetPosition());
-    noteJudge_->SetLaneTotalWidth(lane_->GetLaneTotalWidth());
-    noteJudge_->SetSpeed(notesSystem_->GetNoteSpeed());
-
-    judgeResult_ = std::make_unique<JudgeResult>();
-    judgeResult_->Initialize();
-
-    noteKeyController_ = std::make_unique<NoteKeyController>();
-    noteKeyController_->Initialize( noteJudge_.get());
-
-    notesSystem_->SetJudgeLinePosition(judgeLine_->GetPosition());
-    notesSystem_->SetMissJudgeThreshold(noteJudge_->GetMissJudgeThreshold());
-
     beatMapLoader_ = BeatMapLoader::GetInstance();
     beatMapLoadFuture_ = beatMapLoader_->LoadBeatMap("Resources/Data/Game/BeatMap/demo_copy.json");
 
@@ -85,9 +58,7 @@ void GameScene::Initialize(SceneData* _sceneData)
     //beatManager_->SetEnableSound(false);
 
 #ifdef _DEBUG
-    noteJudge_->SetIsDrawLine(true);
 #else
-    noteJudge_->SetIsDrawLine(false);
 #endif // _DEBUG
     isBeatMapLoaded_ = false;
 
@@ -117,9 +88,6 @@ void GameScene::Update()
 #pragma region Application
 
     beatManager_->Update();
-    notesSystem_->Update(static_cast<float> (GameTime::GetInstance()->GetDeltaTime()));
-    lane_->Update();
-    noteKeyController_->Update();
 
 #pragma endregion // Application
 
@@ -142,12 +110,8 @@ void GameScene::Draw()
 {
     ModelManager::GetInstance()->PreDrawForObjectModel();
 
-    judgeLine_->Draw();
-    noteJudge_->DrawJudgeLine();
-    notesSystem_->DrawNotes(&SceneCamera_);
 
     ModelManager::GetInstance()->PreDrawForAlphaObjectModel();
-    lane_->Draw(&SceneCamera_);
 
 
     Sprite::PreDraw();
@@ -221,7 +185,7 @@ bool GameScene::IsComplateLoadBeatMap()
         }
 
         // 譜面データを渡してnoteを生成
-        notesSystem_->SetBeatMapDataAndCreateNotes(beatMapLoader_->GetLoadedBeatMapData());
+        //notesSystem_->SetBeatMapDataAndCreateNotes(beatMapLoader_->GetLoadedBeatMapData());
 
         // bpmを設定
         static float bpm = beatMapLoader_->GetLoadedBeatMapData().bpm;
@@ -238,8 +202,8 @@ bool GameScene::IsComplateLoadBeatMap()
         if (voiceInstance_)
         {
             beatManager_->SetMusicVoiceInstance(voiceInstance_);
-            notesSystem_->SetMusicVoiceInstance(voiceInstance_);
-            noteKeyController_->SetMusicVoiceInstance(voiceInstance_.get());
+            //notesSystem_->SetMusicVoiceInstance(voiceInstance_);
+            //noteKeyController_->SetMusicVoiceInstance(voiceInstance_.get());
         }
         else
         {
@@ -248,7 +212,7 @@ bool GameScene::IsComplateLoadBeatMap()
         }
 
 
-        notesSystem_->playing(true); // noteはながれてほしいから
+        //notesSystem_->playing(true); // noteはながれてほしいから
         isBeatMapLoaded_ = true;
         isWatingForStart_ = true; // 譜面読み込み完了したら開始待機状態にする
     }
@@ -271,7 +235,7 @@ void GameScene::UpdateGameStartOffset()
         waitTimer_ = 0.0f;
         // ゲーム開始
         beatManager_->Start();
-        notesSystem_->Start();
+        //notesSystem_->Start();
         if (voiceInstance_)
             voiceInstance_->Play();
     }
@@ -293,7 +257,7 @@ void GameScene::ImGui()
         Debug::Log("\n\nVoiceInstance Elapsed Time: " + std::to_string(time) + "\n\n");
     }
 
-    judgeResult_->DebugWindow();
+    //judgeResult_->DebugWindow();
 
     if (ImGui::Button("stop"))
         beatManager_->Stop();
@@ -325,15 +289,15 @@ void GameScene::ImGui()
         voiceInstance_->Stop();
         voiceInstance_.reset();
         voiceInstance_ = soundInstance_->Play(volume); // ボリュームとオフセットを設定して再生
-        notesSystem_->SetMusicVoiceInstance(voiceInstance_);
+        //notesSystem_->SetMusicVoiceInstance(voiceInstance_);
         beatManager_->Reset();
-        notesSystem_->Reload();
+        //notesSystem_->Reload();
     }
 
 
-    noteJudge_->SetPosition(judgeLine_->GetPosition());
-    noteJudge_->SetLaneTotalWidth(lane_->GetLaneTotalWidth());
-    noteJudge_->SetSpeed(notesSystem_->GetNoteSpeed());
+    //noteJudge_->SetPosition(judgeLine_->GetPosition());
+    //noteJudge_->SetLaneTotalWidth(lane_->GetLaneTotalWidth());
+    //noteJudge_->SetSpeed(notesSystem_->GetNoteSpeed());
 
 #endif // _DEBUG
 

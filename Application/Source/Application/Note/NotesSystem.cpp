@@ -6,10 +6,10 @@
 
 #include <Application/EventData/JudgeResultData.h>
 
+#include <Debug/Debug.h>
 #include <Math/MyLib.h>
 
-//TODO : タイミングががが
-// 絶対時間を採用する。 ノートに生成時間とか持たせる。あとtimeはmusicVoiceのを使う
+// TODO : notesystem 以下に表記
 // 最初のnoteが少し速い気がする
 
 NotesSystem::NotesSystem(Lane* _lane) : lane_(_lane), playing_(false)
