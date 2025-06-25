@@ -20,7 +20,6 @@ GameScene::~GameScene()
 // TODO ; やりたいこと にゅうりょく精度アップ
 // 別スレッドで入力取得するように。 それと入力された時間を記録
 
-// ロード終了から開始までの待機時間を設定 すぐに始まらんように
 void GameScene::Initialize(SceneData* _sceneData)
 {
     SceneCamera_.Initialize();
