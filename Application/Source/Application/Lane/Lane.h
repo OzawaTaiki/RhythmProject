@@ -1,109 +1,81 @@
 #pragma once
 
-// Engine
-#include <Features/LineDrawer/LineDrawer.h>
-#include <Features/Json/JsonBinder.h>
-#include <Features/Event/EventListener.h>
-
-// Application
 #include <Application/Note/Note.h>
-#include <Application/Effects/LaneEffect/LaneEffect.h>
+#include <Application/BeatMapLoader/BeatMapData.h>
 
-
-// STL
 #include <memory>
 #include <list>
 
-class Lane : public iEventListener
+class Camera;
+
+// 単一のレーン
+class Lane
 {
 public:
-    Lane();
-    ~Lane();
 
-    void Initialize();
-    void Update();
-    void Draw(const Camera* _camera);
+    Lane() = default;
+    ~Lane() = default;
 
     /// <summary>
-    /// レーンのスタート位置を取得
+    /// 初期化処理
     /// </summary>
-    /// <param name="_index">レーンインデックス</param>
-    /// <returns>レーンのスタート座標</returns>
-    Vector3 GetLaneStartPosition(uint32_t _index) const;
+    /// <param name="_noteDataList">ノーツのデータ</param>
+    /// <param name="_laneIndex">レーンインデックス</param>
+    /// <param name="_judgeLine">判定ラインの座標</param>
+    void Initialize(const std::list<NoteData>& _noteDataList, int32_t _laneIndex, float _judgeLine);
+
+    /// <summary>
+    /// 更新処理
+    /// </summary>
+    /// <param name="_elapseTime">経過時間</param>
+    void Update(float _elapseTime);
+
+    /// <summary>
+    /// 描画処理
+    /// </summary>
+    /// <param name="_camera">カメラ</param>
+    void Draw(const Camera* _camera) const;
 
 
     /// <summary>
-    /// レーンにノーツを追加
+    /// 一番手前のノーツを取得
     /// </summary>
-    /// <param name="_index">レーンインデックス</param>
-    /// <param name="_note"ノーツのポインタ></param>
-    void AddNote(uint32_t _index, std::shared_ptr<Note> _note);
+    /// <returns>一番手前のノーツへのポインタ</returns>
+    Note* GetFirstNote() const;
+
+
+
+public: // 静的メンバ関数
+
+    static void SetLaneWidth(float width) { laneWidth_ = width; }
+    static float GetLaneWidth() { return laneWidth_; }
+
+    static void SetLaneLength(float length) { laneLength_ = length; }
+    static float GetLaneLength() { return laneLength_; }
+
+    static void SetLaneCount(int32_t count) { laneCount_ = count; }
+    static int32_t GetLaneCount() { return laneCount_; }
+
+private: // 内部処理用関数たち
 
     /// <summary>
-    /// レーンの合計幅を取得
+    /// ノーツを生成する
     /// </summary>
-    /// <returns>レーンの合計幅</returns>
-    float GetLaneTotalWidth() const { return totalWidth_; }
+    void CreateNotes(const std::list<NoteData>& _noteDataList, int32_t _laneIndex, float _judgeLine);
 
-    /// <summary>
-    /// 判定を取る最大判定を設定
-    /// </summary>
-    /// <param name="_window">判定を取る最大判定</param>
-    void SetJudgeWindow(float _window) { judgeWindow_ = _window; }
 
-    const std::vector<Vector3>& GetLanePoints() const { return lanePoints_; }
-
-    void Reset();
-
-    void OnEvent(const GameEvent& _event) override;
 private:
 
-    void InitializeJsonBinder();
+    std::list<std::unique_ptr<Note>> notes_; // レーンにあるノーツ
 
-    void CalculateLane();
+    Vector3 startPosition_; // レーンの開始位置
+    Vector3 endPosition_; // レーンの終了位置
 
-    std::vector<Vector3> GeneLaneStartPoints() const;
 
-    void DrawCenterLine();
-
-    void ImGui();
 private:
-
-    LineDrawer* lineDrawer_ = nullptr;
-
-    // Laneの数
-    uint32_t laneCount_ = 4;
-
-    // Laneの中心 zは手前
-    Vector3 center_ = { 0,0,0 };
-
-    // 合計の幅
-    float totalWidth_ = 4.0f;
-    // 1Laneの幅
-    float width_ = 1.0f;
-    // Laneの長さ
-    float length_ = 10.0f;
-
-    std::vector<Vector3> lanePoints_;
-
-    // Laneの色
-    Vector4 color_ = { 1,1,1,1 };
-
-    mutable std::vector<Vector3> laneStartPoints_;
-
-    mutable bool isDirty_ = false;
-
-    // レーンごとのノーツの参照
-    std::map<uint32_t, std::list<std::shared_ptr<Note>>> notes_;
-
-    std::vector<std::unique_ptr<LaneEffect>> laneEffects_;
-
-    // 判定を取る最大範囲 -> ミス判定となる時間
-    double judgeWindow_ = 0.5f;
-
-    std::unique_ptr<JsonBinder> jsonBinder_ = nullptr;
-
-    bool dirty_ = false;
+    static float laneWidth_; // レーンの幅
+    static float laneLength_; // レーンの長さ
+    static float totalWidth_; // レーンの合計幅
+    static int32_t laneCount_; // レーンの数
 
 };
-
