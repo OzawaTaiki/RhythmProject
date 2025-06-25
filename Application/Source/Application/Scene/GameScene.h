@@ -61,12 +61,6 @@ private:
     std::shared_ptr<LightGroup> lightGroup_ = nullptr;
 
     // Application
-    std::unique_ptr<Lane> lane_ = nullptr;
-    std::unique_ptr<NotesSystem> notesSystem_ = nullptr;
-    std::unique_ptr<JudgeLine> judgeLine_ = nullptr;
-    std::unique_ptr<NoteJudge> noteJudge_ = nullptr;
-    std::unique_ptr<JudgeResult> judgeResult_ = nullptr;
-    std::unique_ptr<NoteKeyController> noteKeyController_ = nullptr;
 
     BeatMapLoader* beatMapLoader_ = nullptr;
 
