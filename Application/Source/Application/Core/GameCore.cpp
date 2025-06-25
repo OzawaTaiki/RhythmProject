@@ -1,22 +1,40 @@
 #include "GameCore.h"
 
+#include <Features/LineDrawer/LineDrawer.h>
+#include <Math/MyLib.h>
+#include <Debug/Debug.h>
+
 GameCore::GameCore(int32_t _laneCount)
 {
     lanes_.resize(_laneCount);
 }
+
 GameCore::~GameCore()
 {
 }
 
-void GameCore::Initialize(const BeatMapData& _beatMapData)
+void GameCore::Initialize(float _noteSpeed, float _offset)
 {
+    noteSpeed_ = _noteSpeed;
+    offset_ = _offset;
 
+    // レーンの初期化
+    lanes_.resize(laneCount_);
+    for (int32_t i = 0; i < laneCount_; ++i)
+    {
+        lanes_[i] = std::make_unique<Lane>();
+    }
 }
 
 void GameCore::Update(float _deltaTime)
 {
     float elapsedTime = 0.0f;
-    if (auto voiceInstance = musicVoiceInstance_.lock())
+    if (isWaitingForStart_)
+    {
+        waitTimer_ += _deltaTime;
+        elapsedTime = Lerp(-offset_, 0.0f, waitTimer_ / offset_);
+    }
+    else if (auto voiceInstance = musicVoiceInstance_.lock())
     {
         // 音楽の音声インスタンスが有効な場合、経過時間を取得
         if (voiceInstance->IsPlaying())
@@ -24,21 +42,19 @@ void GameCore::Update(float _deltaTime)
             // 音楽が再生中の場合、経過時間を取得
             elapsedTime = voiceInstance->GetElapsedTime();
         }
-        else
-        {
-            // 音楽が停止している場合、経過時間は0に設定
-            elapsedTime = 0.0f;
-        }
     }
+
+    ImGui::DragFloat("speed", &noteSpeed_, 0.01f);
 
     for (auto& lane : lanes_)
     {
-        lane->Update(elapsedTime);
+        lane->Update(elapsedTime, noteSpeed_);
     }
 }
 
 void GameCore::Draw(const Camera* _camera)
 {
+    LineDrawer::GetInstance()->RegisterPoint(Vector3(-4, 0, 0), Vector3(4, 0, 0));
     for (const auto& lane : lanes_)
     {
         if (lane)
@@ -46,6 +62,12 @@ void GameCore::Draw(const Camera* _camera)
             lane->Draw(_camera);
         }
     }
+}
+
+void GameCore::GenerateNotes(const BeatMapData& _beatMapData)
+{
+    // 譜面データを解析してノーツを生成
+    ParseBeatMapData(_beatMapData);
 }
 
 void GameCore::ParseBeatMapData(const BeatMapData& _beatMapData)
@@ -73,9 +95,7 @@ void GameCore::ParseBeatMapData(const BeatMapData& _beatMapData)
             return a.targetTime < b.targetTime; // 昇順でソート
             });
 
-        auto lane = std::make_unique<Lane>();
-        lane->Initialize(notesPerLane[index], 0, 0.1f); // 仮の値を使用 TODO
-        lanes_[index] = std::move(lane);
+        lanes_[index]->Initialize(notesPerLane[index], index, 0.0f, noteSpeed_, offset_);// 仮の値を使用 TODO
     }
 
 }
