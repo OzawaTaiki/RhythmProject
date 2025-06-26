@@ -9,18 +9,16 @@
 #include <Features/Effect/Manager/ParticleSystem.h>
 #include <System/Audio/SoundInstance.h>
 #include <System/Audio/VoiceInstance.h>
+#include <Features/Sprite/Sprite.h>
 #include <System/Audio/AudioSystem.h>
 
 
 // Application
-#include <Application/Lane/Lane.h>
-#include <Application/Note/NotesSystem.h>
-#include <Application/Note/Judge/JudgeLine.h>
-#include <Application/Note/Judge/NoteJudge.h>
-#include <Application/Note/Judge/JudgeResult.h>
-#include <Application/Input/NoteKeyController.h>
+#include <Application/Input/GameInputManager.h>
+
 #include <Application/BeatsManager/BeatManager.h>
 #include <Application/BeatMapLoader/BeatMapLoader.h>
+#include <Application/Core/GameCore.h>
 
 
 class GameScene : public BaseScene
@@ -61,6 +59,10 @@ private:
     std::shared_ptr<LightGroup> lightGroup_ = nullptr;
 
     // Application
+
+    std::unique_ptr<GameCore> gameCore_ = nullptr;
+
+    std::unique_ptr<GameInputManager> gameInputManager_ = nullptr;
 
     BeatMapLoader* beatMapLoader_ = nullptr;
 

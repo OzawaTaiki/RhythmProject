@@ -22,9 +22,6 @@
     <Filter Include="Application\Input">
       <UniqueIdentifier>{3ad8ebcf-5d40-4839-be37-72693e4efbaa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\EventData">
-      <UniqueIdentifier>{9109138d-4211-40a7-8b3a-d27f4cb6f6de}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Application\Combo">
       <UniqueIdentifier>{2011a953-d490-40cc-b885-03ca2c69f81c}</UniqueIdentifier>
     </Filter>
@@ -85,9 +82,6 @@
     <ClCompile Include="Source\Application\Note\Judge\NoteJudge.cpp">
       <Filter>Application\Judge</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Input\NoteKeyController.cpp">
-      <Filter>Application\Input</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Note\Judge\JudgeResult.cpp">
       <Filter>Application\Judge\Result</Filter>
     </ClCompile>
@@ -130,6 +124,9 @@
     <ClCompile Include="Source\Application\BeatMapEditor\LiveMapping\LiveMapping.cpp">
       <Filter>Application\BeatMapEditor\LiveMapping</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Input\GameInputManager.cpp">
+      <Filter>Application\Input</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Core\GameCore.cpp">
       <Filter>Application\Core</Filter>
     </ClCompile>
@@ -159,26 +156,8 @@
     <ClInclude Include="Source\Application\Note\Judge\NoteJudge.h">
       <Filter>Application\Judge</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\EventData\NoteJudgeData.h">
-      <Filter>Application\EventData</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\EventData\HitKeyData.h">
-      <Filter>Application\EventData</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Input\NoteKeyController.h">
-      <Filter>Application\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\EventData\NoteJudgeType.h">
-      <Filter>Application\EventData</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\EventData\JudgeResultData.h">
-      <Filter>Application\EventData</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Note\Judge\JudgeResult.h">
       <Filter>Application\Judge\Result</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\EventData\ReleaseKeyData.h">
-      <Filter>Application\EventData</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\BeatsManager\BeatManager.h">
       <Filter>Application\BeatManager</Filter>
@@ -222,11 +201,26 @@
     <ClInclude Include="Source\Application\BeatMapEditor\LiveMapping\LiveMapping.h">
       <Filter>Application\BeatMapEditor\LiveMapping</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Lane\Lane.h">
+      <Filter>Application\Lane</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Input\GameInputManager.h">
+      <Filter>Application\Input</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Core\GameCore.h">
       <Filter>Application\Core</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Lane\Lane.h">
       <Filter>Application\Lane</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Input\InputData.h">
+      <Filter>Application\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Note\Judge\JudgeType.h">
+      <Filter>Application\Judge</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Note\NoteType.h">
+      <Filter>Application\Note</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
