@@ -1,14 +1,11 @@
 #include "NoteJudge.h"
 
 // Engine
-#include <Features/Event/EventManager.h>
 #include <Features/LineDrawer/LineDrawer.h>
 #include <Debug/ImGuiDebugManager.h>
 
 // application
-#include <Application/EventData/NoteJudgeData.h>
-#include <Application/EventData/JudgeResultData.h>
-#include <Application/Effects/TapEffects/TriggerEffects.h>
+#include <Application/Note/Note.h>
 
 
 // STL
@@ -18,9 +15,6 @@ NoteJudge::NoteJudge()
 #ifdef _DEBUG
     ImGuiDebugManager::GetInstance()->AddDebugWindow("JudgeLine", [this]() { ImGui::Checkbox("DrawLine", &isDrawLine); });
 #endif // _DEBUG
-
-
-    EventManager::GetInstance()->AddEventListener("NoteJudge", this);
 }
 
 NoteJudge::~NoteJudge()
@@ -28,8 +22,6 @@ NoteJudge::~NoteJudge()
 #ifdef _DEBUG
     ImGuiDebugManager::GetInstance()->RemoveDebugWindow("JudgeLine");
 #endif // _DEBUG
-
-    EventManager::GetInstance()->RemoveEventListener("NoteJudge", this);
 }
 
 void NoteJudge::Initialize()
@@ -37,10 +29,9 @@ void NoteJudge::Initialize()
     InitializeJsonBinder();
 
     // 仮
-    timingThresholds_[NoteJudgeType::Perfect] = 0.06f;
-    timingThresholds_[NoteJudgeType::Good] = 0.18f;
-    timingThresholds_[NoteJudgeType::Miss] = 0.3f;
-
+    timingThresholds_[JudgeType::Perfect] = 0.06f;
+    timingThresholds_[JudgeType::Good] = 0.18f;
+    timingThresholds_[JudgeType::Miss] = 0.3f;
 
 }
 
@@ -80,60 +71,29 @@ void NoteJudge::DrawJudgeLine()
 
 }
 
-
-void NoteJudge::OnEvent(const GameEvent& _event)
+JudgeType NoteJudge::ProcessNoteJudge(Note* _note, float _elapsedTime)
 {
-    if (_event.GetEventType() == "NoteJudge")
+    if (_note == nullptr)
+        return JudgeType::None; // nullチェック
+
+    JudgeType result = JudgeType::None;
+
+    float targetTime = _note->GetTargetTime();
+
+    for (const auto& [i, timingThreshold] : timingThresholds_)
     {
-        // NOTEJUDGEのデータを取得
-        auto data = static_cast<NoteJudgeData*>(_event.GetData());
-        if (data)// nullチェック
+        if (targetTime >= _elapsedTime - timingThresholds_[i] &&
+            targetTime <= _elapsedTime + timingThresholds_[i])
         {
-            bool continueJudge = true;
-            // 判定を取得
-            for (const auto& [i, timingThreshold] : timingThresholds_)
-            {
-                if (data->diff >= 0) // 奥にある
-                {
-                    if (data->diff <= timingThresholds_[i])
-                    {
-                        // 判定を行う
-                        JudgeResultData judgeResult(i, data->laneIndex);
-                        EventManager::GetInstance()->DispatchEvent(
-                            GameEvent("JudgeResult", &judgeResult)
-                        );
-                        continueJudge = false; // 判定が決まったらループを抜ける
-                    }
-                }
-                else
-                {
-                    if (data->diff >= -timingThresholds_[i])
-                    {
-                        // 判定を行う
-                        JudgeResultData judgeResult(i, data->laneIndex);
-                        EventManager::GetInstance()->DispatchEvent(
-                            GameEvent("JudgeResult", &judgeResult)
-                        );
-                        continueJudge = false; // 判定が決まったらループを抜ける
-                    }
-                }
-
-                if (!continueJudge)
-                {
-                    if (i == NoteJudgeType::Perfect ||
-                        i == NoteJudgeType::Good)
-                    {
-                    }
-                    break;
-                }
-
-            }
-
-            // ミス判定
-
+            // 判定を行う
+            result = static_cast<JudgeType>(i);
+            break;
         }
     }
+
+    return result;
 }
+
 
 void NoteJudge::InitializeJsonBinder()
 {
@@ -145,7 +105,7 @@ void NoteJudge::InitializeJsonBinder()
 
     for (size_t i = 0; i < timingThresholds.size(); ++i)
     {
-        NoteJudgeType judgeType = static_cast<NoteJudgeType>(i);
+        JudgeType judgeType = static_cast<JudgeType>(i);
         timingThresholds_[judgeType] = timingThresholds[i];
     }
 

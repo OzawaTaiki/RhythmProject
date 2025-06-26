@@ -2,27 +2,13 @@
 #include <System/Audio/VoiceInstance.h>
 #include <System/Input/Input.h>
 
+#include <Application/Input/InputData.h>
+
 #include <map>
 #include <cstdint>
 #include <memory>
 #include <stdexcept>
 
-
-enum class KeyState
-{
-    None,      // 何も押されていない
-    trigger,   // 押された
-    Released,  // 離された
-    Hold,       // 押し続けている
-
-    MAX // キー状態の最大値
-};
-
-struct InputDate
-{
-    KeyState state = KeyState::None; // キーの状態
-    float elapsedTime = 0.0f; // 経過時間
-};
 
 class GameInputManager
 {

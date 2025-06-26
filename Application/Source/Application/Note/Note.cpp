@@ -42,6 +42,12 @@ void Note::Judge()
     // event発行？soundInstance持たせる？
 }
 
+NomalNote::NomalNote() :    Note()
+{
+    noteType_ = NoteType::Normal;
+    color_ = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+}
+
 NomalNote::~NomalNote()
 {
 }
@@ -59,6 +65,14 @@ void NomalNote::Update(float _elapseTime, float _speed)
 void NomalNote::Draw(const Camera* _camera)
 {
     Note::Draw(_camera);
+}
+
+LongNote::LongNote() : Note()
+{
+    noteType_ = NoteType::Hold;
+    color_ = Vector4(0.0f, 1.0f, 0.5f, 1.0f); // 緑色
+    holdDuration_ = 0.0f; // デフォルトのホールド時間
+    isHoldEnd_ = false;
 }
 
 LongNote::~LongNote()
@@ -125,5 +139,7 @@ void LongNote::SetHoldEnd(bool _isHoldEnd)
         noteBridge_ = std::make_unique<ObjectModel>("noteBridge");
         noteBridge_->Initialize("pY1x1p01Plane");// y+向きpivot(010)
         noteBridge_->useQuaternion_ = true;
+
+        noteType_ = NoteType::HoldEnd; // ノーツタイプを設定
     }
 }

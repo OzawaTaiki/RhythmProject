@@ -1,12 +1,12 @@
 #pragma once
 
-enum class NoteJudgeType
+enum class JudgeType
 {
     None = 0,
+
     Perfect,
     Good,
     Miss,
 
-
-    TypeCount
+    MAX
 };

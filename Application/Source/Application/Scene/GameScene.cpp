@@ -6,7 +6,8 @@
 #include <Features/Model/Primitive/Ring.h>
 
 #include <System/Time/GameTime.h>
-#include <System/Audio/Audio.h>
+
+#include <Debug/Debug.h>
 
 GameScene::~GameScene()
 {
@@ -50,7 +51,10 @@ void GameScene::Initialize(SceneData* _sceneData)
     GenerateModels();
 
     gameCore_ = std::make_unique<GameCore>(); // レーン数はデフォで4
-    gameCore_->Initialize(10.0f, 2.0f); // ノーツの移動速度とオフセット時間を設定
+    gameCore_->Initialize(30.0f, 2.0f); // ノーツの移動速度とオフセット時間を設定
+
+    gameInputManager_ = std::make_unique<GameInputManager>();
+    gameInputManager_->Initialize(input_);
 
     beatMapLoader_ = BeatMapLoader::GetInstance();
     beatMapLoadFuture_ = beatMapLoader_->LoadBeatMap("Resources/Data/Game/BeatMap/demo_copy.json");
@@ -89,8 +93,9 @@ void GameScene::Update()
 
 #pragma region Application
 
+    gameInputManager_->Update(); // 入力更新
     beatManager_->Update();
-    gameCore_->Update(static_cast<float>(GameTime::GetInstance()->GetDeltaTime()));
+    gameCore_->Update(static_cast<float>(GameTime::GetInstance()->GetDeltaTime()), gameInputManager_->GetInputData());
 
 #pragma endregion // Application
 
@@ -188,7 +193,6 @@ bool GameScene::IsComplateLoadBeatMap()
         }
 
         // 譜面データを渡してnoteを生成
-        //notesSystem_->SetBeatMapDataAndCreateNotes(beatMapLoader_->GetLoadedBeatMapData());
         gameCore_->GenerateNotes(beatMapLoader_->GetLoadedBeatMapData());
 
         // bpmを設定
@@ -207,8 +211,7 @@ bool GameScene::IsComplateLoadBeatMap()
         {
             beatManager_->SetMusicVoiceInstance(voiceInstance_);
             gameCore_->SetMusicVoiceInstance(voiceInstance_);
-            //notesSystem_->SetMusicVoiceInstance(voiceInstance_);
-            //noteKeyController_->SetMusicVoiceInstance(voiceInstance_.get());
+            gameInputManager_->SetMusicVoiceInstance(voiceInstance_); // 入力管理に音声インスタンスを設定
         }
         else
         {
@@ -217,7 +220,6 @@ bool GameScene::IsComplateLoadBeatMap()
         }
 
 
-        //notesSystem_->playing(true); // noteはながれてほしいから
         isBeatMapLoaded_ = true;
         isWatingForStart_ = true; // 譜面読み込み完了したら開始待機状態にする
     }
@@ -241,7 +243,7 @@ void GameScene::UpdateGameStartOffset()
         // ゲーム開始
         beatManager_->Start();
         gameCore_->Start();
-            
+
         if (voiceInstance_)
             voiceInstance_->Play();
     }
@@ -296,15 +298,9 @@ void GameScene::ImGui()
         voiceInstance_.reset();
         voiceInstance_ = soundInstance_->Play(volume); // ボリュームとオフセットを設定して再生
         gameCore_->SetMusicVoiceInstance(voiceInstance_);
-        //notesSystem_->SetMusicVoiceInstance(voiceInstance_);
+        gameInputManager_->SetMusicVoiceInstance(voiceInstance_);
         beatManager_->Reset();
-        //notesSystem_->Reload();
     }
-
-
-    //noteJudge_->SetPosition(judgeLine_->GetPosition());
-    //noteJudge_->SetLaneTotalWidth(lane_->GetLaneTotalWidth());
-    //noteJudge_->SetSpeed(notesSystem_->GetNoteSpeed());
 
 #endif // _DEBUG
 

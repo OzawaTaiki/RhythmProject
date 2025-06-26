@@ -24,11 +24,15 @@ void GameInputManager::Update()
         {
             InputDate inputData;
             inputData.elapsedTime = musicVoiceInstance->GetElapsedTime();
+            inputData.laneIndex = laneIndex;
 
             if (input_->IsKeyTriggered(keycode))
             {
                 inputData.state = KeyState::trigger;
+
                 inputData_.push_back(inputData);
+
+                Debug::Log("Key triggered: " + std::to_string(keycode) + " on lane " + std::to_string(laneIndex) + "\n");
             }
             else if (input_->IsKeyPressed(keycode))
             {

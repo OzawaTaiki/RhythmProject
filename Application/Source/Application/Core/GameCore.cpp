@@ -24,10 +24,28 @@ void GameCore::Initialize(float _noteSpeed, float _offset)
     {
         lanes_[i] = std::make_unique<Lane>();
     }
+
+    noteJudge_ = std::make_unique<NoteJudge>();
+    noteJudge_->Initialize();
+
+    judgeResult_ = std::make_unique<JudgeResult>();
+    judgeResult_->Initialize();
+
+    noteJudge_->SetLaneTotalWidth(Lane::GetTotalWidth());
+
+
+    noteDeletePosition_ = -noteJudge_->GetMissJudgeThreshold() * noteSpeed_; // ノーツを削除する位置を設定
 }
 
-void GameCore::Update(float _deltaTime)
+void GameCore::Update(float  _deltaTime, const std::vector<InputDate>& _inputData)
 {
+    for (auto& lane : lanes_)
+    {
+        judgeResult_->AddJudge(JudgeType::Miss, lane->DeleteNotesOutOfScreen(noteDeletePosition_));
+    }
+
+    JudgeNotes(_inputData);
+
     float elapsedTime = 0.0f;
     if (isWaitingForStart_)
     {
@@ -46,6 +64,7 @@ void GameCore::Update(float _deltaTime)
 
     ImGui::DragFloat("speed", &noteSpeed_, 0.01f);
 
+    noteJudge_->SetSpeed(noteSpeed_);
     for (auto& lane : lanes_)
     {
         lane->Update(elapsedTime, noteSpeed_);
@@ -55,6 +74,9 @@ void GameCore::Update(float _deltaTime)
 void GameCore::Draw(const Camera* _camera)
 {
     LineDrawer::GetInstance()->RegisterPoint(Vector3(-4, 0, 0), Vector3(4, 0, 0));
+
+    noteJudge_->DrawJudgeLine();
+
     for (const auto& lane : lanes_)
     {
         if (lane)
@@ -68,6 +90,47 @@ void GameCore::GenerateNotes(const BeatMapData& _beatMapData)
 {
     // 譜面データを解析してノーツを生成
     ParseBeatMapData(_beatMapData);
+}
+
+void GameCore::JudgeNotes(const std::vector<InputDate>& _inputData)
+{
+    for (auto& inputdata : _inputData)
+    {
+        int32_t laneIndex = inputdata.laneIndex;
+        if (laneIndex < 0 || laneIndex >= static_cast<int32_t>(lanes_.size()))
+        {
+            // エラー処理: レーンインデックスが範囲外
+            throw std::out_of_range("InputData laneIndex is out of range.");
+            return;
+        }
+
+        auto& lane = lanes_[laneIndex];
+
+        auto note = lane->GetFirstNote();
+        if (!note)
+            continue;
+
+        JudgeType result = JudgeType::None; // 初期化
+        if (note->GetNoteType() == NoteType::Normal||
+            note->GetNoteType() == NoteType::Hold)
+        {
+            if(inputdata.state == KeyState::trigger)
+                result = noteJudge_->ProcessNoteJudge(note, inputdata.elapsedTime);
+        }
+        else if (note->GetNoteType() == NoteType::HoldEnd)
+        {
+            if (inputdata.state == KeyState::Released)
+            {
+                result = noteJudge_->ProcessNoteJudge(note, inputdata.elapsedTime);
+            }
+        }
+
+        if (result == JudgeType::None)
+            continue; // 判定なしの場合はスキップ
+
+        judgeResult_->AddJudge(result);
+        note->Judge();
+    }
 }
 
 void GameCore::ParseBeatMapData(const BeatMapData& _beatMapData)

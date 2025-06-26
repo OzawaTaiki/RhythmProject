@@ -28,7 +28,8 @@ public:
     /// 更新処理
     /// </summary>
     /// <param name="_elapseTime">経過時間</param>
-    void Update(float _elapseTime,float _speed);
+    /// <param name="_speed">ノーツの移動速度</param>
+    void Update(float _elapseTime, float _speed);
 
     /// <summary>
     /// 描画処理
@@ -43,9 +44,17 @@ public:
     /// <returns>一番手前のノーツへのポインタ</returns>
     Note* GetFirstNote() const;
 
-
+    /// <summary>
+    /// 画面外のノーツを削除する
+    /// </summary>
+    /// <param name="_noteDeletePos">ノーツを削除する位置</param>
+    /// /// <returns>削除したノーツの数</returns>
+    int32_t DeleteNotesOutOfScreen(float _noteDeletePos);
 
 public: // 静的メンバ関数
+
+    static void SetTotalWidth(float width) { totalWidth_ = width; }
+    static float GetTotalWidth() { return totalWidth_; }
 
     static void SetLaneWidth(float width) { laneWidth_ = width; }
     static float GetLaneWidth() { return laneWidth_; }
@@ -78,5 +87,4 @@ private:
     static float totalWidth_; // レーンの合計幅
     static int32_t laneCount_; // レーンの数
     static float laneWidth_; // レーンの幅
-
 };

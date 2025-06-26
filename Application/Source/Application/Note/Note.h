@@ -3,8 +3,11 @@
 #include <Features/Camera/Camera/Camera.h>
 #include <Features/Model/ObjectModel.h>
 
+#include <Application/Note/NoteType.h>
+
 
 #include <cstdint>
+
 
 class Note
 {
@@ -21,6 +24,8 @@ public:
 
     Vector3 GetPosition() const { return model_->translate_; }
 
+    NoteType GetNoteType() const { return noteType_; }
+
     bool IsJudged() const { return isJudged_; }
     virtual void Judge();
 
@@ -34,13 +39,15 @@ protected:
     Vector3 targetPosition_ = { 0,0,0 }; // ノーツの目標位置
 
     bool isJudged_ = false;
+
+    NoteType noteType_ = NoteType::Normal; // ノーツのタイプ
 };
 
 
 class NomalNote : public Note
 {
 public:
-    NomalNote() = default;
+    NomalNote();
     ~NomalNote() override;
 
 
@@ -58,7 +65,7 @@ private:
 class LongNote : public Note
 {
 public:
-    LongNote() = default;
+    LongNote();;
     ~LongNote() override;
 
     void Initilize(float _targetTime, const Vector3& _targetPosition) override;

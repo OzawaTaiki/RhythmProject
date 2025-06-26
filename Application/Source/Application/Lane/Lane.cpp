@@ -48,6 +48,7 @@ void Lane::Update(float _elapseTime, float _speed)
     }
 }
 
+
 void Lane::Draw(const Camera* _camera) const
 {
     //  TODO レーン描画
@@ -66,6 +67,28 @@ Note* Lane::GetFirstNote() const
     }
 
     return notes_.front().get(); // 最初のノーツを返す
+}
+
+int32_t Lane::DeleteNotesOutOfScreen(float _noteDeletePos)
+{
+    int32_t deleteCount = 0;
+    for (auto it = notes_.begin(); it != notes_.end();)
+    {
+        auto& note = *it;
+        if (note->GetPosition().z < _noteDeletePos) // 画面外のノーツ
+        {
+            note->Judge(); // ノーツを判定済みにする 念のため
+            it = notes_.erase(it); // ノーツを削除
+            ++deleteCount; // 削除カウントを増やす
+        }
+        else
+        {
+            // 時間順に並んでいるからここにきたら以降のノートは画面内にあるはず
+            break;
+        }
+    }
+    return deleteCount; // 削除したノーツの数を返す
+
 }
 
 void Lane::CreateNotes(const std::list<NoteData>& _noteDataList, int32_t _laneIndex, float _judgeLine, float  _speed, float _startOffsetTime)

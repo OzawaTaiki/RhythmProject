@@ -9,11 +9,12 @@
 #include <Features/Effect/Manager/ParticleSystem.h>
 #include <System/Audio/SoundInstance.h>
 #include <System/Audio/VoiceInstance.h>
+#include <Features/Sprite/Sprite.h>
 #include <System/Audio/AudioSystem.h>
 
 
 // Application
-#include <Application/Input/NoteKeyController.h>
+#include <Application/Input/GameInputManager.h>
 
 #include <Application/BeatsManager/BeatManager.h>
 #include <Application/BeatMapLoader/BeatMapLoader.h>
@@ -60,6 +61,8 @@ private:
     // Application
 
     std::unique_ptr<GameCore> gameCore_ = nullptr;
+
+    std::unique_ptr<GameInputManager> gameInputManager_ = nullptr;
 
     BeatMapLoader* beatMapLoader_ = nullptr;
 
