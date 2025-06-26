@@ -98,6 +98,7 @@
     <ClCompile Include="Source\Application\BeatMapEditor\LiveMapping\LiveMapping.cpp" />
     <ClCompile Include="Source\Application\BeatMapLoader\BeatMapLoader.cpp" />
     <ClCompile Include="Source\Application\BeatsManager\BeatManager.cpp" />
+    <ClCompile Include="Source\Application\Core\GameCore.cpp" />
     <ClCompile Include="Source\Application\Effects\LaneEffect\LaneEffect.cpp" />
     <ClCompile Include="Source\Application\Effects\TapEffects\HitparticleModifier.cpp" />
     <ClCompile Include="Source\Application\Effects\TapEffects\LightPillarModifier.cpp" />
@@ -109,7 +110,6 @@
     <ClCompile Include="Source\Application\Note\Judge\JudgeResult.cpp" />
     <ClCompile Include="Source\Application\Note\Judge\NoteJudge.cpp" />
     <ClCompile Include="Source\Application\Note\Note.cpp" />
-    <ClCompile Include="Source\Application\Note\NotesSystem.cpp" />
     <ClCompile Include="Source\Application\Scene\GameScene.cpp" />
     <ClCompile Include="Source\Application\Scene\ResultScene.cpp" />
     <ClCompile Include="Source\Application\Scene\SelectScene.cpp" />
@@ -131,6 +131,7 @@
     <ClInclude Include="Source\Application\BeatMapLoader\BeatMapData.h" />
     <ClInclude Include="Source\Application\BeatMapLoader\BeatMapLoader.h" />
     <ClInclude Include="Source\Application\BeatsManager\BeatManager.h" />
+    <ClInclude Include="Source\Application\Core\GameCore.h" />
     <ClInclude Include="Source\Application\Effects\LaneEffect\LaneEffect.h" />
     <ClInclude Include="Source\Application\Effects\TapEffects\HitparticleModifier.h" />
     <ClInclude Include="Source\Application\Effects\TapEffects\LightPillarModifier.h" />
@@ -147,7 +148,6 @@
     <ClInclude Include="Source\Application\Note\Judge\JudgeResult.h" />
     <ClInclude Include="Source\Application\Note\Judge\NoteJudge.h" />
     <ClInclude Include="Source\Application\Note\Note.h" />
-    <ClInclude Include="Source\Application\Note\NotesSystem.h" />
     <ClInclude Include="Source\Application\Scene\GameScene.h" />
     <ClInclude Include="Source\Application\Scene\ResultScene.h" />
     <ClInclude Include="Source\Application\Scene\SelectScene.h" />

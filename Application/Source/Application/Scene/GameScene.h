@@ -13,14 +13,11 @@
 
 
 // Application
-#include <Application/Lane/Lane.h>
-#include <Application/Note/NotesSystem.h>
-#include <Application/Note/Judge/JudgeLine.h>
-#include <Application/Note/Judge/NoteJudge.h>
-#include <Application/Note/Judge/JudgeResult.h>
 #include <Application/Input/NoteKeyController.h>
+
 #include <Application/BeatsManager/BeatManager.h>
 #include <Application/BeatMapLoader/BeatMapLoader.h>
+#include <Application/Core/GameCore.h>
 
 
 class GameScene : public BaseScene
@@ -61,12 +58,8 @@ private:
     std::shared_ptr<LightGroup> lightGroup_ = nullptr;
 
     // Application
-    std::unique_ptr<Lane> lane_ = nullptr;
-    std::unique_ptr<NotesSystem> notesSystem_ = nullptr;
-    std::unique_ptr<JudgeLine> judgeLine_ = nullptr;
-    std::unique_ptr<NoteJudge> noteJudge_ = nullptr;
-    std::unique_ptr<JudgeResult> judgeResult_ = nullptr;
-    std::unique_ptr<NoteKeyController> noteKeyController_ = nullptr;
+
+    std::unique_ptr<GameCore> gameCore_ = nullptr;
 
     BeatMapLoader* beatMapLoader_ = nullptr;
 

@@ -1,370 +1,111 @@
 #include "Lane.h"
 
-#include <Debug/ImGuiDebugManager.h>
-#include <Features/Event/EventManager.h>
+#include <Features/Camera/Camera/Camera.h>
 
-#include <Application/EventData/HitKeyData.h>
-#include <Application/EventData/NoteJudgeData.h>
-#include <Application/EventData/JudgeResultData.h>
-#include <Application/EventData/ReleaseKeyData.h>
-
-#include <Application/Effects/TapEffects/TriggerEffects.h>
-
-Lane::Lane()
-{
-#ifdef _DEBUG
-    ImGuiDebugManager::GetInstance()->AddDebugWindow("Lane", [&]() { ImGui(); });
-#endif // _DEBUG
-
-    EventManager::GetInstance()->AddEventListener("HitKey", this);
-    EventManager::GetInstance()->AddEventListener("ReleaseKey", this);
-}
+float Lane::laneLength_ = 100.0f; // 初期値
+float Lane::totalWidth_ = 8.0f; // 初期値
+int32_t Lane::laneCount_ = 4; // 初期値
+float Lane::laneWidth_ = Lane::totalWidth_ / static_cast<float>(Lane::laneCount_); // 一本あたりの幅
 
 Lane::~Lane()
 {
-#ifdef _DEBUG
-    ImGuiDebugManager::GetInstance()->RemoveDebugWindow("Lane");
-#endif // _DEBUG
-
-    EventManager::GetInstance()->RemoveEventListener("HitKey", this);
-    EventManager::GetInstance()->RemoveEventListener("ReleaseKey", this);
+    notes_.clear(); // 明示的にクリア
 }
 
-void Lane::Initialize()
+void Lane::Initialize(const std::list<NoteData>& _noteDataList, int32_t _laneIndex, float _judgeLine, float  _speed, float _startOffsetTime)
 {
-    lineDrawer_ = LineDrawer::GetInstance();
+    // レーンの座標を計算
+    // 基準は(0,0,_judgeLine)
+    static Vector3 basePosition = Vector3(0.0f, 0.0f, _judgeLine);
+    static float laneLeftEdge = basePosition.x - (totalWidth_ / 2.0f);
+    static float laneTopEdge = basePosition.z + laneLength_;
 
-    dirty_ = true;
+    startPosition_.x = laneLeftEdge + (static_cast<float>(_laneIndex) * laneWidth_);
+    startPosition_.y = 0.0f; // 高さは0
+    startPosition_.z = laneTopEdge; // 奥
 
-    // Jsonからデータを取得
-    InitializeJsonBinder();
+    endPosition_ = startPosition_;
+    endPosition_.z -= laneLength_; // レーンの終了位置は開始位置からレーンの長さだけ手前
 
-    // レーンの計算
-    CalculateLane();
-    DrawCenterLine();
-
-    TriggerEffects::Initialize();
-
-    // レーンえふぇくと用のいたポリ作成
-    Vector2 laneSize;
-    laneSize.x = (lanePoints_[2].x - lanePoints_[0].x);
-    laneSize.y = (lanePoints_[1].z - lanePoints_[0].z);
-
-    Plane plane;
-    plane.SetSize(laneSize);
-    plane.SetNormal(Vector3(0, 1, 0));
-    plane.SetPivot(Vector3(0, 1, 0));
-
-    Model* planeModel = plane.Generate("laneEffectPlane");
-
-    for (uint32_t i = 0; i < laneCount_; ++i)
-    {
-        auto laneEff = std::make_unique<LaneEffect>();
-
-        laneEff->Initialize(GetLaneStartPosition(i), planeModel);
-
-        laneEffects_.push_back(std::move(laneEff));
-    }
+    // ノーツを生成
+    CreateNotes(_noteDataList, _laneIndex, _judgeLine, _speed, _startOffsetTime);
 
 }
 
-void Lane::Update()
+void Lane::Update(float _elapseTime, float _speed)
 {
-    for (auto& [laneindex, notes] : notes_)
+    for (auto it = notes_.begin(); it != notes_.end();)
     {
-        for (auto it = notes.begin(); it != notes.end();)
+        auto& note = *it;
+        if (note->IsJudged())
         {
-            if ((*it)->IsJudged())
-            {
-                it = notes.erase(it);
-                continue;
-            }
-            ++it;
-        }
-    }
-
-    for (const auto& laneEffect : laneEffects_)
-    {
-        laneEffect->Update(0.016f); // TODO: DeltaTimeを渡す
-    }
-
-}
-
-void Lane::Draw(const Camera* _camera)
-{
-    for (uint32_t i = 1; i < lanePoints_.size() + 1; i += 2)
-    {
-        lineDrawer_->RegisterPoint(lanePoints_[i - 1], lanePoints_[i], color_);
-    }
-
-    for (const auto& laneEffect : laneEffects_)
-    {
-        laneEffect->Draw(_camera);
-    }
-
-    DrawCenterLine();
-}
-
-Vector3 Lane::GetLaneStartPosition(uint32_t _index) const
-{
-    if (!isDirty_)
-        return laneStartPoints_[_index];
-
-    if (_index >= laneStartPoints_.size())
-    {
-        throw std::out_of_range("Indexが配列サイズより大きいです。");
-    }
-
-    return GeneLaneStartPoints()[_index];
-}
-
-void Lane::AddNote(uint32_t _index, std::shared_ptr<Note> _note)
-{
-    if (_index >= laneStartPoints_.size())
-    {
-        throw std::out_of_range("Indexが配列サイズより大きいです。");
-    }
-
-    if (_note == nullptr)        throw std::runtime_error("Noteがnullptrです");
-
-    notes_[_index].push_back(_note);
-
-}
-
-void Lane::Reset()
-{
-    for (auto& [laneIndex, notes] : notes_)
-    {
-        notes.clear();
-    }
-}
-
-
-void Lane::OnEvent(const GameEvent& _event)
-{
-    if (_event.GetEventType() == "HitKey")
-    {
-        // 判定を行うノーツのリストを作成
-        auto data = static_cast<HitKeyData*>(_event.GetData());
-
-        if (data)
-        {
-            if (data->laneIndex >= laneStartPoints_.size())
-            {
-                throw std::out_of_range("Indexが配列サイズより大きいです。");
-                return;
-            }
-
-            // レーンエフェクトを開始
-            if (data->laneIndex >= laneEffects_.size())
-            {
-                throw std::out_of_range("LaneEffectsのIndexが配列サイズより大きいです。");
-                return;
-            }
-
-            laneEffects_[data->laneIndex]->Start();
-
-            Vector3 laneEndPoint = laneStartPoints_[data->laneIndex];
-            laneEndPoint.z = 0;
-            TriggerEffects::EmitCenterCircles(laneEndPoint);
-
-            // レーンにノーツがない場合は何もしない
-            if (notes_[data->laneIndex].empty())
-                return;
-
-            // レーンの一番手前のノーツを取得
-            Note* note = notes_[data->laneIndex].front().get();
-
-            // ターゲットタイムとの差分を取得
-            double diff = note->GetTargetTime() - data->keyTriggeredTimestamp;
-
-            // memo : diffが正の時は奥にある
-            if (diff > 0 && diff < judgeWindow_ ||
-                diff < 0 && diff > -judgeWindow_)
-            {
-                TriggerEffects::EmitSurroundingParticles(laneEndPoint);
-                // 判定を行う イベントを発行
-                NoteJudgeData noteJudgeData(diff, data->laneIndex, note);
-
-                EventManager::GetInstance()->DispatchEvent(
-                    GameEvent("NoteJudge", &noteJudgeData)
-                );
-                note->Judge();
-
-                if (dynamic_cast<LongNote*>(note))
-                {
-                    EventManager::GetInstance()->DispatchEvent(
-                        GameEvent("HoldKey", &noteJudgeData)
-                    );
-                }
-            }
+            it = notes_.erase(it); // 判定済みのノーツは削除
+            continue;
         }
 
+        note->Update(_elapseTime,_speed);
+        ++it; // 次のノーツへ
     }
-    else if (_event.GetEventType() == "ReleaseKey")
+}
+
+void Lane::Draw(const Camera* _camera) const
+{
+    //  TODO レーン描画
+
+    for (const auto& note : notes_)
     {
-        auto data = static_cast<ReleaseKeyData*>(_event.GetData());
-        if (data)
+        note->Draw(_camera);
+    }
+}
+
+Note* Lane::GetFirstNote() const
+{
+    if (notes_.empty())
+    {
+        return nullptr; // ノーツがない場合はnullptrを返す
+    }
+
+    return notes_.front().get(); // 最初のノーツを返す
+}
+
+void Lane::CreateNotes(const std::list<NoteData>& _noteDataList, int32_t _laneIndex, float _judgeLine, float  _speed, float _startOffsetTime)
+{
+    Vector3 noteTargetPosition = endPosition_;
+    startPosition_.z = _judgeLine; // レーンの開始位置のZ座標を判定ラインに合わせる
+
+    Vector3 noteStartPosition = startPosition_;
+
+
+    // _noteDataListは時間でソート済み
+    for (const auto& noteData : _noteDataList)
+    {
+        if (noteData.laneIndex == _laneIndex) // 念のためチェック
         {
-            if (data->laneIndex >= laneStartPoints_.size())
+            // ノーツを生成して追加
+            // TODO : ノーツの種類に応じて生成するクラスを変更する
+            if(noteData.noteType =="normal")
             {
-                throw std::runtime_error("Indexが配列サイズより大きいです。");
-                return;
+                auto note = std::make_shared<NomalNote>();
+
+                note->Initilize(noteData.targetTime ,noteTargetPosition);
+                notes_.push_back((note));
             }
-
-            if (notes_[data->laneIndex].empty())
-                return;
-
-            // レーンの一番手前のノーツを取得
-            Note* note = notes_[data->laneIndex].front().get();
-            // ターゲットタイムとの差分を取得
-            double diff = note->GetTargetTime() - data->keyReleasedTimestamp;
-            // memo : diffが正の時は奥にある
-            if (diff > 0 && diff < judgeWindow_ ||
-                diff < 0 && diff > -judgeWindow_)
+            else if (noteData.noteType == "hold")
             {
-                // 判定を行う イベントを発行
-                NoteJudgeData noteJudgeData(diff, data->laneIndex, note);
-                EventManager::GetInstance()->DispatchEvent(
-                    GameEvent("NoteJudge", &noteJudgeData)
-                );
-                note->Judge();
-            }
+                // 前のノートを生成
+                auto note = std::make_shared<LongNote>();
+                note->Initilize(noteData.targetTime, noteTargetPosition);
+                note->SetHoldEnd(false); // ブリッジはまだ生成しない
+                notes_.push_back((note));
 
-            Vector3 laneEndPoint = laneStartPoints_[data->laneIndex];
-            laneEndPoint.z = 0;
-            TriggerEffects::EmitSurroundingParticles(laneEndPoint);
+                // ホールド終端を生成
+                auto holdEndNote = std::make_shared<LongNote>();
+                holdEndNote->Initilize(noteData.targetTime + noteData.holdDuration, noteTargetPosition);
+                holdEndNote->SetHoldEnd(true); // ブリッジを生成するフラグを立てる
+                holdEndNote->SetHoldDuration(noteData.holdDuration); // ホールド時間を設定
+                notes_.push_back((holdEndNote));
+            }
         }
     }
-}
-
-void Lane::InitializeJsonBinder()
-{
-    jsonBinder_ = std::make_unique<JsonBinder>("Lane" , "Resources/Data/Game/Lane/");
-
-    jsonBinder_->RegisterVariable("LaneCount", &laneCount_);
-    jsonBinder_->RegisterVariable("TotalWidth", &totalWidth_);
-    jsonBinder_->RegisterVariable("Width", &width_);
-    jsonBinder_->RegisterVariable("Length", &length_);
-    jsonBinder_->RegisterVariable("Center", &center_);
-}
-
-void Lane::CalculateLane()
-{
-    if(!dirty_)
-        return;
-
-    if (laneCount_ <= 1)
-    {
-        throw std::runtime_error("LaneCountが少ないです 2以上に設定してください");
-        dirty_ = false;
-        return;
-    }
-
-    lanePoints_.clear();
-
-    width_ = totalWidth_ / static_cast<float>(laneCount_);
-
-    // 端の点を計算
-    // 手前
-    Vector3 leftLineStart = { 0,0,0 };
-    leftLineStart.x = center_.x - totalWidth_ / 2.0f;
-    leftLineStart.y = center_.y;
-    leftLineStart.z = center_.z - length_ / 2.0f;
-
-    // 奥
-    Vector3 leftLineEnd = leftLineStart;
-    leftLineEnd.z += length_;
-
-    lanePoints_.push_back(leftLineStart);
-    lanePoints_.push_back(leftLineEnd);
-
-    // 左のラインを基準に
-    for (uint32_t i = 0; i < laneCount_; ++i)
-    {
-        Vector3 lanePoint = leftLineStart;
-        lanePoint.x += width_ * (i + 1);
-        lanePoints_.push_back(lanePoint);
-
-        lanePoint.z += length_;
-        lanePoints_.push_back(lanePoint);
-    }
-    GeneLaneStartPoints();
-}
-
-
-std::vector<Vector3> Lane::GeneLaneStartPoints() const
-{
-    if(isDirty_)
-        return laneStartPoints_;
-
-    std::vector<Vector3> laneStartPoints;
-
-    if(lanePoints_.empty())
-    {
-        throw std::runtime_error("LanePointsが空です");
-        return laneStartPoints;
-    }
-
-
-    for (uint32_t i = 0; i < lanePoints_.size() / 2 - 1; ++i)
-    {
-        Vector3 spoint = lanePoints_[i * 2 + 1 ];
-        spoint.x += width_ / 2.0f;
-
-        laneStartPoints.push_back(spoint);
-    }
-
-    laneStartPoints_ = laneStartPoints;
-
-    return laneStartPoints;
-}
-
-void Lane::DrawCenterLine()
-{
-    if (laneStartPoints_.empty())
-        GeneLaneStartPoints();
-
-    for (size_t index = 0; index < laneStartPoints_.size(); ++index)
-    {
-        Vector3 start = laneStartPoints_[index];
-        Vector3 end = start;
-        end.z -= length_;
-        lineDrawer_->RegisterPoint(start, end, { 1,0,0,1 });
-    }
-}
-
-
-void Lane::ImGui()
-{
-
-#ifdef _DEBUG
-
-    ImGui::PushID(this);
-
-
-    if (ImGui::InputInt("LaneCount", reinterpret_cast<int*>(&laneCount_), 1))
-        dirty_ = true;
-
-    if (ImGui::DragFloat("TotalWidth", &totalWidth_, 0.01f))
-        dirty_ = true;
-
-    if (ImGui::DragFloat("Width", &width_, 0.01f))
-        dirty_ = true;
-
-    if (ImGui::DragFloat("Length", &length_, 0.01f))
-        dirty_ = true;
-
-    if (ImGui::DragFloat3("Center", &center_.x, 0.01f))
-        dirty_ = true;
-
-    if(ImGui::Button("Save"))
-        jsonBinder_->Save();
-
-    ImGui::PopID();
-
-    CalculateLane();
-
-#endif // _DEBUG
 
 }

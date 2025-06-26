@@ -6,6 +6,7 @@
 
 #include <Application/EventData/JudgeResultData.h>
 
+#include <Debug/Debug.h>
 #include <Math/MyLib.h>
 
 // TODO : notesystem 以下に表記
