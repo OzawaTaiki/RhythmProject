@@ -130,6 +130,9 @@
     <ClCompile Include="Source\Application\BeatMapEditor\LiveMapping\LiveMapping.cpp">
       <Filter>Application\BeatMapEditor\LiveMapping</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Input\GameInputManager.cpp">
+      <Filter>Application\Input</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Core\GameCore.cpp">
       <Filter>Application\Core</Filter>
     </ClCompile>
@@ -221,6 +224,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\BeatMapEditor\LiveMapping\LiveMapping.h">
       <Filter>Application\BeatMapEditor\LiveMapping</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Lane\Lane.h">
+      <Filter>Application\Lane</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Input\GameInputManager.h">
+      <Filter>Application\Input</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Core\GameCore.h">
       <Filter>Application\Core</Filter>

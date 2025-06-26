@@ -103,6 +103,7 @@
     <ClCompile Include="Source\Application\Effects\TapEffects\HitparticleModifier.cpp" />
     <ClCompile Include="Source\Application\Effects\TapEffects\LightPillarModifier.cpp" />
     <ClCompile Include="Source\Application\Effects\TapEffects\TriggerEffects.cpp" />
+    <ClCompile Include="Source\Application\Input\GameInputManager.cpp" />
     <ClCompile Include="Source\Application\Input\NoteKeyController.cpp" />
     <ClCompile Include="Source\Application\Lane\Lane.cpp" />
     <ClCompile Include="Source\Application\Note\Judge\JudgeLine.cpp" />
@@ -140,6 +141,7 @@
     <ClInclude Include="Source\Application\EventData\NoteJudgeData.h" />
     <ClInclude Include="Source\Application\EventData\NoteJudgeType.h" />
     <ClInclude Include="Source\Application\EventData\ReleaseKeyData.h" />
+    <ClInclude Include="Source\Application\Input\GameInputManager.h" />
     <ClInclude Include="Source\Application\Input\NoteKeyController.h" />
     <ClInclude Include="Source\Application\Lane\Lane.h" />
     <ClInclude Include="Source\Application\Note\Judge\JudgeLine.h" />
