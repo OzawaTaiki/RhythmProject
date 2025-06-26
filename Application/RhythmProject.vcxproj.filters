@@ -58,6 +58,9 @@
     <Filter Include="Application\BeatMapEditor\LiveMapping">
       <UniqueIdentifier>{83c39ab7-9b96-4399-95d0-f76404b6a61d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Core">
+      <UniqueIdentifier>{46caf4df-5c0f-4b24-bcd4-fe67a832479f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -73,13 +76,7 @@
     <ClCompile Include="Source\Application\Scene\GameScene.cpp">
       <Filter>Application\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Lane\Lane.cpp">
-      <Filter>Application\Lane</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Note\Note.cpp">
-      <Filter>Application\Note</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\Note\NotesSystem.cpp">
       <Filter>Application\Note</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Note\Judge\JudgeLine.cpp">
@@ -133,6 +130,12 @@
     <ClCompile Include="Source\Application\BeatMapEditor\LiveMapping\LiveMapping.cpp">
       <Filter>Application\BeatMapEditor\LiveMapping</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Core\GameCore.cpp">
+      <Filter>Application\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Lane\Lane.cpp">
+      <Filter>Application\Lane</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Essential\SampleFramework.h">
@@ -147,13 +150,7 @@
     <ClInclude Include="Source\Application\Scene\GameScene.h">
       <Filter>Application\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Lane\Lane.h">
-      <Filter>Application\Lane</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Note\Note.h">
-      <Filter>Application\Note</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Note\NotesSystem.h">
       <Filter>Application\Note</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Note\Judge\JudgeLine.h">
@@ -224,6 +221,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\BeatMapEditor\LiveMapping\LiveMapping.h">
       <Filter>Application\BeatMapEditor\LiveMapping</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Core\GameCore.h">
+      <Filter>Application\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Lane\Lane.h">
+      <Filter>Application\Lane</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
