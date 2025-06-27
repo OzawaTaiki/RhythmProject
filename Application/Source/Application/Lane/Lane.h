@@ -72,8 +72,10 @@ private: // 内部処理用関数たち
     /// </summary>
     void CreateNotes(const std::list<NoteData>& _noteDataList, int32_t _laneIndex, float _judgeLine, float  _speed, float _startOffsetTime);
 
-
+    void CreateLaneModel();
 private:
+
+    std::unique_ptr<ObjectModel> laneModel_ = nullptr; // レーンのモデル
 
     std::list<std::shared_ptr<Note>> notes_; // レーンにあるノーツ
 

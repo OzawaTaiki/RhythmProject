@@ -50,8 +50,8 @@ void NoteJudge::DrawJudgeLine()
         // 判定ラインを描画
         float position = timingThresholds_[i] * speed_ + position_;
 
-        Vector3 start = { -halfWidth, 0,  position };
-        Vector3 end = { halfWidth, 0, position };
+        Vector3 start = { -halfWidth, 0.01f,  position };
+        Vector3 end = { halfWidth, 0.01f, position };
 
         LineDrawer::GetInstance()->RegisterPoint(start, end, Vector4(1, 1, 0, 1));
     }
