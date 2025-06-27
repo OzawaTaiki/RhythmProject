@@ -293,11 +293,10 @@ void GameScene::ImGui()
 
     if (input_->IsKeyTriggered(DIK_R))
     {
-        beatManager_->SetOffset(offset);
         voiceInstance_->Stop();
         voiceInstance_.reset();
         voiceInstance_ = soundInstance_->Play(volume); // ボリュームとオフセットを設定して再生
-        gameCore_->SetMusicVoiceInstance(voiceInstance_);
+        gameCore_->Restart(voiceInstance_); // ゲームコアに音声インスタンスを設定
         gameInputManager_->SetMusicVoiceInstance(voiceInstance_);
         beatManager_->Reset();
     }

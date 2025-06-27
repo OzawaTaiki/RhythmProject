@@ -20,12 +20,14 @@ void Lane::Initialize(const std::list<NoteData>& _noteDataList, int32_t _laneInd
     static float laneLeftEdge = basePosition.x - (totalWidth_ / 2.0f);
     static float laneTopEdge = basePosition.z + laneLength_;
 
-    startPosition_.x = laneLeftEdge + (static_cast<float>(_laneIndex) * laneWidth_);
+    startPosition_.x = laneLeftEdge + (static_cast<float>(_laneIndex) * laneWidth_) + laneWidth_ / 2.0f;
     startPosition_.y = 0.0f; // 高さは0
     startPosition_.z = laneTopEdge; // 奥
 
     endPosition_ = startPosition_;
     endPosition_.z -= laneLength_; // レーンの終了位置は開始位置からレーンの長さだけ手前
+
+    CreateLaneModel();
 
     // ノーツを生成
     CreateNotes(_noteDataList, _laneIndex, _judgeLine, _speed, _startOffsetTime);
@@ -52,6 +54,10 @@ void Lane::Update(float _elapseTime, float _speed)
 void Lane::Draw(const Camera* _camera) const
 {
     //  TODO レーン描画
+    if (laneModel_)
+    {
+        laneModel_->Draw(_camera, { 0.5f,0.5f,0.5f,0.7f });
+    }
 
     for (const auto& note : notes_)
     {
@@ -130,5 +136,14 @@ void Lane::CreateNotes(const std::list<NoteData>& _noteDataList, int32_t _laneIn
             }
         }
     }
+}
 
+void Lane::CreateLaneModel()
+{
+    laneModel_ = std::make_unique<ObjectModel>("Lane");
+    laneModel_->Initialize("pY1x1p01Plane");
+    laneModel_->scale_ = Vector3(laneWidth_ - 0.1f, 1.0f, laneLength_); // レーンの幅と長さを設定
+    laneModel_->translate_ = startPosition_;
+    laneModel_->translate_.y -= 0.001f; // zファイティング対策で少し下げる
+    laneModel_->Update();
 }

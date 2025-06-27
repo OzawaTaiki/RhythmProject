@@ -58,6 +58,12 @@ public:
     /// 開始
     /// </summary>
     void Start() { isWaitingForStart_ = false; }
+
+    /// <summary>
+    /// リスタート
+    /// </summary>
+    void Restart(std::shared_ptr<VoiceInstance> _voiceInstance);
+
 private:
 
     void JudgeNotes(const std::vector<InputDate>& _inputData);
@@ -68,6 +74,8 @@ private:
     /// <param name="_beatMapData">譜面データ</param>
     void ParseBeatMapData(const BeatMapData& _beatMapData);
 
+    void CreateBeatMapNotes();
+
 private:
 
     // note
@@ -75,6 +83,8 @@ private:
     float noteSpeed_ = 30.0f; // ノーツの移動速度
     int32_t laneCount_ = 4; // レーンの数
     std::vector<std::unique_ptr<Lane>> lanes_; // レーンのリスト
+    std::vector<std::list<NoteData>> notesPerLane_; // レーンごとのノートデータリスト
+
     // judge
     std::unique_ptr<NoteJudge> noteJudge_; // ノーツの判定を行うクラス
     std::unique_ptr<JudgeResult> judgeResult_; // 判定結果を保持するクラス

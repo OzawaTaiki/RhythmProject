@@ -135,30 +135,44 @@ void GameCore::JudgeNotes(const std::vector<InputDate>& _inputData)
 
 void GameCore::ParseBeatMapData(const BeatMapData& _beatMapData)
 {
+    notesPerLane_.clear(); // 既存のデータをクリア
+
     // レーンごとのでーたに分ける
-    std::vector<std::list<NoteData>> notesPerLane;
-    notesPerLane.resize(lanes_.size());
+    notesPerLane_.resize(lanes_.size());
 
     for (const auto& note : _beatMapData.notes)
     {
-        if (note.laneIndex >= notesPerLane.size())
+        if (note.laneIndex >= notesPerLane_.size())
         {
             // エラー処理: レーンインデックスが範囲外
             throw std::out_of_range("Note laneIndex is out of range.");
             return;
         }
 
-        notesPerLane[note.laneIndex].push_back(note);
+        notesPerLane_[note.laneIndex].push_back(note);
     }
 
-    for (int32_t index = 0; index < notesPerLane.size(); ++index)
+    // 時間でソート
+    for (auto& notes : notesPerLane_)
     {
-        // 時間でソート
-        notesPerLane[index].sort([](const NoteData& a, const NoteData& b) {
+        notes.sort([](const NoteData& a, const NoteData& b) {
             return a.targetTime < b.targetTime; // 昇順でソート
             });
-
-        lanes_[index]->Initialize(notesPerLane[index], index, 0.0f, noteSpeed_, offset_);// 仮の値を使用 TODO
     }
 
+}
+
+void GameCore::CreateBeatMapNotes()
+{
+    for (int32_t index = 0; index < notesPerLane_.size(); ++index)
+    {
+        lanes_[index]->Initialize(notesPerLane_[index], index, 0.0f, noteSpeed_, offset_);// TODO 仮の値を使用している 判定ラインの座標
+    }
+}
+
+void GameCore::Restart(std::shared_ptr<VoiceInstance> _voiceInstance)
+{
+    SetMusicVoiceInstance(_voiceInstance);
+    CreateBeatMapNotes();
+    judgeResult_->Initialize();
 }
