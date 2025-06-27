@@ -14,11 +14,12 @@
 
 
 // Application
+#include <Application/Core/GameCore.h>
 #include <Application/Input/GameInputManager.h>
+#include <Application/FeedBack/FeedbackEffect.h>
 
 #include <Application/BeatsManager/BeatManager.h>
 #include <Application/BeatMapLoader/BeatMapLoader.h>
-#include <Application/Core/GameCore.h>
 
 
 class GameScene : public BaseScene
@@ -65,9 +66,9 @@ private:
 
     // Application
 
-    std::unique_ptr<GameCore> gameCore_ = nullptr;
-
-    std::unique_ptr<GameInputManager> gameInputManager_ = nullptr;
+    std::unique_ptr<GameCore> gameCore_ = nullptr;                  // ゲームの核となる部分
+    std::unique_ptr<GameInputManager> gameInputManager_ = nullptr;  // ゲームの入力管理
+    std::unique_ptr<FeedbackEffect> feedbackEffect_ = nullptr;      // フィードバックエフェクト
 
     BeatMapLoader* beatMapLoader_ = nullptr;
 

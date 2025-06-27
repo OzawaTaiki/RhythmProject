@@ -1,18 +1,23 @@
 #pragma once
 
+// Engine
 #include <System/Audio/VoiceInstance.h>
 
+// Application
 #include <Application/BeatMapLoader/BeatMapData.h>
 #include <Application/Lane/Lane.h>
 #include <Application/Input/InputData.h>
 #include <Application/Note/Judge/NoteJudge.h>
 #include <Application/Note/Judge/JudgeResult.h>
 
+// STL
+#include <functional>
 
+
+// 前方宣言
 class Camera;
 
 // ゲームの核となる部分
-
 class GameCore
 {
 public:
@@ -64,6 +69,12 @@ public:
     /// </summary>
     void Restart(std::shared_ptr<VoiceInstance> _voiceInstance);
 
+    /// <summary>
+    /// 判定時のコールバック関数を設定する
+    /// </summary>
+    /// <param name="_callback">コールバック関数</param>
+    void SetJudgeCallback(const std::function<void(void)>& _callback) { onJudgeCallback_ = _callback; }
+
 private:
 
     void JudgeNotes(const std::vector<InputDate>& _inputData);
@@ -92,6 +103,12 @@ private:
     // score あとまわし
 
     // note spawner あったらいいな
+
+    //-------------------------
+    // コールバック関連
+
+    // 判定時のコールバック関数
+    std::function<void(void)> onJudgeCallback_;
 
 
     float noteDeletePosition_ = -10.0f; // ノーツを削除する位置

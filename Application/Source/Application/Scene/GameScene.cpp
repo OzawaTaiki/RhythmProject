@@ -66,7 +66,14 @@ void GameScene::Initialize(SceneData* _sceneData)
     beatManager_->Initialize(100);
     //beatManager_->SetEnableSound(false);
 
+    feedbackEffect_ = std::make_unique<FeedbackEffect>();
+    feedbackEffect_->Initialize();
+
+    gameCore_->SetJudgeCallback([&]() {feedbackEffect_->PlayJudgeEffect(); });
+
+
     SceneManager::GetInstance()->SetTransition(std::make_unique<SceneTrans>());
+
 
 #ifdef _DEBUG
 #else
