@@ -61,6 +61,12 @@
     <Filter Include="Application\Scene\SceneTransition">
       <UniqueIdentifier>{30c8c9a1-4a23-4e0e-99d2-b0dd0e1f73b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\FeedBack">
+      <UniqueIdentifier>{15913ee5-bced-4b13-9693-e57cfca2a57f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\FeedBack\JudgeSound">
+      <UniqueIdentifier>{657fcfb3-623c-44e3-b1bc-d0b9cc00f822}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -139,6 +145,10 @@
     <ClCompile Include="Source\Application\Scene\Transition\SceneTrans.cpp">
       <Filter>Application\Scene\SceneTransition</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\FeedBack\JudgeSound\JudgeSound.cpp">
+      <Filter>Application\FeedBack\JudgeSound</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\FeedBack\FeedbackEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Essential\SampleFramework.h">
@@ -230,6 +240,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Scene\Transition\SceneTrans.h">
       <Filter>Application\Scene\SceneTransition</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\FeedBack\JudgeSound\JudgeSound.h">
+      <Filter>Application\FeedBack\JudgeSound</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\FeedBack\FeedbackEffect.h">
+      <Filter>Application\FeedBack</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -99,9 +99,11 @@ int32_t Lane::DeleteNotesOutOfScreen(float _noteDeletePos)
 
 void Lane::CreateNotes(const std::list<NoteData>& _noteDataList, int32_t _laneIndex, float _judgeLine, float  _speed, float _startOffsetTime)
 {
+    notes_.clear();
+
     Vector3 noteTargetPosition = endPosition_;
     startPosition_.z = _judgeLine; // レーンの開始位置のZ座標を判定ラインに合わせる
-
+    startPosition_.y = 0.0f; // 高さは0
     Vector3 noteStartPosition = startPosition_;
 
 
