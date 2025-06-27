@@ -113,6 +113,7 @@
     <ClCompile Include="Source\Application\Scene\ResultScene.cpp" />
     <ClCompile Include="Source\Application\Scene\SelectScene.cpp" />
     <ClCompile Include="Source\Application\Scene\TitleScene.cpp" />
+    <ClCompile Include="Source\Application\Scene\Transition\SceneTrans.cpp" />
     <ClCompile Include="Source\Essential\ParticleModifierFactory.cpp" />
     <ClCompile Include="Source\Essential\SampleFramework.cpp" />
     <ClCompile Include="Source\Essential\SampleScene.cpp" />
@@ -148,6 +149,7 @@
     <ClInclude Include="Source\Application\Scene\ResultScene.h" />
     <ClInclude Include="Source\Application\Scene\SelectScene.h" />
     <ClInclude Include="Source\Application\Scene\TitleScene.h" />
+    <ClInclude Include="Source\Application\Scene\Transition\SceneTrans.h" />
     <ClInclude Include="Source\Essential\ParticleModifierFactory.h" />
     <ClInclude Include="Source\Essential\SampleFramework.h" />
     <ClInclude Include="Source\Essential\SampleScene.h" />
