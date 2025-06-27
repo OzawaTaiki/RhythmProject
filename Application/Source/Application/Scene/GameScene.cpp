@@ -5,8 +5,11 @@
 #include <Features/Model/Primitive/Triangle.h>
 #include <Features/Model/Primitive/Ring.h>
 
+#include <Features/Scene/Manager/SceneManager.h>
+
 #include <System/Time/GameTime.h>
 
+#include <Application/Scene/Transition/SceneTrans.h>
 #include <Debug/Debug.h>
 
 GameScene::~GameScene()
@@ -63,6 +66,8 @@ void GameScene::Initialize(SceneData* _sceneData)
     beatManager_->Initialize(100);
     //beatManager_->SetEnableSound(false);
 
+    SceneManager::GetInstance()->SetTransition(std::make_unique<SceneTrans>());
+
 #ifdef _DEBUG
 #else
 #endif // _DEBUG
@@ -97,6 +102,8 @@ void GameScene::Update()
     beatManager_->Update();
     gameCore_->Update(static_cast<float>(GameTime::GetInstance()->GetDeltaTime()), gameInputManager_->GetInputData());
 
+
+
 #pragma endregion // Application
 
     if (enableDebugCamera_)
@@ -112,6 +119,11 @@ void GameScene::Update()
     }
 
     particleSystem_->Update();
+
+    if (IsMusicEnd())
+    {
+        SceneManager::ReserveScene("ResultScene", nullptr);
+    }
 }
 
 void GameScene::Draw()
@@ -206,7 +218,7 @@ bool GameScene::IsComplateLoadBeatMap()
         // ロード完了
         Debug::Log("BeatMap Loaded Successfully\n");
         if(soundInstance_)
-            voiceInstance_ = soundInstance_->GenerateVoiceInstance(0.3f);
+            voiceInstance_ = soundInstance_->GenerateVoiceInstance(0.3f, 0.0f);
         if (voiceInstance_)
         {
             beatManager_->SetMusicVoiceInstance(voiceInstance_);
@@ -249,6 +261,21 @@ void GameScene::UpdateGameStartOffset()
     }
 }
 
+bool GameScene::IsMusicEnd() const
+{
+    if(!isBeatMapLoaded_)
+        return false;
+
+    if (!voiceInstance_)
+        return false;
+
+    if (!voiceInstance_->IsPlaying())
+        return true;
+
+    return false;
+}
+
+
 void GameScene::ImGui()
 {
 #ifdef _DEBUG
@@ -259,13 +286,6 @@ void GameScene::ImGui()
     float time = voiceInstance_->GetElapsedTime();
     ImGui::Text("Elapsed Time: %.2f", time);
 
-    if (input_->IsKeyTriggered(DIK_SPACE))
-    {
-        float time = voiceInstance_->GetElapsedTime();
-        Debug::Log("\n\nVoiceInstance Elapsed Time: " + std::to_string(time) + "\n\n");
-    }
-
-    //judgeResult_->DebugWindow();
 
     if (ImGui::Button("stop"))
         beatManager_->Stop();
@@ -300,6 +320,16 @@ void GameScene::ImGui()
         gameInputManager_->SetMusicVoiceInstance(voiceInstance_);
         beatManager_->Reset();
     }
+
+
+    ImGui::Separator();
+    ImGui::Text("Music Duration : %.2fsec", soundInstance_->GetDuration());
+    if(voiceInstance_)
+        ImGui::Text("Music elapse   : %.2fsec", voiceInstance_->GetElapsedTime());
+
+    //if (IsMusicEnd())
+        //voiceInstance_ = soundInstance_->Play(volume, 130.1f); // スペースキーで音楽を再生
+
 
 #endif // _DEBUG
 

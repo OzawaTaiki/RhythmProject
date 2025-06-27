@@ -47,6 +47,11 @@ private:
     void UpdateGameStartOffset();
 
 
+    // 曲の再生が終わったか
+    bool IsMusicEnd() const;
+
+private:
+
     // シーン関連
     Camera SceneCamera_ = {};
     DebugCamera debugCamera_ = {};

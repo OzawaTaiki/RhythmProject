@@ -160,6 +160,7 @@ void GameCore::ParseBeatMapData(const BeatMapData& _beatMapData)
             });
     }
 
+    CreateBeatMapNotes();
 }
 
 void GameCore::CreateBeatMapNotes()

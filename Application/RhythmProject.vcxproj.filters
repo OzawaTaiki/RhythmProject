@@ -58,6 +58,9 @@
     <Filter Include="Application\Core">
       <UniqueIdentifier>{46caf4df-5c0f-4b24-bcd4-fe67a832479f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Scene\SceneTransition">
+      <UniqueIdentifier>{30c8c9a1-4a23-4e0e-99d2-b0dd0e1f73b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -132,6 +135,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Lane\Lane.cpp">
       <Filter>Application\Lane</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Scene\Transition\SceneTrans.cpp">
+      <Filter>Application\Scene\SceneTransition</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -221,6 +227,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Note\NoteType.h">
       <Filter>Application\Note</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Scene\Transition\SceneTrans.h">
+      <Filter>Application\Scene\SceneTransition</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
