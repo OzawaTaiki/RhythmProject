@@ -69,7 +69,7 @@ void GameScene::Initialize(SceneData* _sceneData)
     feedbackEffect_ = std::make_unique<FeedbackEffect>();
     feedbackEffect_->Initialize();
 
-    gameCore_->SetJudgeCallback([&]() {feedbackEffect_->PlayJudgeEffect(); });
+    gameCore_->SetJudgeCallback([&](int32_t _laneIndex) {feedbackEffect_->PlayJudgeEffect(_laneIndex); });
 
 
     SceneManager::GetInstance()->SetTransition(std::make_unique<SceneTrans>());

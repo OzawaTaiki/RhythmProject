@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Application/FeedBack/JudgeSound/JudgeSound.h>
+#include <Application/FeedBack/JudgeEffect/JudgeEffect.h>
 
 #include <memory>
 
@@ -19,7 +20,7 @@ public:
     /// <summary>
     /// ジャッジエフェクトを再生する(コールバック用)
     /// </summary>
-    void PlayJudgeEffect();
+    void PlayJudgeEffect(int32_t _laneIndex);
 
 private:
 
@@ -27,7 +28,7 @@ private:
     std::unique_ptr<JudgeSound> judgeSound_;
 
     /// パーティクル
-    /* judgeEffect */
+    std::unique_ptr<JudgeEffect> judgeEffect_;
 
     /// UI
 

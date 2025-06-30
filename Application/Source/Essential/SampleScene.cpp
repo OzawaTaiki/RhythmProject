@@ -1,13 +1,16 @@
 #include "SampleScene.h"
 
+#include <Core/DXCommon/TextureManager/TextureManager.h>
+
 #include <Features/Scene/Manager/SceneManager.h>
-#include <Debug/ImGuiManager.h>
 #include <Features/Sprite/Sprite.h>
 #include <Features/Model/Manager/ModelManager.h>
-#include <Core/DXCommon/TextureManager/TextureManager.h>
-#include <Features/Collision/Manager/CollisionManager.h>
-#include <Debug/ImguITools.h>
 #include <Features/Model/Primitive/Triangle.h>
+#include <Features/Model/Primitive/Plane.h>
+#include <Features/Collision/Manager/CollisionManager.h>
+#include <Features/PostEffects/DepthBasedOutLine.h>
+
+#include <Debug/ImGuiManager.h>
 
 
 SampleScene::~SampleScene()
@@ -16,6 +19,9 @@ SampleScene::~SampleScene()
 
 void SampleScene::Initialize(SceneData* _sceneData)
 {
+
+    // --------------------------------------------------
+    // シーン関連 初期化
     SceneCamera_.Initialize();
     SceneCamera_.translate_ = { 0,5,-20 };
     SceneCamera_.rotate_ = { 0.26f,0,0 };
@@ -24,57 +30,94 @@ void SampleScene::Initialize(SceneData* _sceneData)
 
 
     lineDrawer_ = LineDrawer::GetInstance();
-    lineDrawer_->Initialize();
+    //lineDrawer_->Initialize();
     lineDrawer_->SetCameraPtr(&SceneCamera_);
 
     input_ = Input::GetInstance();
 
-    oModel_ = std::make_unique<ObjectModel>("plane");
-    oModel_->Initialize("bunny.gltf");
-    oModel_->translate_.x = 3;
+    // パーティクルシステムの初期化
+    // カメラのポイントを設定する
+    ParticleSystem::GetInstance()->SetCamera(&SceneCamera_);
 
-    oModel2_ = std::make_unique<ObjectModel>("cube");
-    oModel2_->Initialize("Cube/Cube.obj");
-    oModel2_->translate_.x = -3;
 
-    aModel_ = std::make_unique<ObjectModel>("sample");
-    aModel_->Initialize("AnimSample/AnimSample.gltf");
-
-    plane_ = std::make_unique<ObjectModel>("plane2");
-    plane_->Initialize("Tile/Tile.gltf");
-    plane_->GetUVTransform().SetScale({ 100,100 });
-
-    uint32_t textureHandle = TextureManager::GetInstance()->Load("uvChecker.png");
-    sprite_ = Sprite::Create("uvChecker", textureHandle);
-
+    // ライトの設定
+    // ライトグループの初期化 (関数内でDLは初期化される)
     lights_ = std::make_shared<LightGroup>();
     lights_->Initialize();
 
-    colors.push_back({ 0.0f,Vector4(1,0,0,1) });
-    colors.push_back({ 1.0f,Vector4(0,0,1,1) });
-    colors.push_back({ 0.5f,Vector4(0,1,0,1) });
-    colors.push_back({ 0.1f,Vector4(0,1,0,1) });
-    colors.push_back({ 0.532f,Vector4(0,1,0,1) });
-    colors.push_back({ 0.12f,Vector4(1,1,0,1) });
+    // DLを取得して初期化 (任意)
+    auto DL = lights_->GetDirectionalLight();
+    DL->SetDirection(Vector3(-1.0f, -1.0f, 0.0f).Normalize());
 
-    sequence_ = std::make_unique<AnimationSequence>("test");
-    sequence_->Initialize("Resources/Data/");
+    // ライトの追加(任意)
+    // 追加するライトを初期化する
+    std::shared_ptr<PointLightComponent> pointLight = std::make_shared<PointLightComponent>();
+    pointLight->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+    pointLight->SetIntensity(1.0f);
+    pointLight->SetRadius(30.0f);
+    pointLight->SetPosition({ 0.0f, 5.0f, 0.0f });
 
-    emitter_.Initialize("longHold_00");
-    emitter_triangle.Initialize("longHold_01");
+    // ライトグループにポイントライトを追加する
+    lights_->AddPointLight("pointlight", pointLight);
+
+    // アクティブなライトグループを設定する
+    LightingSystem::GetInstance()->SetActiveGroup(lights_);
 
 
-    ParticleSystem::GetInstance()->Initialize();
-    ParticleSystem::GetInstance()->SetCamera(&SceneCamera_);
 
-    Triangle triangle;
-    triangle.SetNormal(Vector3(0, 0, -1));
-    triangle.SetVertices({
-        Vector3(0, 0.5f, 0),
-        Vector3(0.5f, -0.5f, 0),
-        Vector3(-0.5f, -0.5f, 0)
-        });
-    triangle.Generate("nZ1_1Triangle");
+    // --------------------------------------------------
+    // シーン固有の初期化
+
+    human_ = std::make_unique<ObjectModel>("human");
+    // モデルのを読み込む
+    human_->Initialize("human/walk.gltf");
+    // アニメーション読み込み
+    // 任意の名前を設定できる
+    human_->LoadAnimation("human/walk.gltf", "walk");
+
+    bool loop = true;
+    // アニメーションを再生する
+    human_->SetAnimation("walk", loop);
+
+
+    // 地面ようのいたポリを生成する
+    Plane groundPlane;
+    groundPlane.SetSize(Vector2{ 100, 100 });   //サイズは100*100
+    groundPlane.SetPivot({ 0,0,0 });        // 基準点は中央
+    groundPlane.SetNormal({ 0,1,0 });       //上向き
+    groundPlane.SetFlipU(false);            // U軸の反転はなし
+    groundPlane.SetFlipV(false);            // V軸の反転はなし
+
+    // 任意の名前で生成する
+    groundPlane.Generate("groundPlane");
+
+    // 地面を生成する
+    ground_ = std::make_unique<ObjectModel>("ground");
+    // 生成した板ポリを使用する (生成時に設定した名前を渡す)
+    ground_->Initialize("groundPlane");
+    // UV変換を設定する
+    ground_->GetUVTransform().SetScale({ 10,10 });
+
+    // 地面のテクスチャを読み込む 描画時に使用する
+    groundTextureHandle_ = TextureManager::GetInstance()->Load("white.png");
+
+
+    // 2Dスプライトの初期化
+    uint32_t textureHandle = TextureManager::GetInstance()->Load("uvChecker.png");
+    sprite_ = Sprite::Create("uvChecker", textureHandle);
+
+
+    // 音声データの読み込み
+    soundInstance_ = AudioSystem::GetInstance()->Load("Resources/Sounds/Alarm01.wav");
+
+    //skyBox_ = std::make_unique<SkyBox>();
+    //skyBox_->Initialize(30.0f);
+    //skyBox_->SetTexture("rosendal_plains_2_2k.dds");
+
+    emitter_ = std::make_unique<ParticleEmitter>();
+    emitter_->Initialize("TapEffect_01");
+
+    DepthBasedOutLine::GetInstance()->SetCamera(&SceneCamera_);
 
 }
 
@@ -82,74 +125,64 @@ void SampleScene::Update()
 {
     // シーン関連更新
 #ifdef _DEBUG
-    if (Input::GetInstance()->IsKeyTriggered(DIK_RETURN) &&
-        Input::GetInstance()->IsKeyPressed(DIK_RSHIFT))
+
+    // デバッグカメラ
+    if (Input::GetInstance()->IsKeyTriggered(DIK_F1))
         enableDebugCamera_ = !enableDebugCamera_;
 
-    if (ImGui::Button("rot"))
+
     {
-        aModel_->ChangeAnimation("RotateAnim", 0.5f,true);
+        ImGui::Begin("Engine");
+        {
+            // サウンドの再生
+            if (ImGui::Button("play Sound"))
+            {
+                if (soundInstance_)
+                {
+                    // 返り値で VoiceInstanceを受け取る
+                    // これを使用して音量やピッチの変更ができる
+                    voiceInstance_ = soundInstance_->Play(0.3f);
+                }
+            }
+
+            static float volume = 1.0f;
+            if (ImGui::DragFloat("Volume", &volume, 0.0f, 1.0f))
+            {
+                if (voiceInstance_)
+                {
+                    voiceInstance_->SetVolume(volume);
+                }
+            }
+            if (ImGui::Button("Stop Sound"))
+            {
+                if (voiceInstance_)
+                {
+                    voiceInstance_->Stop();
+                    voiceInstance_ = nullptr; // VoiceInstanceを解放
+                }
+            }
+        }
+        ImGui::End();
+
+        // light調整用
+        lights_->ImGui();
+
     }
-
-    if (ImGui::Button("scale"))
-    {
-        aModel_->ChangeAnimation("ScaleAnim", 0.5f);
-    }
-
-    ImGuiTool::TimeLine("TimeLine", sequence_.get());
-    ImGuiTool::GradientEditor("GradientEditor", colors);
-
-    lights_->ImGui();
-
-    static bool play = false;
-    if (ImGui::Button("Play"))
-    {
-        //play = !play;
-        sequence_->Save();
-    }
-    if (play)
-        oModel_->translate_ = sequence_->GetValue<Vector3>("a");
-
-
     ImGui::Begin("Emitter");
-
-    if (ImGui::Button("Gene"))
-    {
-        emitter_.GenerateParticles();
-        emitter_triangle.GenerateParticles();
-    }
-
-
-    if (ImGui::BeginTabBar("EmitterTabs"))
-    {
-        if (ImGui::BeginTabItem("tapEffect_01"))
-        {
-            emitter_.ShowDebugWindow();
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("emitter_tri"))
-        {
-            emitter_triangle.ShowDebugWindow();
-            ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
-    }
-    //emitter_.ShowDebugWindow();
+    emitter_->ShowDebugWindow();
     ImGui::End();
+
 #endif // _DEBUG
-    LightingSystem::GetInstance()->SetActiveGroup(lights_);
+
+    // モデルの更新
+    human_->Update();
+    ground_->Update();
+    emitter_->Update(0.016f);
 
 
-    oModel_->Update();
-    oModel2_->Update();
-    aModel_->Update();
-    plane_->Update();
-    sprite_->Update();
 
-    if (input_->IsKeyTriggered(DIK_TAB))
-    {
-        //SceneManager::GetInstance()->ReserveScene("ParticleTest", nullptr);
-    }
+    // --------------------------------
+    // シーン共通更新処理
 
     if (enableDebugCamera_)
     {
@@ -164,25 +197,31 @@ void SampleScene::Update()
     }
 
     ParticleSystem::GetInstance()->Update();
-
     CollisionManager::GetInstance()->Update();
 }
 
 void SampleScene::Draw()
 {
+    // skyBooxの描画
+    //skyBox_->Draw(&SceneCamera_);
+
+    // Model描画用のPSO等をセット
     ModelManager::GetInstance()->PreDrawForObjectModel();
 
-    oModel_->Draw(&SceneCamera_, { 1,1,1,1 });
-    oModel2_->Draw(&SceneCamera_, { 1,1,1,1 });
-    plane_->Draw(&SceneCamera_, { 1,1,1,1 });
+    // SkyBoxのキューブマップを描画キューに追加(任意)
+    //skyBox_->QueueCmdCubeTexture();
 
-    aModel_->Draw(&SceneCamera_, { 1,1,1,1 });
+    // groundの描画
+    ground_->Draw(&SceneCamera_, groundTextureHandle_, drawColor_);
+    // humanの描画
+    human_->Draw(&SceneCamera_, drawColor_);
 
+
+    // Sprite用のPSO等をセット
     Sprite::PreDraw();
+    // スプライトの描画
     sprite_->Draw();
 
-
-    //button_->Draw();
 
     ParticleSystem::GetInstance()->DrawParticles();
 
@@ -190,15 +229,10 @@ void SampleScene::Draw()
 
 void SampleScene::DrawShadow()
 {
-
-    oModel_->DrawShadow(&SceneCamera_);
-    oModel2_->DrawShadow(&SceneCamera_);
-    aModel_->DrawShadow(&SceneCamera_);
-
+    human_->DrawShadow(&SceneCamera_);
 }
 
 #ifdef _DEBUG
-#include <imgui.h>
 void SampleScene::ImGui()
 {
 

@@ -14,18 +14,11 @@ Lane::~Lane()
 
 void Lane::Initialize(const std::list<NoteData>& _noteDataList, int32_t _laneIndex, float _judgeLine, float  _speed, float _startOffsetTime)
 {
-    // レーンの座標を計算
-    // 基準は(0,0,_judgeLine)
-    static Vector3 basePosition = Vector3(0.0f, 0.0f, _judgeLine);
-    static float laneLeftEdge = basePosition.x - (totalWidth_ / 2.0f);
-    static float laneTopEdge = basePosition.z + laneLength_;
+    endPosition_ = GetLaneEndPosition(_laneIndex, _judgeLine); // レーンの開始位置を取得
 
-    startPosition_.x = laneLeftEdge + (static_cast<float>(_laneIndex) * laneWidth_) + laneWidth_ / 2.0f;
-    startPosition_.y = 0.0f; // 高さは0
-    startPosition_.z = laneTopEdge; // 奥
+    startPosition_ = endPosition_;
+    startPosition_.z += laneLength_;
 
-    endPosition_ = startPosition_;
-    endPosition_.z -= laneLength_; // レーンの終了位置は開始位置からレーンの長さだけ手前
 
     CreateLaneModel();
 
@@ -95,6 +88,22 @@ int32_t Lane::DeleteNotesOutOfScreen(float _noteDeletePos)
     }
     return deleteCount; // 削除したノーツの数を返す
 
+}
+
+Vector3 Lane::GetLaneEndPosition(int32_t _laneIndex, float _judgeLine)
+{
+    // レーンの座標を計算
+    // 基準は(0,0,_judgeLine)
+    static Vector3 basePosition = Vector3(0.0f, 0.0f, _judgeLine);
+    static float laneLeftEdge = basePosition.x - (totalWidth_ / 2.0f);
+
+    Vector3 endPosition;
+
+    endPosition.x = laneLeftEdge + (static_cast<float>(_laneIndex) * laneWidth_) + laneWidth_ / 2.0f;
+    endPosition.y = 0.0f; // 高さは0
+    endPosition.z = basePosition.z; // 奥
+
+    return endPosition; // レーンの開始位置を返す
 }
 
 void Lane::CreateNotes(const std::list<NoteData>& _noteDataList, int32_t _laneIndex, float _judgeLine, float  _speed, float _startOffsetTime)

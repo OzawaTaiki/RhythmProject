@@ -64,9 +64,9 @@ void GameCore::Update(float  _deltaTime, const std::vector<InputDate>& _inputDat
             elapsedTime = voiceInstance->GetElapsedTime();
         }
     }
-
+#ifdef _DEBUG
     ImGui::DragFloat("speed", &noteSpeed_, 0.01f);
-
+#endif // _DEBUG
     noteJudge_->SetSpeed(noteSpeed_);
     for (auto& lane : lanes_)
     {
@@ -135,7 +135,7 @@ void GameCore::JudgeNotes(const std::vector<InputDate>& _inputData)
         note->Judge();
 
         if(onJudgeCallback_)
-            onJudgeCallback_(); // 判定時のコールバックを呼び出す
+            onJudgeCallback_(laneIndex); // 判定時のコールバックを呼び出す
     }
 }
 

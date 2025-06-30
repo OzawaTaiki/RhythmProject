@@ -65,6 +65,8 @@ public: // 静的メンバ関数
     static void SetLaneCount(int32_t count) { laneCount_ = count; }
     static int32_t GetLaneCount() { return laneCount_; }
 
+    static Vector3 GetLaneEndPosition(int32_t laneIndex, float judgeLine = 0.0f);
+
 private: // 内部処理用関数たち
 
     /// <summary>
