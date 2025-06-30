@@ -40,7 +40,7 @@ void TriggerEffects::EmitCenterCircles(const Vector3& _pos)
     ParticleRenderSettings settings;
     settings.blendMode = BlendMode::Add;
     settings.cullBack = false;
-   
+
     {// 中心のやつ
         std::vector<Particle*> circleParticle;
         ParticleInitParam param;
@@ -74,9 +74,9 @@ void TriggerEffects::EmitSurroundingParticles(const Vector3& _pos)
 {
     emitter_.SetPosition(_pos);
     triangleEmitter_.SetPosition(_pos);
-    lightPillarEmitter_.SetPosition(_pos);
+    //lightPillarEmitter_.SetPosition(_pos);
 
     emitter_.GenerateParticles();
     triangleEmitter_.GenerateParticles();
-    lightPillarEmitter_.GenerateParticles();
+    //lightPillarEmitter_.GenerateParticles();
 }

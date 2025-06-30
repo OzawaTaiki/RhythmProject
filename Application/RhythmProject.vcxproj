@@ -103,6 +103,9 @@
     <ClCompile Include="Source\Application\Effects\TapEffects\HitparticleModifier.cpp" />
     <ClCompile Include="Source\Application\Effects\TapEffects\LightPillarModifier.cpp" />
     <ClCompile Include="Source\Application\Effects\TapEffects\TriggerEffects.cpp" />
+    <ClCompile Include="Source\Application\FeedBack\FeedbackEffect.cpp" />
+    <ClCompile Include="Source\Application\FeedBack\JudgeEffect\JudgeEffect.cpp" />
+    <ClCompile Include="Source\Application\FeedBack\JudgeSound\JudgeSound.cpp" />
     <ClCompile Include="Source\Application\Input\GameInputManager.cpp" />
     <ClCompile Include="Source\Application\Lane\Lane.cpp" />
     <ClCompile Include="Source\Application\Note\Judge\JudgeLine.cpp" />
@@ -136,6 +139,9 @@
     <ClInclude Include="Source\Application\Effects\TapEffects\HitparticleModifier.h" />
     <ClInclude Include="Source\Application\Effects\TapEffects\LightPillarModifier.h" />
     <ClInclude Include="Source\Application\Effects\TapEffects\TriggerEffects.h" />
+    <ClInclude Include="Source\Application\FeedBack\FeedbackEffect.h" />
+    <ClInclude Include="Source\Application\FeedBack\JudgeEffect\JudgeEffect.h" />
+    <ClInclude Include="Source\Application\FeedBack\JudgeSound\JudgeSound.h" />
     <ClInclude Include="Source\Application\Input\GameInputManager.h" />
     <ClInclude Include="Source\Application\Input\InputData.h" />
     <ClInclude Include="Source\Application\Lane\Lane.h" />

@@ -12,8 +12,8 @@
         },
         "BoxOffset_Random": false,
         "RGB_Max": {
-            "x": 0.31372547149658203,
-            "y": 0.31372547149658203,
+            "x": 0.3137255012989044,
+            "y": 0.30588236451148987,
             "z": 1.0
         },
         "RGB_Min": {
@@ -34,10 +34,10 @@
         "alpha_Max": 1.0,
         "alpha_Min": 0.0,
         "alpha_Random": false,
-        "alpha_Value": 1.0,
-        "billboard_x": true,
-        "billboard_y": true,
-        "billboard_z": true,
+        "alpha_Value": 0.3199999928474426,
+        "billboard_x": false,
+        "billboard_y": false,
+        "billboard_z": false,
         "blendMode": 1,
         "boxSize": {
             "x": 1.0,
@@ -51,17 +51,17 @@
         "deceleration_Value": 0.0,
         "delayTime": 0.0,
         "direction_Max": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
         },
         "direction_Min": {
-            "x": -1.0,
-            "y": -1.0,
-            "z": -1.0
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
         },
-        "direction_Random": false,
-        "direction_Type": 0,
+        "direction_Random": true,
+        "direction_Type": 2,
         "direction_Value": {
             "x": 0.0,
             "y": 0.0,
@@ -75,7 +75,7 @@
         "lifeTime_Min": 0.5,
         "lifeTime_Random": false,
         "lifeTime_Type": 2,
-        "lifeTime_Value": 0.5,
+        "lifeTime_Value": 0.30000001192092896,
         "modifiers": [
             "RotationBasedMovementModifier",
             "AlphaOverLifetime",
@@ -127,7 +127,7 @@
         "rotation_Value": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.0
+            "z": 1.659999966621399
         },
         "shape": 1,
         "size_Max": {
@@ -146,9 +146,9 @@
             "y": 0.25,
             "z": 0.25
         },
-        "speed_Max": 2.0,
-        "speed_Min": 1.0,
-        "speed_Random": false,
+        "speed_Max": 3.0,
+        "speed_Min": 2.0,
+        "speed_Random": true,
         "speed_Value": 3.0,
         "sphereRadius": 0.0,
         "texturePath": "circle.png",

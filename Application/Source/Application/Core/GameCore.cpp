@@ -4,6 +4,9 @@
 #include <Math/MyLib.h>
 #include <Debug/Debug.h>
 
+// TODO : 判定ラインパーフェクトでない
+// 判定ラインでパーフェクトにならない 一本目の黄色ラインがそうなっている なぁぜ
+
 GameCore::GameCore(int32_t _laneCount)
 {
     lanes_.resize(_laneCount);
@@ -61,9 +64,9 @@ void GameCore::Update(float  _deltaTime, const std::vector<InputDate>& _inputDat
             elapsedTime = voiceInstance->GetElapsedTime();
         }
     }
-
+#ifdef _DEBUG
     ImGui::DragFloat("speed", &noteSpeed_, 0.01f);
-
+#endif // _DEBUG
     noteJudge_->SetSpeed(noteSpeed_);
     for (auto& lane : lanes_)
     {
@@ -130,6 +133,9 @@ void GameCore::JudgeNotes(const std::vector<InputDate>& _inputData)
 
         judgeResult_->AddJudge(result);
         note->Judge();
+
+        if(onJudgeCallback_)
+            onJudgeCallback_(laneIndex); // 判定時のコールバックを呼び出す
     }
 }
 
