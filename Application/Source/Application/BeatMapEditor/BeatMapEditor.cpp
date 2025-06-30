@@ -439,6 +439,7 @@ void BeatMapEditor::DrawUI()
         if (ImGui::Button("Play"))
         {
             isPlaying_ = !isPlaying_; // 再生/一時停止の切り替え
+            PlayMusic();
         }
         ImGui::SameLine();
         if (ImGui::Button("Stop"))
@@ -457,6 +458,12 @@ void BeatMapEditor::DrawUI()
         ImGui::RadioButton("1/16", &snapIntervalIndex, 4);
         snapInterval_ = 1.0f / std::powf(2.0f, static_cast<float>(snapIntervalIndex));
 
+        if(ImGui::DragFloat("music Offset", &currentBeatMapData_.offset, 0.001f)) // 音楽のオフセットを調整するフィールド
+            beatManager_->SetOffset(currentBeatMapData_.offset);
+        if(ImGui::DragFloat("BPM", &currentBeatMapData_.bpm, 0.1f)) // BPMの入力フィールド
+            beatManager_->SetBPM(currentBeatMapData_.bpm);
+
+      
         ImGui::SeparatorText("Music Control");
         if (ImGui::Button("Load Music"))
         {
@@ -1162,7 +1169,8 @@ void BeatMapEditor::UpdateEditorState()
             beatManager_->SetEnableSound(enableBeats_);
             beatManager_->Update();
         }
-        currentTime_ = musicVoiceInstance_->GetElapsedTime();
+        if(musicVoiceInstance_)
+            currentTime_ = musicVoiceInstance_->GetElapsedTime();
 
         editorCoordinate_.SetScrollOffset(currentTime_);
     }

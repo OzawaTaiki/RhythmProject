@@ -1,8 +1,8 @@
 {
     "artist": "unknown",
-    "audioFilePath": "",
-    "bpm": 120.0,
+    "audioFilePath": "Resources/Sounds/Music/demo_Music.wav",
+    "bpm": 144.0,
     "difficultyLevel": 0,
-    "offset": 0.0,
+    "offset": 0.2199999988079071,
     "title": "demo1"
 }
