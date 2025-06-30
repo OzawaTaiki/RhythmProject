@@ -1,8 +1,196 @@
 {
     "artist": "unknown",
-    "audioFilePath": "Resources/Sounds/Music/demo_Music.wav",
+    "audioFilePath": "Resources/Sounds/Music/demoMusic.wav",
     "bpm": 144.0,
     "difficultyLevel": 0,
+    "notes": [
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 0,
+            "noteType": "normal",
+            "targetTime": 0.625
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 3,
+            "noteType": "normal",
+            "targetTime": 0.625
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 2,
+            "noteType": "normal",
+            "targetTime": 2.2916665077209473
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 1,
+            "noteType": "normal",
+            "targetTime": 2.2916665077209473
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 2,
+            "noteType": "normal",
+            "targetTime": 3.9583332538604736
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 1,
+            "noteType": "normal",
+            "targetTime": 3.9583332538604736
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 2,
+            "noteType": "normal",
+            "targetTime": 5.625
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 0,
+            "noteType": "normal",
+            "targetTime": 5.625
+        },
+        {
+            "holdDuration": 0.7291666269302368,
+            "laneIndex": 3,
+            "noteType": "hold",
+            "targetTime": 7.291666507720947
+        },
+        {
+            "holdDuration": 0.8436059951782227,
+            "laneIndex": 0,
+            "noteType": "hold",
+            "targetTime": 8.854166030883789
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 2,
+            "noteType": "normal",
+            "targetTime": 10.625
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 1,
+            "noteType": "normal",
+            "targetTime": 10.625
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 2,
+            "noteType": "normal",
+            "targetTime": 11.458333015441895
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 1,
+            "noteType": "normal",
+            "targetTime": 11.458333015441895
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 2,
+            "noteType": "normal",
+            "targetTime": 12.291666030883789
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 1,
+            "noteType": "normal",
+            "targetTime": 12.291666030883789
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 3,
+            "noteType": "normal",
+            "targetTime": 13.125
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 0,
+            "noteType": "normal",
+            "targetTime": 13.125
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 2,
+            "noteType": "normal",
+            "targetTime": 13.958333015441895
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 1,
+            "noteType": "normal",
+            "targetTime": 15.625
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 3,
+            "noteType": "normal",
+            "targetTime": 17.29166603088379
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 2,
+            "noteType": "normal",
+            "targetTime": 18.958332061767578
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 1,
+            "noteType": "normal",
+            "targetTime": 19.375
+        },
+        {
+            "holdDuration": 0.7908134460449219,
+            "laneIndex": 2,
+            "noteType": "hold",
+            "targetTime": 19.79166603088379
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 0,
+            "noteType": "normal",
+            "targetTime": 22.29166603088379
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 2,
+            "noteType": "normal",
+            "targetTime": 22.29166603088379
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 3,
+            "noteType": "normal",
+            "targetTime": 23.958332061767578
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 1,
+            "noteType": "normal",
+            "targetTime": 23.958332061767578
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 2,
+            "noteType": "normal",
+            "targetTime": 25.208332061767578
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 1,
+            "noteType": "normal",
+            "targetTime": 25.625
+        },
+        {
+            "holdDuration": 0.0,
+            "laneIndex": 2,
+            "noteType": "normal",
+            "targetTime": 26.04166603088379
+        }
+    ],
     "offset": 0.2199999988079071,
     "title": "demo1"
 }

@@ -60,7 +60,7 @@ void GameScene::Initialize(SceneData* _sceneData)
     gameInputManager_->Initialize(input_);
 
     beatMapLoader_ = BeatMapLoader::GetInstance();
-    beatMapLoadFuture_ = beatMapLoader_->LoadBeatMap("Resources/Data/Game/BeatMap/demo_copy.json");
+    beatMapLoadFuture_ = beatMapLoader_->LoadBeatMap("Resources/Data/Game/BeatMap/demo1.json");
 
     beatManager_ = std::make_unique<BeatManager>();
     beatManager_->Initialize(100);
