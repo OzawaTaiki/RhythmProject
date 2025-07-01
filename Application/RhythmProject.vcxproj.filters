@@ -70,6 +70,9 @@
     <Filter Include="Application\FeedBack\JudgeEffect">
       <UniqueIdentifier>{65add205-d443-47ac-99fc-3ea6b04894b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\BeatMapEditor\BPMCounter">
+      <UniqueIdentifier>{8d1b859e-d15f-4c03-8e79-72e0bc68b5ae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -155,6 +158,9 @@
       <Filter>Application\FeedBack</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\FeedBack\JudgeEffect\JudgeEffect.cpp" />
+    <ClCompile Include="Source\Application\BeatMapEditor\BPMCounter\TapBPMCounter.cpp">
+      <Filter>Application\BeatMapEditor\BPMCounter</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Essential\SampleFramework.h">
@@ -255,6 +261,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\FeedBack\JudgeEffect\JudgeEffect.h">
       <Filter>Application\FeedBack\JudgeEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\BeatMapEditor\BPMCounter\TapBPMCounter.h">
+      <Filter>Application\BeatMapEditor\BPMCounter</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

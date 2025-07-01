@@ -64,7 +64,6 @@ void GameScene::Initialize(SceneData* _sceneData)
 
     beatManager_ = std::make_unique<BeatManager>();
     beatManager_->Initialize(100);
-    //beatManager_->SetEnableSound(false);
 
     feedbackEffect_ = std::make_unique<FeedbackEffect>();
     feedbackEffect_->Initialize();
@@ -76,7 +75,9 @@ void GameScene::Initialize(SceneData* _sceneData)
 
 
 #ifdef _DEBUG
+    beatManager_->SetEnableSound(true); // デバッグ時は音を有効にする
 #else
+    beatManager_->SetEnableSound(false); // デバッグ時以外は音を無効にする
 #endif // _DEBUG
     isBeatMapLoaded_ = false;
 
@@ -84,7 +85,6 @@ void GameScene::Initialize(SceneData* _sceneData)
 
 void GameScene::Update()
 {
-
     // ロードが完了してなかったら更新しない
     if (!IsComplateLoadBeatMap())
         return;
@@ -104,6 +104,17 @@ void GameScene::Update()
     ImGui();
 
 #pragma region Application
+
+    if (input_->IsKeyTriggered(DIK_R))
+    {
+        voiceInstance_->Stop();
+        voiceInstance_.reset();
+        voiceInstance_ = soundInstance_->Play(0.5f); // ボリュームとオフセットを設定して再生
+        gameCore_->Restart(voiceInstance_); // ゲームコアに音声インスタンスを設定
+        gameInputManager_->SetMusicVoiceInstance(voiceInstance_);
+        beatManager_->Reset();
+    }
+
 
     gameInputManager_->Update(); // 入力更新
     beatManager_->Update();
