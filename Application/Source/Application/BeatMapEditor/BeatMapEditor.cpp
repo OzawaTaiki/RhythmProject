@@ -168,6 +168,8 @@ void BeatMapEditor::Initialize()
     dummy_window_->SetAnchor(Vector2(0.0f, 0.0f)); // ダミーウィンドウのアンカーを左上に設定
     dummy_window_->SetSize(Vector2(1280.0f, 720.0f)); // ダミーウィンドウのサイズを設定
 
+
+    tapBPMCounter_.Initialize(); // タップBPMカウンターの初期化
 }
 
 void BeatMapEditor::Update()
@@ -463,7 +465,27 @@ void BeatMapEditor::DrawUI()
         if(ImGui::DragFloat("BPM", &currentBeatMapData_.bpm, 0.1f)) // BPMの入力フィールド
             beatManager_->SetBPM(currentBeatMapData_.bpm);
 
-      
+        bool bpmSetting = currentEditorMode_ == EditorMode::BPMSetting;
+        if (ImGui::Checkbox("BPM Setting", &bpmSetting)) // BPM設定モードのチェックボックス
+        {
+            if(bpmSetting)
+            {
+                preCurrentEditorMode_ = currentEditorMode_; // 現在のエディターモードを保存
+                currentEditorMode_ = EditorMode::BPMSetting; // BPM設定モードに切り替え
+                tapBPMCounter_.Reset();
+            }
+            else
+            {
+                currentEditorMode_ = preCurrentEditorMode_; // 元のエディターモードに戻す
+                if (voiceInstanceForBPMSet_ && voiceInstanceForBPMSet_->IsPlaying())
+                {
+                    voiceInstanceForBPMSet_->Stop();
+                    voiceInstanceForBPMSet_.reset();
+                }
+            }
+        }
+
+
         ImGui::SeparatorText("Music Control");
         if (ImGui::Button("Load Music"))
         {
@@ -811,6 +833,17 @@ void BeatMapEditor::ApplyLiveMapping()
 
 void BeatMapEditor::HandleInput()
 {
+    if (currentEditorMode_ == EditorMode::BPMSetting)
+    {
+        tapBPMCounter_.Update();
+        if (!voiceInstanceForBPMSet_ || (voiceInstanceForBPMSet_ && !voiceInstanceForBPMSet_->IsPlaying()))
+        {
+            if(musicSoundInstance_)
+                voiceInstanceForBPMSet_ = musicSoundInstance_->Play(volume_, true);
+        }
+        return;
+    }
+
     if (input_->IsKeyTriggered(DIK_SPACE))
     {
         isPlaying_ = !isPlaying_; // スペースキーで再生/停止を切り替え

@@ -12,6 +12,7 @@
 #include <Application/BeatsManager/BeatManager.h>
 
 #include <Application/BeatMapEditor/LiveMapping/LiveMapping.h>
+#include <Application/BeatMapEditor/BPMCounter/TapBPMCounter.h>
 
 #include <string>
 #include <cstdint>
@@ -285,16 +286,20 @@ private:
         PlaceLongNote,
         Delete,
         LiveMapping,
+        BPMSetting,
 
         Count // モードの数
     };
 
     EditorMode currentEditorMode_ = EditorMode::Select; // 現在のエディターモード
+    EditorMode preCurrentEditorMode_ = EditorMode::Select; // 現在のエディターモード
     bool isCreatingLongNote_ = false; // ロングノートを作成中かどうかのフラグ
     float longNoteStartTime_ = 0.0f; // ロングノートの開始時間
     int32_t longNoteStartLane_ = 0; // ロングノートの開始レーン
 
     LiveMapping liveMapping_;
+    TapBPMCounter tapBPMCounter_; // タップBPMカウンター
+    std::shared_ptr<VoiceInstance> voiceInstanceForBPMSet_; // 音楽の音声インスタンス
 
     // 配置プレビュー
     std::unique_ptr<UISprite> previewNoteSprite_; // ノート配置プレビュー用のスプライト
