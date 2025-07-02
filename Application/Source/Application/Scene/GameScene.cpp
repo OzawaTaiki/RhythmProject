@@ -66,9 +66,9 @@ void GameScene::Initialize(SceneData* _sceneData)
     beatManager_->Initialize(100);
 
     feedbackEffect_ = std::make_unique<FeedbackEffect>();
-    feedbackEffect_->Initialize();
+    feedbackEffect_->Initialize(&SceneCamera_);
 
-    gameCore_->SetJudgeCallback([&](int32_t _laneIndex) {feedbackEffect_->PlayJudgeEffect(_laneIndex); });
+    gameCore_->SetJudgeCallback([&](int32_t _laneIndex, JudgeType _judgeType) {feedbackEffect_->PlayJudgeEffect(_laneIndex, _judgeType); });
 
 
     SceneManager::GetInstance()->SetTransition(std::make_unique<SceneTrans>());
@@ -119,7 +119,7 @@ void GameScene::Update()
     gameInputManager_->Update(); // 入力更新
     beatManager_->Update();
     gameCore_->Update(static_cast<float>(GameTime::GetInstance()->GetDeltaTime()), gameInputManager_->GetInputData());
-
+    feedbackEffect_->Update();
 
 
 #pragma endregion // Application
@@ -154,6 +154,8 @@ void GameScene::Draw()
 
     Sprite::PreDraw();
     //noteKeyController_->Draw();
+
+    feedbackEffect_->Draw();
 
     particleSystem_->DrawParticles();
 }

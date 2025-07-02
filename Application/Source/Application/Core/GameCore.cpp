@@ -134,8 +134,8 @@ void GameCore::JudgeNotes(const std::vector<InputDate>& _inputData)
         judgeResult_->AddJudge(result);
         note->Judge();
 
-        if(onJudgeCallback_)
-            onJudgeCallback_(laneIndex); // 判定時のコールバックを呼び出す
+        if (onJudgeCallback_)
+            onJudgeCallback_(laneIndex, result); // 判定時のコールバックを呼び出す
     }
 }
 

@@ -73,7 +73,7 @@ public:
     /// 判定時のコールバック関数を設定する
     /// </summary>
     /// <param name="_callback">コールバック関数</param>
-    void SetJudgeCallback(const std::function<void(int32_t)>& _callback) { onJudgeCallback_ = _callback; }
+    void SetJudgeCallback(const std::function<void(int32_t,JudgeType)>& _callback) { onJudgeCallback_ = _callback; }
 
 private:
 
@@ -108,7 +108,7 @@ private:
     // コールバック関連
 
     // 判定時のコールバック関数
-    std::function<void(int32_t)> onJudgeCallback_;
+    std::function<void(int32_t, JudgeType)> onJudgeCallback_;
 
 
     float noteDeletePosition_ = -10.0f; // ノーツを削除する位置
