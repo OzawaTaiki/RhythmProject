@@ -20,6 +20,10 @@ void SampleFramework::Initialize(const std::wstring& _winTitle)
 
     sceneManager_->SetSceneFactory(new SceneFactory());
 
+    textRenderer_->Initialize(dxCommon_->GetDevice(), dxCommon_->GetCommandList(),
+        TextRenderer::Config{ { 4096, 4096 }, 32.0f, "Resources/Fonts/NotoSansJP-Regular.ttf" },
+        Vector2(static_cast<float>(WinApp::kWindowWidth_), static_cast<float>(WinApp::kWindowHeight_)));
+
     particleManager_->SetModifierFactory(new ParticleModifierFactory());
 
     collisionManager_->Initialize(Vector2(100, 100), 5, Vector2(-50, -50), 1.0f);
@@ -61,6 +65,7 @@ void SampleFramework::Draw()
     lineDrawer_->Draw();
     //=============================
 
+    textRenderer_->EndFrame();
 
     dxCommon_->PreDraw();
     // スワップチェインに戻す
@@ -76,6 +81,7 @@ void SampleFramework::Draw()
 
     // 後にupdateに
     sceneManager_->ChangeScene();
+
 
 }
 
