@@ -1,0 +1,152 @@
+{
+    "JudgeTextAnimation": {
+        "IsLooping": false,
+        "MaxPlayTime": 1.0,
+        "SequenceSize": 3,
+        "color_alpha_keyFrames": [
+            {
+                "easingType": 0,
+                "isDelete": false,
+                "isSelect": false,
+                "time": 0.0,
+                "value": {
+                    "type": "float",
+                    "value": 0.0
+                }
+            },
+            {
+                "easingType": 0,
+                "isDelete": false,
+                "isSelect": false,
+                "time": 0.14000000059604645,
+                "value": {
+                    "type": "float",
+                    "value": 1.0
+                }
+            },
+            {
+                "easingType": 0,
+                "isDelete": false,
+                "isSelect": false,
+                "time": 0.3499999940395355,
+                "value": {
+                    "type": "float",
+                    "value": 1.0
+                }
+            },
+            {
+                "easingType": 0,
+                "isDelete": false,
+                "isSelect": false,
+                "time": 0.4899999797344208,
+                "value": {
+                    "type": "float",
+                    "value": 0.0
+                }
+            }
+        ],
+        "color_alpha_variableType": 1,
+        "labels": [
+            "scale",
+            "movement",
+            "color_alpha"
+        ],
+        "movement_keyFrames": [
+            {
+                "easingType": 0,
+                "isDelete": false,
+                "isSelect": false,
+                "time": 0.0,
+                "value": {
+                    "type": "struct Vector2",
+                    "value": {
+                        "x": 0.0,
+                        "y": 0.0
+                    }
+                }
+            },
+            {
+                "easingType": 0,
+                "isDelete": false,
+                "isSelect": false,
+                "time": 0.09999999403953552,
+                "value": {
+                    "type": "struct Vector2",
+                    "value": {
+                        "x": 0.0,
+                        "y": -20.0
+                    }
+                }
+            },
+            {
+                "easingType": 0,
+                "isDelete": false,
+                "isSelect": true,
+                "time": 0.3100000023841858,
+                "value": {
+                    "type": "struct Vector2",
+                    "value": {
+                        "x": 0.0,
+                        "y": -15.0
+                    }
+                }
+            }
+        ],
+        "movement_variableType": 2,
+        "scale_keyFrames": [
+            {
+                "easingType": 0,
+                "isDelete": false,
+                "isSelect": false,
+                "time": 0.0,
+                "value": {
+                    "type": "struct Vector2",
+                    "value": {
+                        "x": 0.30000001192092896,
+                        "y": 0.30000001192092896
+                    }
+                }
+            },
+            {
+                "easingType": 0,
+                "isDelete": false,
+                "isSelect": false,
+                "time": 0.08999999612569809,
+                "value": {
+                    "type": "struct Vector2",
+                    "value": {
+                        "x": 1.0,
+                        "y": 1.0
+                    }
+                }
+            },
+            {
+                "easingType": 0,
+                "isDelete": false,
+                "isSelect": false,
+                "time": 0.4099999964237213,
+                "value": {
+                    "type": "struct Vector2",
+                    "value": {
+                        "x": 1.0,
+                        "y": 1.0
+                    }
+                }
+            },
+            {
+                "easingType": 0,
+                "isDelete": false,
+                "isSelect": false,
+                "time": 0.4899999797344208,
+                "value": {
+                    "type": "struct Vector2",
+                    "value": {
+                        "x": 0.699999988079071,
+                        "y": 0.699999988079071
+                    }
+                }
+            }
+        ],
+        "scale_variableType": 2
+    }
+}

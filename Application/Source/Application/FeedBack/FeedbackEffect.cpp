@@ -22,6 +22,8 @@ void FeedbackEffect::Initialize(Camera* _camera)
 
 void FeedbackEffect::Update()
 {
+    //DebugWindoow(); // デバッグウィンドウの更新
+
     if (judgeSound_)
         judgeSound_->CleanupStoppedVoices(); // 停止した音声をクリーンアップ
 
@@ -73,4 +75,26 @@ void FeedbackEffect::AllocateJudgeText(JudgeType _judgeType, int32_t _laneIndex)
         }
     }
 
+}
+
+void FeedbackEffect::DebugWindoow()
+{
+#ifdef _DEBUG
+
+    ImGui::Begin("FeedbackEffect Debug");
+    {
+        ImGui::SeparatorText("JudgeText");
+        if (ImGui::Button("Perfect"))
+            AllocateJudgeText(JudgeType::Perfect, 0);
+        ImGui::SameLine();
+        if (ImGui::Button("Good"))
+            AllocateJudgeText(JudgeType::Good, 1);
+        ImGui::SameLine();
+        if (ImGui::Button("Miss"))
+            AllocateJudgeText(JudgeType::Miss, 2);
+
+    }
+    ImGui::End();
+
+#endif
 }

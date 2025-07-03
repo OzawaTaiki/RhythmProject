@@ -2,12 +2,13 @@
 
 #include <Math/Vector/Vector3.h>
 #include <Math/Vector/Vector4.h>
+#include <Features/Animation/Sequence/AnimationSequence.h>
+#include <Features/TextRenderer/TextRenderer.h>
 
 #include <Application/Note/Judge/JudgeType.h>
 
 #include <string>
 
-class TextRenderer;
 class Camera; // 前方宣言
 
 class JudgeText
@@ -44,6 +45,14 @@ public:
     bool IsFinished() const { return timer_ >= displayDuration_; }
 
 private:
+
+    /// <summary>
+    /// テキストアニメーション処理
+    /// </summary>
+    void AnimateText();
+
+private:
+
     /// <summary>
     /// 判定タイプに応じたテキストを取得
     /// </summary>
@@ -59,6 +68,7 @@ private:
     /// <param name="_bottomColor">下頂点の色</param>
     static void GetJudgeTextColor(JudgeType _judgeType, Vector4& _topColor, Vector4& _bottomColor);
 
+    void UpdateTextParam();
 
     static float displayYOffset_; // Y軸のオフセット
 private:
@@ -67,8 +77,14 @@ private:
 
     JudgeType judgeType_; // 判定タイプ
 
+    TextParam textParam_; // テキストパラメータ
+
     Vector4 topColor_ = Vector4(1.0f, 1.0f, 1.0f, 1.0f); // 上頂点の色
     Vector4 bottomColor_ = Vector4(0.5f, 0.5f, 0.5f, 1.0f); // 下頂点の色
+
+    Vector2 scale_ = { 1.0f, 1.0f }; // テキストのスケール
+    Vector2 movement_ = { 0.0f, 0.0f }; // テキストの移動量
+    float alpha_ = 1.0f; // テキストのアルファ値
 
     std::wstring judgeText_; // 判定テキスト
 
@@ -76,4 +92,5 @@ private:
     float timer_ = 0.0f; // 表示時間のタイマー
     float displayDuration_ = 1.0f; // 表示時間
 
+    std::unique_ptr<AnimationSequence> animationSequence_; // アニメーションシーケンス
 };
