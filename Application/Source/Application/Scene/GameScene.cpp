@@ -11,6 +11,8 @@
 
 #include <Application/Scene/Transition/SceneTrans.h>
 #include <Debug/Debug.h>
+#include <Debug/ImguITools.h>
+#include <Features/TextRenderer/TextRenderer.h>
 
 GameScene::~GameScene()
 {
@@ -81,6 +83,9 @@ void GameScene::Initialize(SceneData* _sceneData)
 #endif // _DEBUG
     isBeatMapLoaded_ = false;
 
+    testAnimationSequence_ = std::make_unique<AnimationSequence>("JudgeTextAnimation");
+    testAnimationSequence_->Initialize("Resources/Data/"); // アニメーションシーケンスの初期化
+
 }
 
 void GameScene::Update()
@@ -102,6 +107,39 @@ void GameScene::Update()
     UpdateGameStartOffset();
 
     ImGui();
+
+
+    //{
+    //    static TextParam textParam;
+
+    //    ImGui::Begin("test");
+
+    //    ImGui::DragFloat2("pos", &textParam.position.x, 1.0f, 0.0f, 1920.0f);
+    //    ImGui::DragFloat2("scale", &textParam.scale.x, 0.01f, 0.1f, 10.0f);
+    //    ImGui::DragFloat("rotate", &textParam.rotate, 0.01f, -3.14f, 3.14f);
+    //    ImGui::DragFloat2("piv", &textParam.pivot.x, 0.01f, 0.0f, 1.0f);
+    //    ImGui::Checkbox("useGradient", &textParam.useGradient);
+    //    if (textParam.useGradient)
+    //    {
+    //        ImGui::ColorEdit4("topColor", &textParam.topColor.x);
+    //        ImGui::ColorEdit4("bottomColor", &textParam.bottomColor.x);
+    //    }
+    //    else
+    //    {
+    //        ImGui::ColorEdit4("color", &textParam.topColor.x);
+    //    }
+    //    ImGui::Checkbox("useOutline", &textParam.useOutline);
+    //    if (textParam.useOutline)
+    //    {
+    //        ImGui::ColorEdit4("outlineColor", &textParam.outlineColor.x);
+    //        ImGui::DragFloat("outlineScale", &textParam.outlineScale, 0.01f, 0.1f, 10.0f);
+    //    }
+
+    //    TextRenderer::GetInstance()->DrawText(L"Hello World", textParam);
+
+    //    ImGui::End();
+
+    //}
 
 #pragma region Application
 
@@ -140,7 +178,7 @@ void GameScene::Update()
 
     if (IsMusicEnd())
     {
-        SceneManager::ReserveScene("ResultScene", nullptr);
+        //SceneManager::ReserveScene("ResultScene", nullptr);
     }
 }
 
@@ -350,6 +388,9 @@ void GameScene::ImGui()
     //if (IsMusicEnd())
         //voiceInstance_ = soundInstance_->Play(volume, 130.1f); // スペースキーで音楽を再生
 
+    ImGuiTool::TimeLine("JudgeText", testAnimationSequence_.get());
+    if (ImGui::Button("Save"))
+        testAnimationSequence_->Save();
 
 #endif // _DEBUG
 

@@ -39,6 +39,11 @@ private:
     void AllocateJudgeText(JudgeType _judgeType, int32_t _laneIndex);
 
 
+    /// <summary>
+    /// デバッグウィンドウを表示する
+    /// </summary>
+    void DebugWindoow();
+
 private:
 
     /// 音
@@ -51,6 +56,7 @@ private:
     static const int32_t kMaxJudgeTexts_ = 10; // 最大の判定テキスト数
     std::array<std::unique_ptr<JudgeText>, kMaxJudgeTexts_> judgeTextPool_;
     std::bitset<kMaxJudgeTexts_> usedJudgeTexts_; // 使用中のテキストを管理するビットセット
+
 
     /// UI
 

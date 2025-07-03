@@ -87,6 +87,9 @@ private:
     std::shared_ptr<SoundInstance> soundInstance_ = nullptr;
     std::shared_ptr<VoiceInstance> voiceInstance_ = nullptr;
 
+    //test用
+    std::unique_ptr<AnimationSequence> testAnimationSequence_ = nullptr;
+
     void ImGui();
 
 
