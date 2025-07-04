@@ -75,6 +75,12 @@ public:
     /// <param name="_callback">コールバック関数</param>
     void SetJudgeCallback(const std::function<void(int32_t,JudgeType)>& _callback) { onJudgeCallback_ = _callback; }
 
+
+    /// <summary>
+    /// ノーツの移動速度を設定する
+    /// </summary>
+    /// <param name="_speed">ノーツの移動速度</param>
+    void SetNoteSpeed(float _speed) { noteSpeed_ = _speed; noteJudge_->SetSpeed(noteSpeed_); }
 private:
 
     void JudgeNotes(const std::vector<InputDate>& _inputData);

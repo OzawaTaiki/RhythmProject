@@ -12,6 +12,7 @@
 #include <Application/Scene/Transition/SceneTrans.h>
 #include <Debug/Debug.h>
 #include <Debug/ImguITools.h>
+#include <Debug/ImGuiDebugManager.h>
 #include <Features/TextRenderer/TextRenderer.h>
 
 GameScene::~GameScene()
@@ -107,39 +108,6 @@ void GameScene::Update()
     UpdateGameStartOffset();
 
     ImGui();
-
-
-    //{
-    //    static TextParam textParam;
-
-    //    ImGui::Begin("test");
-
-    //    ImGui::DragFloat2("pos", &textParam.position.x, 1.0f, 0.0f, 1920.0f);
-    //    ImGui::DragFloat2("scale", &textParam.scale.x, 0.01f, 0.1f, 10.0f);
-    //    ImGui::DragFloat("rotate", &textParam.rotate, 0.01f, -3.14f, 3.14f);
-    //    ImGui::DragFloat2("piv", &textParam.pivot.x, 0.01f, 0.0f, 1.0f);
-    //    ImGui::Checkbox("useGradient", &textParam.useGradient);
-    //    if (textParam.useGradient)
-    //    {
-    //        ImGui::ColorEdit4("topColor", &textParam.topColor.x);
-    //        ImGui::ColorEdit4("bottomColor", &textParam.bottomColor.x);
-    //    }
-    //    else
-    //    {
-    //        ImGui::ColorEdit4("color", &textParam.topColor.x);
-    //    }
-    //    ImGui::Checkbox("useOutline", &textParam.useOutline);
-    //    if (textParam.useOutline)
-    //    {
-    //        ImGui::ColorEdit4("outlineColor", &textParam.outlineColor.x);
-    //        ImGui::DragFloat("outlineScale", &textParam.outlineScale, 0.01f, 0.1f, 10.0f);
-    //    }
-
-    //    TextRenderer::GetInstance()->DrawText(L"Hello World", textParam);
-
-    //    ImGui::End();
-
-    //}
 
 #pragma region Application
 
@@ -337,60 +305,76 @@ bool GameScene::IsMusicEnd() const
 void GameScene::ImGui()
 {
 #ifdef _DEBUG
-    if (input_->IsKeyTriggered(DIK_F1))
+
+    if(ImGuiDebugManager::GetInstance()->Begin("GameScene"))
+
     {
-        enableDebugCamera_ = !enableDebugCamera_;
+        if (input_->IsKeyTriggered(DIK_F1))
+        {
+            enableDebugCamera_ = !enableDebugCamera_;
+        }
+        float time = voiceInstance_->GetElapsedTime();
+        ImGui::Text("Elapsed Time: %.2f", time);
+
+
+        if (ImGui::Button("stop"))
+            beatManager_->Stop();
+        if (ImGui::Button("play##beat"))
+            beatManager_->Start();
+
+
+        if (ImGui::Button("play##music"))
+        {
+            voiceInstance_->Play();
+        }
+        static float bpm = 120;
+        ImGui::DragFloat("BPM", &bpm, 0.1f);
+        if (ImGui::Button("SetBPM"))
+        {
+            beatManager_->SetBPM(bpm);
+        }
+
+        static float volume = 0.2f;
+        if (ImGui::DragFloat("music Vol", &volume, 0.01f))
+            voiceInstance_->SetVolume(volume);
+
+        static float offset = 0.6f;
+        ImGui::DragFloat("offset", &offset, 0.001f);
+
+        if (input_->IsKeyTriggered(DIK_R))
+        {
+            voiceInstance_->Stop();
+            voiceInstance_.reset();
+            voiceInstance_ = soundInstance_->Play(volume); // ボリュームとオフセットを設定して再生
+            gameCore_->Restart(voiceInstance_); // ゲームコアに音声インスタンスを設定
+            gameInputManager_->SetMusicVoiceInstance(voiceInstance_);
+            beatManager_->Reset();
+        }
+
+
+        ImGui::Separator();
+        ImGui::Text("Music Duration : %.2fsec", soundInstance_->GetDuration());
+        if (voiceInstance_)
+            ImGui::Text("Music elapse   : %.2fsec", voiceInstance_->GetElapsedTime());
+
+        static float noteSpeed = 30.0f;
+        if (ImGui::DragFloat("Note Speed", &noteSpeed, 0.1f, 0.1f, 100.0f))
+        {
+            gameCore_->SetNoteSpeed(noteSpeed);
+        }
+
+        //if (IsMusicEnd())
+            //voiceInstance_ = soundInstance_->Play(volume, 130.1f); // スペースキーで音楽を再生
+
+        ImGuiTool::TimeLine("JudgeText", testAnimationSequence_.get());
+        if (ImGui::Button("Save"))
+            testAnimationSequence_->Save();
+
+
+        ImGui::End();
     }
-    float time = voiceInstance_->GetElapsedTime();
-    ImGui::Text("Elapsed Time: %.2f", time);
 
-
-    if (ImGui::Button("stop"))
-        beatManager_->Stop();
-    if (ImGui::Button("play##beat"))
-        beatManager_->Start();
-
-
-    if (ImGui::Button("play##music"))
-    {
-        voiceInstance_->Play();
-    }
-    static float bpm = 120;
-    ImGui::DragFloat("BPM", &bpm, 0.1f);
-    if (ImGui::Button("SetBPM"))
-    {
-        beatManager_->SetBPM(bpm);
-    }
-
-    static float volume = 0.2f;
-    if (ImGui::DragFloat("music Vol", &volume, 0.01f))
-        voiceInstance_->SetVolume(volume);
-
-    static float offset = 0.6f;
-    ImGui::DragFloat("offset", &offset, 0.001f);
-
-    if (input_->IsKeyTriggered(DIK_R))
-    {
-        voiceInstance_->Stop();
-        voiceInstance_.reset();
-        voiceInstance_ = soundInstance_->Play(volume); // ボリュームとオフセットを設定して再生
-        gameCore_->Restart(voiceInstance_); // ゲームコアに音声インスタンスを設定
-        gameInputManager_->SetMusicVoiceInstance(voiceInstance_);
-        beatManager_->Reset();
-    }
-
-
-    ImGui::Separator();
-    ImGui::Text("Music Duration : %.2fsec", soundInstance_->GetDuration());
-    if(voiceInstance_)
-        ImGui::Text("Music elapse   : %.2fsec", voiceInstance_->GetElapsedTime());
-
-    //if (IsMusicEnd())
-        //voiceInstance_ = soundInstance_->Play(volume, 130.1f); // スペースキーで音楽を再生
-
-    ImGuiTool::TimeLine("JudgeText", testAnimationSequence_.get());
-    if (ImGui::Button("Save"))
-        testAnimationSequence_->Save();
+    SceneCamera_.ImGui();
 
 #endif // _DEBUG
 

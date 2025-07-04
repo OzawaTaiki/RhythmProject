@@ -64,10 +64,6 @@ void GameCore::Update(float  _deltaTime, const std::vector<InputDate>& _inputDat
             elapsedTime = voiceInstance->GetElapsedTime();
         }
     }
-#ifdef _DEBUG
-    ImGui::DragFloat("speed", &noteSpeed_, 0.01f);
-#endif // _DEBUG
-    noteJudge_->SetSpeed(noteSpeed_);
     for (auto& lane : lanes_)
     {
         lane->Update(elapsedTime, noteSpeed_);
