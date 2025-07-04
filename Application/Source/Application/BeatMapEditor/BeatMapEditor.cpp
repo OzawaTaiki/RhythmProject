@@ -321,9 +321,17 @@ void BeatMapEditor::DrawGridLines()
     float gridLeftX = editorCoordinate_.GetEditAreaX();
     float gridRightX = gridLeftX + editorCoordinate_.GetEditAreaWidth();
 
-    for (float y : gridY)
+    static const std::vector<Vector4> gridColors = {
+        Vector4(1.0f  ,1.0f   ,1.0f,   1.0f), // 1
+        Vector4(1.0f  ,1.0f   ,0.0f,   1.0f), // 2
+        Vector4(1.0f  ,0.5f   ,0.0f,   1.0f), // 4
+        Vector4(1.0f  ,0.0f   ,1.0f,   1.0f), // 8
+        Vector4(0.0f  ,0.0f   ,1.0f,   1.0f)  // 16
+    };
+
+    for (auto& [y, n] : gridY)
     {
-        lineDrawer_->RegisterPoint(Vector2(gridLeftX, y), Vector2(gridRightX, y), Vector4(0.8f, 0.8f, 0.8f, 1.0f));
+        lineDrawer_->RegisterPoint(Vector2(gridLeftX, y), Vector2(gridRightX, y), gridColors[n]);
     }
 }
 

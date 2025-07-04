@@ -109,7 +109,7 @@ public:
     /// <param name="_bpm"楽曲BPM</param>
     /// <param name="_division">分割数（4=1/4拍、8=1/8拍など）</param>
     /// <returns>グリッドラインのY座標リスト</returns>
-    std::vector<float> GetGridLinesY(float _bpm, int _division = 4) const;
+    std::vector<std::pair<float, int32_t>> GetGridLinesY(float _bpm, int _division = 4) const;
 
 
     /// <summary>
