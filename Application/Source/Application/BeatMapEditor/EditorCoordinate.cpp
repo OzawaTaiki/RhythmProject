@@ -173,9 +173,12 @@ void EditorCoordinate::SetVerticalMargins(const Vector2& _margin)
     SetVerticalMargins(_margin.x, _margin.y);
 }
 
-std::vector<float> EditorCoordinate::GetGridLinesY(float _bpm, int _division) const
+std::vector<std::pair<float, int32_t>>  EditorCoordinate::GetGridLinesY(float _bpm, int _division) const
 {
-    std::vector<float> gridLines;
+    static const std::vector<int32_t> divisions = { 1, 2, 4, 8, 16 }; // 分割数の候補
+
+    // グリッドラインのY座標と1/n拍のインデックスをペアで返す
+    std::vector<std::pair<float, int32_t>>  gridLines;
 
     if (_bpm <= 0 || _division <= 0)
     {
@@ -190,18 +193,57 @@ std::vector<float> EditorCoordinate::GetGridLinesY(float _bpm, int _division) co
     float start, end;
     GetVisibleTimeRange(start, end);
 
-    // 可視範囲の開始時間から終了時間までのグリッドラインを計算
-    float firstGridTime = std::floorf(start / gridInterval) * gridInterval; // 最初のグリッド時間を計算
 
+    int32_t startIndex = static_cast<int32_t>(std::floorf(start / gridInterval)); // 開始グリッドのインデックス
+    int32_t endIndex = static_cast<int32_t>(std::ceilf(end / gridInterval)); // 終了グリッドのインデックス
+    const float epsilon = 1.0e-3f; // 浮動小数点の許容誤差
 
-    for (float time = firstGridTime; time <= end; time += gridInterval)
+    for (int32_t i = startIndex; i <= endIndex; ++i)
     {
-        float screenY = TimeToScreenY(time);
-        if (screenY >= topMargin_ && screenY <= screenSize_.y - bottomMargin_ ) // 画面内に収まるかチェック
+        // 累積誤差の影響を受けないように、グリッド時間を都度計算
+        float time = i * gridInterval; // グリッド時間を計算
+        float screenY = TimeToScreenY(time); // Y座標に変換
+        if (screenY >= topMargin_ && screenY <= screenSize_.y - bottomMargin_) // 画面内に収まるかチェック
         {
-            gridLines.push_back(screenY);
+            for (int32_t j = 0; j < divisions.size(); ++j)
+            {
+                int32_t d = divisions[j];
+                float gridUnit = beatInterval / static_cast<float>(d); // 1/n拍の時間（秒）
+                float val = time / gridUnit; // グリッド単位での時間
+                if (std::abs(val - std::roundf(val)) < 1.0e-3f) // 誤差を考慮して分割数が一致するかチェック
+                {
+                    gridLines.push_back({ screenY, j }); // Y座標と分割数をペアで保存
+                    break; // 一度見つけたらループを抜ける
+                }
+            }
         }
     }
+
+    //累積誤差の影響でうまく動作しない
+    // // 可視範囲の開始時間から終了時間までのグリッドラインを計算
+    //float firstGridTime = std::floorf(start / gridInterval) * gridInterval; // 最初のグリッド時間を計算
+    //
+    //const float epsilon = 1.0e-3f; // 浮動小数点の誤差を考慮
+    //for (float time = firstGridTime; time <= end; time += gridInterval)
+    //{
+    //    float screenY = TimeToScreenY(time);
+    //    if (screenY >= topMargin_ && screenY <= screenSize_.y - bottomMargin_ ) // 画面内に収まるかチェック
+    //    {
+    //        for (int32_t i = 0; i < divisions.size(); ++i)
+    //        {
+    //            // 誤差のせいで描画されない
+    //            int32_t d = divisions[i];
+    //            float gridUnit = beatInterval / static_cast<float>(d); // 1/n拍の時間（秒）
+    //            float val = time / gridUnit; // グリッド単位での時間
+    //            // 分割数が一致するかチェック
+    //            if (std::abs(val - std::roundf(val)) < epsilon)
+    //            {
+    //                gridLines.push_back({ screenY, i }); // Y座標と分割数をペアで保存
+    //                break; // 一度見つけたらループを抜ける
+    //            }
+    //        }
+    //    }
+    //}
 
     return gridLines;
 }
