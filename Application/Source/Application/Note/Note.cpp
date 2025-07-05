@@ -38,8 +38,6 @@ void Note::Draw(const Camera* _camera)
 void Note::Judge()
 {
     isJudged_ = true; // 判定済みにする
-    //TODO: 音鳴らす
-    // event発行？soundInstance持たせる？
 }
 
 NomalNote::NomalNote() :    Note()

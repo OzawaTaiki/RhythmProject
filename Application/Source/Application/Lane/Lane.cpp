@@ -46,7 +46,6 @@ void Lane::Update(float _elapseTime, float _speed)
 
 void Lane::Draw(const Camera* _camera) const
 {
-    //  TODO レーン描画
     if (laneModel_)
     {
         laneModel_->Draw(_camera, { 0.5f,0.5f,0.5f,0.7f });
@@ -122,7 +121,6 @@ void Lane::CreateNotes(const std::list<NoteData>& _noteDataList, int32_t _laneIn
         if (noteData.laneIndex == _laneIndex) // 念のためチェック
         {
             // ノーツを生成して追加
-            // TODO : ノーツの種類に応じて生成するクラスを変更する
             if(noteData.noteType =="normal")
             {
                 auto note = std::make_shared<NomalNote>();

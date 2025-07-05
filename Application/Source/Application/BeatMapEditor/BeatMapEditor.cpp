@@ -497,7 +497,8 @@ void BeatMapEditor::DrawUI()
         ImGui::SeparatorText("Music Control");
         if (ImGui::Button("Load Music"))
         {
-            std::string musicFilePath = FileDialog::OpenFile("Audio Files (*.wav;)\0*.wav;\0");
+            std::string musicFilePath = FileDialog::OpenFile(FileFilterBuilder::GetFilterString(FileFilterBuilder::FilterType::AudioFiles));
+
             if (!musicFilePath.empty())
             {
                 // 音楽ファイルのパスを設定

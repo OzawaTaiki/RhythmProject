@@ -139,8 +139,8 @@ void EditorCoordinate::GetVisibleTimeRange(float& _startTime, float& _endTime) c
         cachedVisibleStartTime_ = ScreenYToTime(screenSize_.y - bottomMargin_);
         cachedVisibleEndTime_ = ScreenYToTime(topMargin_); // 上端は0.0f
 
-        Debug::Log(std::format("Visible Time Range: Start = {:.2f}, End = {:.2f}\n", cachedVisibleStartTime_, cachedVisibleEndTime_));
-        Debug::Log(std::format("startPosY = {:.2f}, endPosY = {:.2f}\n", TimeToScreenY(cachedVisibleStartTime_), TimeToScreenY(cachedVisibleEndTime_)));
+        //Debug::Log(std::format("Visible Time Range: Start = {:.2f}, End = {:.2f}\n", cachedVisibleStartTime_, cachedVisibleEndTime_));
+        //Debug::Log(std::format("startPosY = {:.2f}, endPosY = {:.2f}\n", TimeToScreenY(cachedVisibleStartTime_), TimeToScreenY(cachedVisibleEndTime_)));
 
         visibleRangeDirty_ = false; // 可視範囲が更新されたのでフラグをリセット
     }
