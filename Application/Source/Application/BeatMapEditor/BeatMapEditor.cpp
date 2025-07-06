@@ -10,6 +10,11 @@
 #include <Utility/FileDialog/FileDialog.h>
 #include <Utility/StringUtils/StringUitls.h>
 
+#include <Application/Command/PlaceNoteCommand.h>
+#include <Application/Command/DeleteNoteCommand.h>
+#include <Application/Command/MoveNoteCommand.h>
+#include <Application/Command/ChangeHoldDurationCommand.h>
+
 #include <fstream>
 
 // TODO いろいろ
@@ -717,12 +722,12 @@ void BeatMapEditor::CreateNewBeatMap(const std::string& _filePath, const std::st
 
 }
 
-void BeatMapEditor::PlaceNote(uint32_t _laneIndex, float _targetTime, const std::string& _noteType, float _holdDuration)
+size_t BeatMapEditor::PlaceNote(uint32_t _laneIndex, float _targetTime, const std::string& _noteType, float _holdDuration)
 {
     if (_laneIndex >= editorCoordinate_.GetLaneCount())
     {
         Debug::Log("Invalid lane index: " + std::to_string(_laneIndex) + "\n");
-        return;
+        return SIZE_MAX;
     }
 
     if (gridSnapEnabled_) {
@@ -734,7 +739,7 @@ void BeatMapEditor::PlaceNote(uint32_t _laneIndex, float _targetTime, const std:
     int32_t exisingNote = FindNoteAtTime(_laneIndex, _targetTime, 0.05f);
     if (exisingNote >= 0) {
         Debug::Log("Note already exists at this position\n");
-        return;  // 重複なら配置しない
+        return SIZE_MAX;
     }
 
 
@@ -747,18 +752,22 @@ void BeatMapEditor::PlaceNote(uint32_t _laneIndex, float _targetTime, const std:
     currentBeatMapData_.notes.push_back(newNote);
     isModified_ = true; // 譜面が変更されたフラグを立てる
     Debug::Log("Placed note at lane " + std::to_string(_laneIndex) + " at time " + std::to_string(_targetTime) + "\n");
+
+    // ノートのインデックスを返す
+    return currentBeatMapData_.notes.size() - 1; // 新しく配置したノートのインデックスを返す
 }
 
-void BeatMapEditor::DeleteNote(uint32_t _noteIndex)
+NoteData BeatMapEditor::DeleteNote(size_t _noteIndex)
 {
     if (_noteIndex >= currentBeatMapData_.notes.size())
     {
         Debug::Log("Invalid note index: " + std::to_string(_noteIndex) + "\n");
-        return;
+        return NoteData{}; // 無効なインデックスの場合は空のNoteDataを返すjissou
     }
 
 
     // ノートを削除
+    NoteData deletedNote = currentBeatMapData_.notes[_noteIndex];
     currentBeatMapData_.notes.erase(currentBeatMapData_.notes.begin() + _noteIndex);
     isModified_ = true; // 譜面が変更されたフラグを立てる
 
@@ -776,6 +785,45 @@ void BeatMapEditor::DeleteNote(uint32_t _noteIndex)
         }
     }
     Debug::Log("Deleted note at index " + std::to_string(_noteIndex) + "\n");
+
+    return deletedNote; // 削除したノートのデータを返す
+}
+
+void BeatMapEditor::InsertNote(const NoteData& _note)
+{
+    currentBeatMapData_.notes.push_back(_note); // ノートを追加
+
+    SortNotesByTime(); // ノートを時間順にソート
+
+    isModified_ = true; // 譜面が変更されたフラグを立てる
+}
+
+const NoteData& BeatMapEditor::GetNoteAt(size_t _noteIndex) const
+{
+    static NoteData emptyNote;
+    if (_noteIndex >= currentBeatMapData_.notes.size())
+    {
+        Debug::Log("Invalid note index: " + std::to_string(_noteIndex) + "\n");
+        return emptyNote; // 無効なインデックスの場合は空のNoteDataを返す
+    }
+
+    return currentBeatMapData_.notes[_noteIndex]; // 指定されたインデックスのノートを返す
+}
+
+void BeatMapEditor::SetNoteTime(size_t _noteIndex, float _newTime)
+{
+    if (_noteIndex >= currentBeatMapData_.notes.size())
+    {
+        Debug::Log("Invalid note index: " + std::to_string(_noteIndex) + "\n");
+        return; // 無効なインデックスの場合は何もしない
+    }
+    // グリッドスナップ
+    if (gridSnapEnabled_)
+    {
+        _newTime = editorCoordinate_.SnapTimeToGrid(_newTime, currentBeatMapData_.bpm, static_cast<int>(1.0f / snapInterval_));
+    }
+    currentBeatMapData_.notes[_noteIndex].targetTime = _newTime; // ノートの時間を更新
+    isModified_ = true; // 譜面が変更されたフラグを立てる
 }
 
 void BeatMapEditor::SelectNote(uint32_t _noteIndex, bool _multiSelect)
@@ -817,15 +865,16 @@ void BeatMapEditor::MoveSelectedNote( float _newTime)
         _newTime = editorCoordinate_.SnapTimeToGrid(_newTime, currentBeatMapData_.bpm, static_cast<int>(1.0f / snapInterval_));
     }
 
+    // deltaTimeを計算
+    float deltaTime = _newTime - currentBeatMapData_.notes[lastSelectedNoteIndex_].targetTime;
 
-    for (size_t index : selectedNoteIndices_)
-    {
-        if (index < currentBeatMapData_.notes.size())
-        {
-            float addTime = _newTime - currentBeatMapData_.notes[lastSelectedNoteIndex_].targetTime;
-            currentBeatMapData_.notes[index].targetTime += addTime;
-        }
-    }
+    if (deltaTime == 0.0f)
+        return;
+
+    // MoveNoteCommandを使用
+    auto command = std::make_unique<MoveNoteCommand>(this, selectedNoteIndices_, deltaTime);
+    commandHistory_.ExecuteCommand(std::move(command));
+
 
     isModified_ = true;
 }
@@ -840,6 +889,7 @@ void BeatMapEditor::ApplyLiveMapping()
     }
 }
 
+// ここではキー入力の分岐だけ if内で関数をよんで各操作をおこなう方がきれいじゃないか？＿
 void BeatMapEditor::HandleInput()
 {
     if (currentEditorMode_ == EditorMode::BPMSetting)
@@ -881,6 +931,15 @@ void BeatMapEditor::HandleInput()
         }
     }
 
+    if (input_->IsKeyPressed(DIK_LCONTROL) && input_->IsKeyTriggered(DIK_Z))
+    {
+        commandHistory_.Undo(); // Ctrl + Zでアンドゥ
+    }
+    else if (input_->IsKeyPressed(DIK_LCONTROL) && input_->IsKeyTriggered(DIK_Y))
+    {
+        commandHistory_.Redo(); // Ctrl + Yでリドゥ
+    }
+
     bool selected = false;
     // マウスがエディターエリア内にあるかチェック
     bool mouseInsideEditorArea = dummy_editArea_->IsMousePointerInside();
@@ -894,6 +953,9 @@ void BeatMapEditor::HandleInput()
         for (size_t i = 0; i < noteIndex_; ++i) // 現在描画中のノート数まで
         {
             uint32_t actualNoteIndex = drawNoteIndices_[i]; // 実際のノートインデックスを取得
+            if (actualNoteIndex >= currentBeatMapData_.notes.size())
+                continue; // インデックスが範囲外ならスキップ
+
             if (noteSprites_[i]->IsMousePointerInside())
             {
                 // ホバー時の視覚的フィードバック
@@ -959,7 +1021,7 @@ void BeatMapEditor::HandleInput()
         selected = true; // ノートが移動されたので選択状態にする
     }
 
-
+    static float selectHoldNoteDuration = 0.0f; // ホールドノートの選択時の持続時間
     for (size_t i = 0; i < holdNoteIndex_; ++i)
     {
         auto& note = holdNoteEnd_[i];
@@ -993,6 +1055,7 @@ void BeatMapEditor::HandleInput()
             {
                 isSelectingHoldEnd_ = true; // ホールド終端の選択フラグを立てる
                 selectNoteIndex_ = actualNoteIndex; // 選択されたノートのインデックスを保存
+                selectHoldNoteDuration = currentBeatMapData_.notes[actualNoteIndex].holdDuration; // 選択されたホールドノートの持続時間を保存
                 selected = true; // 選択状態にする
             }
         }
@@ -1004,10 +1067,17 @@ void BeatMapEditor::HandleInput()
         Vector2 mousePos = input_->GetMousePosition();
         float newTime = editorCoordinate_.ScreenYToTime(mousePos.y);
         float newHoldDuration = newTime - currentBeatMapData_.notes[selectNoteIndex_].targetTime; // 新しいホールド時間を計算
-        currentBeatMapData_.notes[selectNoteIndex_].holdDuration = (std::max)(newHoldDuration, 0.0f); // ホールド時間を更新（負の値は許可しない）
+        SetNoteDuration(selectNoteIndex_, newHoldDuration);
 
         if (input_->IsMouseReleased(0)) // マウスの左ボタンが離されたとき
         {
+
+            if (selectHoldNoteDuration != currentBeatMapData_.notes[selectNoteIndex_].holdDuration)
+            {
+                // ホールド時間が変更された場合、コマンド履歴に追加
+                auto command = std::make_unique<ChangeHoldDurationCommand>(this, selectNoteIndex_, selectHoldNoteDuration, currentBeatMapData_.notes[selectNoteIndex_].holdDuration);
+                commandHistory_.ExecuteCommand(std::move(command));
+            }
             isSelectingHoldEnd_ = false; // ホールド終端の選択フラグを下ろす
             selectNoteIndex_ = -1; // 選択されたノートのインデックスをリセット
         }
@@ -1144,7 +1214,12 @@ void BeatMapEditor::HandleInput()
             float targetTime = editorCoordinate_.ScreenYToTime(mousePos.y); // マウスのY座標を時間に変換
             if (currentEditorMode_ == EditorMode::PlaceNormalNote)
             {
-                PlaceNote(laneIndex, targetTime, "normal"); // ノーマルノートを配置
+                //PlaceNote(laneIndex, targetTime, "normal"); // ノーマルノートを配置
+
+                auto command = std::make_unique<PlaceNoteCommand>(this, laneIndex, targetTime, "normal", 0.0f);
+                commandHistory_.ExecuteCommand(std::move(command)); // ノーマルノートを配置
+
+
             }
             else if (currentEditorMode_ == EditorMode::PlaceLongNote)
             {
@@ -1165,7 +1240,10 @@ void BeatMapEditor::HandleInput()
 
                 if (holdDuration > 0.001f) // ホールド時間が0.001秒以上の場合のみ配置
                 {
-                    PlaceNote(longNoteStartLane_, longNoteStartTime_, "hold", holdDuration); // ロングノートを配置x
+                    //PlaceNote(longNoteStartLane_, longNoteStartTime_, "hold", holdDuration); // ロングノートを配置
+
+                    auto command = std::make_unique<PlaceNoteCommand>(this, longNoteStartLane_, longNoteStartTime_, "hold", holdDuration);
+                    commandHistory_.ExecuteCommand(std::move(command)); // ロングノートを配置
                 }
                 isCreatingLongNote_ = false; // ロングノートの作成フラグを下ろす
             }
@@ -1180,7 +1258,8 @@ void BeatMapEditor::HandleInput()
                 uint32_t actualNoteIndex = drawNoteIndices_[i]; // 実際のノートインデックスを取得
                 if (noteSprites_[i]->IsMousePointerInside())
                 {
-                    DeleteNote(actualNoteIndex); // ノートを削除
+                    auto command = std::make_unique<DeleteNoteCommand>(this, actualNoteIndex);
+                    commandHistory_.ExecuteCommand(std::move(command)); // ノートを削除コマンドを実行
                     break; // 一つ削除したらループを抜ける
                 }
             }
@@ -1242,6 +1321,36 @@ int32_t BeatMapEditor::FindNoteAtTime(uint32_t _laneIndex, float _targetTime, fl
     }
 
     return static_cast<int32_t>(-1); // 見つからなかった場合は無効なインデックスを返す
+}
+
+void BeatMapEditor::SetNoteDuration(size_t _noteIndex, float _newDuration)
+{
+    if (_noteIndex >= currentBeatMapData_.notes.size())
+    {
+        Debug::Log("Invalid note index: " + std::to_string(_noteIndex) + "\n");
+        return; // 無効なインデックスの場合は何もしない
+    }
+    if (currentBeatMapData_.notes[_noteIndex].noteType != "hold")
+    {
+        Debug::Log("Cannot set duration for non-hold note at index: " + std::to_string(_noteIndex) + "\n");
+        return; // ホールドノート以外は変更できない
+    }
+    const auto& note = currentBeatMapData_.notes[_noteIndex];
+
+    if (_newDuration <= 0.0f)
+        return;
+
+    float targetTime = note.targetTime + _newDuration;
+
+    // グリッドスナップ
+    if (gridSnapEnabled_)
+    {
+        _newDuration = editorCoordinate_.SnapTimeToGrid(targetTime - note.targetTime, currentBeatMapData_.bpm, static_cast<int>(1.0f / snapInterval_));
+        if (_newDuration <= 0.0f)
+            return;
+    }
+    currentBeatMapData_.notes[_noteIndex].holdDuration = _newDuration; // ノートの持続時間を更新
+    isModified_ = true; // 譜面が変更されたフラグを立てる
 }
 
 void BeatMapEditor::SortNotesByTime()
