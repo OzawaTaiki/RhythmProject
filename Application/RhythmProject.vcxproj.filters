@@ -76,6 +76,12 @@
     <Filter Include="Application\FeedBack\JudgeText">
       <UniqueIdentifier>{36b0ddf2-e0a1-4bb5-8294-02092c09ea62}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\BeatMapEditor\Command">
+      <UniqueIdentifier>{a4cdee18-3ed8-4f63-8471-4cf980f84c4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\BeatMapEditor\Command\Core">
+      <UniqueIdentifier>{7dc5343b-ca7f-453f-af53-f9fc2b9d8298}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -166,6 +172,21 @@
     </ClCompile>
     <ClCompile Include="Source\Application\FeedBack\JudgeText\JudgeText.cpp">
       <Filter>Application\FeedBack\JudgeText</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Command\CommandHistory.cpp">
+      <Filter>Application\BeatMapEditor\Command\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Command\PlaceNoteCommand.cpp">
+      <Filter>Application\BeatMapEditor\Command</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Command\DeleteNoteCommand.cpp">
+      <Filter>Application\BeatMapEditor\Command</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Command\MoveNoteCommand.cpp">
+      <Filter>Application\BeatMapEditor\Command</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Command\ChangeHoldDurationCommand.cpp">
+      <Filter>Application\BeatMapEditor\Command</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -273,6 +294,24 @@
     </ClInclude>
     <ClInclude Include="Source\Application\FeedBack\JudgeText\JudgeText.h">
       <Filter>Application\FeedBack\JudgeText</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Command\CommandHistory.h">
+      <Filter>Application\BeatMapEditor\Command\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Command\ICommand.h">
+      <Filter>Application\BeatMapEditor\Command\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Command\PlaceNoteCommand.h">
+      <Filter>Application\BeatMapEditor\Command</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Command\DeleteNoteCommand.h">
+      <Filter>Application\BeatMapEditor\Command</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Command\MoveNoteCommand.h">
+      <Filter>Application\BeatMapEditor\Command</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Command\ChangeHoldDurationCommand.h">
+      <Filter>Application\BeatMapEditor\Command</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

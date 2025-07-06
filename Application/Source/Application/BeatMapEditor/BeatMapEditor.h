@@ -10,6 +10,7 @@
 #include <Application/BeatMapEditor/EditorCoordinate.h>
 #include <Application/BeatMapLoader/BeatMapData.h>
 #include <Application/BeatsManager/BeatManager.h>
+#include <Application/Command/CommandHistory.h>
 
 #include <Application/BeatMapEditor/LiveMapping/LiveMapping.h>
 #include <Application/BeatMapEditor/BPMCounter/TapBPMCounter.h>
@@ -37,6 +38,67 @@ public:
     void Draw(const Camera* _camera);
     void Finalize();
 
+public:
+
+    /// <summary>
+    /// ノートを配置
+    /// </summary>
+    /// <param name="_laneIndex">レーン番号</param>
+    /// <param name="_targetTime">目標時間</param>
+    /// <param name="_noteType">ノートタイプ</param>
+    /// <param name="_holdDuration">ホールド時間(ロングノートの場合)</param>
+    /// <returns>配置したノートのインデックス</returns>
+    size_t PlaceNote(uint32_t _laneIndex, float _targetTime, const std::string& _noteType, float _holdDuration = 0);
+
+
+    /// <summary>
+    /// ノートを削除
+    /// </summary>
+    /// <param name="_noteIndex">削除するノートのインデックス</param>
+    NoteData DeleteNote(size_t _noteIndex);
+
+
+    /// <summary>
+    /// ノートを挿入
+    /// </summary>
+    /// <param name="_note"> 挿入するノートデータ</param>
+    void InsertNote(const NoteData& _note);
+
+    /// <summary>
+    /// ノートを取得
+    /// </summary>
+    /// <param name="_noteIndex"> 取得するノートのインデックス</param>
+    /// <returns> ノートデータ</returns>
+    const NoteData& GetNoteAt(size_t _noteIndex) const;
+
+    /// <summary>
+    /// ノートの時間を設定
+    /// </summary>
+    /// <param name="_noteIndex"> ノートのインデックス</param>
+    /// <param name="_newTime"> 新しい時間</param>
+    void SetNoteTime(size_t _noteIndex, float _newTime);
+
+
+    /// <summary>
+    /// ノートを時間でソート
+    /// </summary>
+    void SortNotesByTime();
+
+    /// <summary>
+    /// パラメータからノートを検索
+    /// </summary>
+    /// <param name="_laneIndex"> レーンインデックス</param>
+    /// <param name="_targetTime"> ターゲット時間</param>
+    /// <param name="_tolerance"> 許容誤差</param>
+    /// <returns> 見つかったノートのインデックス(なければ -1)</returns>
+    int32_t FindNoteAtTime(uint32_t _laneIndex, float _targetTime, float _tolerance = 0.05f) const;
+
+    /// <summary>
+    /// ロングノートの持続時間を設定
+    /// </summary>
+    /// <param name="_noteIndex"> ノートのインデックス</param>
+    /// <param name="_newDuration"> 新しい持続時間</param>
+    void SetNoteDuration(size_t _noteIndex, float _newDuration);
 private:
     ///---------------------
     /// ファイル操作
@@ -63,21 +125,6 @@ private:
     ///---------------------
     /// 譜面編集
 
-    /// <summary>
-    /// ノートを配置
-    /// </summary>
-    /// <param name="_laneIndex">レーン番号</param>
-    /// <param name="_targetTime">は一時間</param>
-    /// <param name="_noteType">ノートタイプ</param>
-    /// <param name="_holdDuration">ホールド時間(ロングノートの場合)</param>
-    void PlaceNote(uint32_t _laneIndex, float _targetTime, const std::string& _noteType, float _holdDuration = 0);
-
-
-    /// <summary>
-    /// ノートを削除
-    /// </summary>
-    /// <param name="_noteIndex">削除するノートのインデックス</param>
-    void DeleteNote(uint32_t _noteIndex);
 
 
     /// <summary>
@@ -117,19 +164,7 @@ private:
     /// </summary>
     void UpdateEditorState();
 
-    /// <summary>
-    /// パラメータからノートを検索
-    /// </summary>
-    /// <param name="_laneIndex"> レーンインデックス</param>
-    /// <param name="_targetTime"> ターゲット時間</param>
-    /// <param name="_tolerance"> 許容誤差</param>
-    /// <returns> 見つかったノートのインデックス(なければ -1)</returns>
-    int32_t FindNoteAtTime(uint32_t _laneIndex, float _targetTime, float _tolerance = 0.05f) const;
 
-    /// <summary>
-    /// ノートを時間でソート
-    /// </summary>
-    void SortNotesByTime();
 
     /// <summary>
     /// ノートが選択されているか確認
@@ -154,6 +189,10 @@ private:
     /// 状態のリセット
     /// </summary>
     void Reset();
+
+    // ========================================
+    // 音楽・再生制御
+    // ========================================
 
     /// <summary>
     /// 音楽を始めから再生
@@ -220,65 +259,6 @@ private:
     void DrawSelectionArea();
 
 private:
-
-    LineDrawer* lineDrawer_ = nullptr; // ライン描画クラスへのポインタ
-    Input* input_ = nullptr; // 入力管理クラスへのポインタ
-
-    Camera for2dCamera_; // 2D描画用のカメラ
-
-    BeatMapLoader* beatMapLoader_ = nullptr;
-    std::unique_ptr<BeatManager> beatManager_ = nullptr;
-    bool enableBeats_ = false;
-
-    EditorCoordinate editorCoordinate_;
-
-    // 譜面データ
-    BeatMapData currentBeatMapData_; // 現在編集中の譜面データ
-    std::string currentFilePath_ = ""; // 現在編集中のファイルパス
-    bool isModified_ = false; // 譜面が変更されたかどうかのフラグ
-
-    // 曲
-    std::shared_ptr<SoundInstance> musicSoundInstance_; // 音楽の音声インスタンス
-    std::shared_ptr<VoiceInstance> musicVoiceInstance_; // 音楽の音声インスタンス
-    float volume_ = 0.3f; // 音量
-
-    // エディター状態
-    float currentTime_ = 0.0f; // 現在の時間
-    bool isPlaying_ = false; // 再生中かどうかのフラグ
-
-    // 選択状態
-    std::vector<size_t> selectedNoteIndices_; // 選択中のノートインデックス
-    bool gridSnapEnabled_ = true; // グリッドスナップの有効/無効
-    float snapInterval_ = 1.0f / 4.0f; //1/4拍
-
-    // =========================================
-    // エディター座標系
-
-    float scrollOffset_ = 0.0f; // スクロールオフセット
-
-    uint32_t noteIndex_ = 0; // ノートのインデックスカウンター
-    uint32_t holdNoteIndex_ = 0; // ブリッジのインデックスカウンター
-    std::vector<std::unique_ptr<UISprite>> noteSprites_; // ノートのスプライトリスト 描画用
-
-    struct NoteColor
-    {
-        Vector4 defaultColor; // デフォルトのノート色
-        Vector4 hoverColor; // ホバー時の色
-        Vector4 selectedColor; // 選択時の色
-    };
-
-    NoteColor normalNoteColor_;
-    NoteColor longNoteColor_; // ロングノートの色設定
-
-    std::vector<uint32_t> drawNoteIndices_; // 描画するノートのインデックスリスト
-
-    bool isSelectingHoldEnd_ = false; // ロングノート終端を選択中かどうかのフラグ
-    int32_t selectNoteIndex_ = -1; // 選択中のノートインデックス
-
-    bool isMovingSelectedNote_ = false; // 選択中のノートを移動中かどうかのフラグ
-    int32_t lastSelectedNoteIndex_ = -1;// 最後に選択されたノートのインデックス
-
-
     enum class EditorMode
     {
         Select,
@@ -291,51 +271,122 @@ private:
         Count // モードの数
     };
 
-    EditorMode currentEditorMode_ = EditorMode::Select; // 現在のエディターモード
-    EditorMode preCurrentEditorMode_ = EditorMode::Select; // 現在のエディターモード
-    bool isCreatingLongNote_ = false; // ロングノートを作成中かどうかのフラグ
-    float longNoteStartTime_ = 0.0f; // ロングノートの開始時間
-    int32_t longNoteStartLane_ = 0; // ロングノートの開始レーン
+private:
+    // ========================================
+    // システム依存関係
+    // ========================================
+    LineDrawer* lineDrawer_ = nullptr;
+    Input* input_ = nullptr;
+    Camera for2dCamera_;
+    BeatMapLoader* beatMapLoader_ = nullptr;
+    std::unique_ptr<BeatManager> beatManager_ = nullptr;
+    bool enableBeats_ = false;
 
-    LiveMapping liveMapping_;
-    TapBPMCounter tapBPMCounter_; // タップBPMカウンター
-    std::shared_ptr<VoiceInstance> voiceInstanceForBPMSet_; // 音楽の音声インスタンス
+    // ========================================
+    // コア機能
+    // ========================================
+    CommandHistory commandHistory_;
+    EditorCoordinate editorCoordinate_;
 
-    // 配置プレビュー
-    std::unique_ptr<UISprite> previewNoteSprite_; // ノート配置プレビュー用のスプライト
-    std::unique_ptr<UISprite> previewBridgeSprite_; // ロングノート配置プレビュー用のスプライト
-    std::unique_ptr<UISprite> previewHoldEndSprite_; // ロングノート終端配置プレビュー用のスプライト
-    float previewAlpha_ = 0.5f; // プレビューの透明度
+    // ========================================
+    // 譜面データ
+    // ========================================
+    BeatMapData currentBeatMapData_;
+    std::string currentFilePath_;
+    bool isModified_ = false;
 
+    // ========================================
+    // 音楽・再生制御
+    // ========================================
+    std::shared_ptr<SoundInstance> musicSoundInstance_;
+    std::shared_ptr<VoiceInstance> musicVoiceInstance_;
+    std::shared_ptr<VoiceInstance> voiceInstanceForBPMSet_;
+    float volume_ = 0.3f;
+    float currentTime_ = 0.0f;
+    bool isPlaying_ = false;
 
-    /// 範囲選択のための変数たち
-    // ドラッグしているか
+    // ========================================
+    // エディター状態・設定
+    // ========================================
+    EditorMode currentEditorMode_ = EditorMode::Select;
+    EditorMode preCurrentEditorMode_ = EditorMode::Select;
+    bool gridSnapEnabled_ = true;
+    float snapInterval_ = 1.0f / 4.0f;
+
+    // ========================================
+    // 選択・編集状態
+    // ========================================
+    std::vector<size_t> selectedNoteIndices_;
+    bool isMovingSelectedNote_ = false;
+    int32_t lastSelectedNoteIndex_ = -1;
+    bool isRangeSelected_ = false;
+
+    // ========================================
+    // ロングノート編集状態
+    // ========================================
+    bool isCreatingLongNote_ = false;
+    float longNoteStartTime_ = 0.0f;
+    int32_t longNoteStartLane_ = 0;
+    bool isSelectingHoldEnd_ = false;
+    int32_t selectNoteIndex_ = -1;
+
+    // ========================================
+    // 範囲選択・ドラッグ
+    // ========================================
     bool isDragging_ = false;
-    // ドラッグ開始座標
     Vector2 dragStartPosition_ = { 0.0f, 0.0f };
-    // ドラッグ終了座標
     Vector2 dragEndPosition_ = { 0.0f, 0.0f };
-    // 範囲選択をしたか
-    bool isRangeSelected_ = false; // 範囲選択をしたかどうかのフラグ
-    std::unique_ptr<UISprite> areaSelectionSprite_; // 範囲選択用のスプライト
 
+    // ========================================
+    // 描画制御・インデックス管理
+    // ========================================
+    float scrollOffset_ = 0.0f;
+    uint32_t noteIndex_ = 0;
+    uint32_t holdNoteIndex_ = 0;
+    std::vector<uint32_t> drawNoteIndices_;
 
-    std::unique_ptr<UISprite> dummy_editArea_; // エディターエリア マウス判定用
-    std::unique_ptr<UISprite> dummy_window_; // ウィンドウ マウス判定用
+    // ========================================
+    // ノート色設定
+    // ========================================
+    struct NoteColor {
+        Vector4 defaultColor;
+        Vector4 hoverColor;
+        Vector4 selectedColor;
+    };
+    NoteColor normalNoteColor_;
+    NoteColor longNoteColor_;
 
-    //=========================================
-    // 描画用
+    // ========================================
+    // プレビュー機能
+    // ========================================
+    std::unique_ptr<UISprite> previewNoteSprite_;
+    std::unique_ptr<UISprite> previewBridgeSprite_;
+    std::unique_ptr<UISprite> previewHoldEndSprite_;
+    float previewAlpha_ = 0.5f;
 
-    std::vector<std::unique_ptr<UISprite>> laneSprites_; // レーンのスプライト
-    std::vector<std::unique_ptr<UISprite>> gridLineSprites_; // グリッドラインのスプライト
+    // ========================================
+    // 描画用スプライト群
+    // ========================================
+    // ノート描画
+    std::vector<std::unique_ptr<UISprite>> noteSprites_;
+    std::vector<std::unique_ptr<UISprite>> noteBridges_;
+    std::vector<std::unique_ptr<UISprite>> holdNoteEnd_;
 
-    std::vector<std::unique_ptr<UISprite>> noteBridges_; // ブリッジのスプライト
-    std::vector<std::unique_ptr<UISprite>> holdNoteEnd_; // ロングノートの終端スプライト
+    // レーン・UI描画
+    std::vector<std::unique_ptr<UISprite>> laneSprites_;
+    std::unique_ptr<UISprite> judgeLineSprite_;
+    std::unique_ptr<UISprite> playheadSprite_;
 
-    std::unique_ptr<UISprite> judgeLineSprite_; // ジャッジラインのスプライト
+    // 選択・判定用
+    std::unique_ptr<UISprite> areaSelectionSprite_;
+    std::unique_ptr<UISprite> dummy_editArea_;
+    std::unique_ptr<UISprite> dummy_window_;
 
-    std::unique_ptr<UISprite> playheadSprite_; // 再生ヘッドのスプライト
-
+    // ========================================
+    // 特殊機能
+    // ========================================
+    LiveMapping liveMapping_;
+    TapBPMCounter tapBPMCounter_;
 
 };
 

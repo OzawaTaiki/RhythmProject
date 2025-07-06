@@ -99,6 +99,11 @@
     <ClCompile Include="Source\Application\BeatMapEditor\LiveMapping\LiveMapping.cpp" />
     <ClCompile Include="Source\Application\BeatMapLoader\BeatMapLoader.cpp" />
     <ClCompile Include="Source\Application\BeatsManager\BeatManager.cpp" />
+    <ClCompile Include="Source\Application\Command\ChangeHoldDurationCommand.cpp" />
+    <ClCompile Include="Source\Application\Command\CommandHistory.cpp" />
+    <ClCompile Include="Source\Application\Command\DeleteNoteCommand.cpp" />
+    <ClCompile Include="Source\Application\Command\MoveNoteCommand.cpp" />
+    <ClCompile Include="Source\Application\Command\PlaceNoteCommand.cpp" />
     <ClCompile Include="Source\Application\Core\GameCore.cpp" />
     <ClCompile Include="Source\Application\Effects\LaneEffect\LaneEffect.cpp" />
     <ClCompile Include="Source\Application\Effects\TapEffects\HitparticleModifier.cpp" />
@@ -137,6 +142,12 @@
     <ClInclude Include="Source\Application\BeatMapLoader\BeatMapData.h" />
     <ClInclude Include="Source\Application\BeatMapLoader\BeatMapLoader.h" />
     <ClInclude Include="Source\Application\BeatsManager\BeatManager.h" />
+    <ClInclude Include="Source\Application\Command\ChangeHoldDurationCommand.h" />
+    <ClInclude Include="Source\Application\Command\CommandHistory.h" />
+    <ClInclude Include="Source\Application\Command\DeleteNoteCommand.h" />
+    <ClInclude Include="Source\Application\Command\ICommand.h" />
+    <ClInclude Include="Source\Application\Command\MoveNoteCommand.h" />
+    <ClInclude Include="Source\Application\Command\PlaceNoteCommand.h" />
     <ClInclude Include="Source\Application\Core\GameCore.h" />
     <ClInclude Include="Source\Application\Effects\LaneEffect\LaneEffect.h" />
     <ClInclude Include="Source\Application\Effects\TapEffects\HitparticleModifier.h" />
