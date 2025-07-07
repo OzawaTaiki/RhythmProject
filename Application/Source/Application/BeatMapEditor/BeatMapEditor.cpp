@@ -3,6 +3,7 @@
 #include <Features/LineDrawer/LineDrawer.h>
 #include <Debug/Debug.h>
 #include <Debug/ImGuiHelper.h>
+#include <Debug/ImGuiDebugManager.h>
 #include <System/Input/Input.h>
 #include <System/Audio/AudioSystem.h>
 
@@ -31,7 +32,7 @@ void BeatMapEditor::Initialize()
     lineDrawer_ = LineDrawer::GetInstance();
 
     beatMapLoader_ = BeatMapLoader::GetInstance();
-    editorCoordinate_.Initialize(Vector2(1280.0f / 4.0f, 720.0f), 4); // 初期画面サイズとレーン数を設定
+    editorCoordinate_.Initialize(Vector2(1280.0f, 720.0f), 4); // 初期画面サイズとレーン数を設定
     editorCoordinate_.SetTimeZeroOffsetRatio(0.1f);
 
     beatManager_ = std::make_unique<BeatManager>();
@@ -373,6 +374,9 @@ void BeatMapEditor::DrawUI()
 {
 #ifdef _DEBUG
 
+    DrawLeftPanel();
+    DrawRightPanel();
+    return;
     FileFilterBuilder filterBuilder;
     filterBuilder.AddSeparateExtensions(FileFilterBuilder::FilterType::DataFiles);
     static std::string filter  = filterBuilder.Build();
@@ -557,8 +561,79 @@ void BeatMapEditor::DrawUI()
     }
     ImGui::End();
 
+    if (!selectedNoteIndices_.empty())
+    {
+        if (ImGuiDebugManager::GetInstance()->Begin("NoteInfo"))
+        {
+
+            ImGui::Text("Selected Notes: %zu", selectedNoteIndices_.size());
+            for (const auto& index : selectedNoteIndices_)
+            {
+                const NoteData& note = currentBeatMapData_.notes[index];
+                ImGui::Separator();
+                ImGui::Text("Note Index: %zu", index);
+                ImGui::Text("\tLane: %d", note.laneIndex);
+                ImGui::Text("\tTime: %.2f", note.targetTime);
+                ImGui::Text("\tType: %s", note.noteType.c_str());
+                if (note.noteType == "hold")
+                {
+                    ImGui::Text("\tHold Duration: %.2f", note.holdDuration);
+                }
+            }
+
+
+
+            ImGui::End();
+        }
+    };
+
 #endif // _DEBUG
 }
+
+
+void BeatMapEditor::DrawLeftPanel()
+{
+#ifdef _DEBUG
+
+    const float menuHeight = 18.0f;
+    const ImVec2 panelSize(300.0f, 720.0f - menuHeight); // 左パネルのサイズを設定
+    const ImVec2 panelPos(0.0f, menuHeight); // 左パネルの位置を設定
+
+    ImGui::SetNextWindowPos(panelPos); // パネルの位置を設定
+    ImGui::SetNextWindowSize(panelSize); // パネルのサイズを設定
+
+    ImGui::Begin("Editor Controls", nullptr,
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+    {
+
+    }
+    ImGui::End();
+
+#endif
+}
+
+void BeatMapEditor::DrawRightPanel()
+{
+
+#ifdef _DEBUG
+
+    const float menuHeight = 18.0f;
+    const ImVec2 panelSize(300.0f, 720.0f - menuHeight); // 左パネルのサイズを設定
+    const ImVec2 panelPos(1280.0f - panelSize.x, menuHeight); // 左パネルの位置を設定
+
+    ImGui::SetNextWindowPos(panelPos); // パネルの位置を設定
+    ImGui::SetNextWindowSize(panelSize); // パネルのサイズを設定
+
+    ImGui::Begin("Information", nullptr,
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+    {
+
+    }
+    ImGui::End();
+
+#endif
+}
+
 
 void BeatMapEditor::DrawPreviewNote()
 {
@@ -622,6 +697,7 @@ void BeatMapEditor::DrawSelectionArea()
         areaSelectionSprite_->Draw();
     }
 }
+
 
 void BeatMapEditor::Finalize()
 {
@@ -852,7 +928,7 @@ void BeatMapEditor::ClearSelection()
     isRangeSelected_ = false; // 範囲選択フラグをリセット
 }
 
-void BeatMapEditor::MoveSelectedNote( float _newTime)
+void BeatMapEditor::MoveSelectedNoteTemporary( float _newTime)
 {
     if (selectedNoteIndices_.empty())
     {
@@ -873,10 +949,46 @@ void BeatMapEditor::MoveSelectedNote( float _newTime)
 
     // MoveNoteCommandを使用
     auto command = std::make_unique<MoveNoteCommand>(this, selectedNoteIndices_, deltaTime);
-    commandHistory_.ExecuteCommand(std::move(command));
+    command->Execute();
+    //commandHistory_.ExecuteCommand(std::move(command));
 
 
     isModified_ = true;
+}
+
+void BeatMapEditor::ConfirmMoveSelectedMove()
+{
+    if (!moveState_.isMoving)
+        return;
+
+    std::vector<float> currentTimes;
+    for (size_t index : moveState_.movingIndices)
+    {
+        if (index >= currentBeatMapData_.notes.size())
+        {
+            continue; // 無効なインデックスはスキップ
+        }
+        currentTimes.push_back(currentBeatMapData_.notes[index].targetTime);
+    }
+
+    if (currentTimes.empty())
+    {
+        return; // 有効なノートがない場合は何もしない
+    }
+
+    // 移動前の座標に戻す
+    for (size_t i = 0; i < moveState_.movingIndices.size(); ++i)
+    {
+        size_t index = moveState_.movingIndices[i];
+        currentBeatMapData_.notes[index].targetTime = moveState_.originalTimes[i];
+    }
+    SortNotesByTime();
+
+    float deltaTime = currentTimes[0] - moveState_.originalTimes[0]; // 最初のノートの時間を基準にデルタタイムを計算
+
+    auto command = std::make_unique<MoveNoteCommand>(this, moveState_.movingIndices, deltaTime);
+    commandHistory_.ExecuteCommand(std::move(command));
+
 }
 
 void BeatMapEditor::ApplyLiveMapping()
@@ -946,6 +1058,7 @@ void BeatMapEditor::HandleInput()
     if (!dummy_window_->IsMousePointerInside())
         return;// ダミーウィンドウ外なら何もしない
 
+
     // 入力処理の実装
     // マウスホバーによる選択
     if(!isMovingSelectedNote_)
@@ -979,6 +1092,15 @@ void BeatMapEditor::HandleInput()
                     SelectNote(actualNoteIndex, multiSelect);
                     selected = true;
                     isMovingSelectedNote_ = true; // 選択したノートを移動可能にするフラグを立てる
+
+                    moveState_.isMoving = true; // ノート移動状態を開始
+                    moveState_.movingIndices = selectedNoteIndices_;
+                    moveState_.originalTimes.clear();
+                    for (size_t index : selectedNoteIndices_)
+                    {
+                        moveState_.originalTimes.push_back(currentBeatMapData_.notes[index].targetTime); // 元の時間を保存
+                    }
+
                 }
             }
             else
@@ -1005,11 +1127,10 @@ void BeatMapEditor::HandleInput()
         }
     }
 
-    if (isMovingSelectedNote_ && input_->IsMouseReleased(0))
-    {
-        isMovingSelectedNote_ = false; // マウスの左ボタンが離されたとき、移動フラグを下ろす
-        SortNotesByTime();
-    }
+
+    if (currentEditorMode_ != EditorMode::Select)
+        moveState_.isMoving = false;
+
 
     if (isMovingSelectedNote_)
     {
@@ -1017,8 +1138,15 @@ void BeatMapEditor::HandleInput()
         Vector2 mousePos = input_->GetMousePosition();
 
         float newTime = editorCoordinate_.ScreenYToTime(mousePos.y);
-        MoveSelectedNote(newTime); // 選択されたノートの時間を更新
+        MoveSelectedNoteTemporary(newTime); // 選択されたノートの時間を更新
         selected = true; // ノートが移動されたので選択状態にする
+
+        if (input_->IsMouseReleased(0)) // マウスの左ボタンが離されたとき
+        {
+            isMovingSelectedNote_ = false; // 移動フラグを下ろす
+            ConfirmMoveSelectedMove();
+            moveState_.isMoving = false;
+        }
     }
 
     static float selectHoldNoteDuration = 0.0f; // ホールドノートの選択時の持続時間
@@ -1084,15 +1212,15 @@ void BeatMapEditor::HandleInput()
     }
 
 
-    // 選択していない
-    if (!selected && mouseInsideEditorArea)
-    {
-        // クリックしたときリセット
-        if (input_->IsMouseTriggered(0))
-        {
-            ClearSelection(); // クリックで選択をクリア
-        }
-    }
+    //// 選択していない
+    //if (!selected && mouseInsideEditorArea)
+    //{
+    //    // クリックしたときリセット
+    //    if (input_->IsMouseTriggered(0))
+    //    {
+    //        ClearSelection(); // クリックで選択をクリア
+    //    }
+    //}
 
     // ホイールでスクロール
     float wheelDelta = input_->GetMouseWheel();
@@ -1274,7 +1402,7 @@ void BeatMapEditor::HandleInput()
         editorCoordinate_.SetScrollOffset(scrollOffset_);
     }
 
-    if (input_->IsKeyTriggered(DIK_ESCAPE) && mouseInsideEditorArea)
+    if (input_->IsKeyTriggered(DIK_ESCAPE))
     {
         // ESCキーで選択をクリア
         ClearSelection();
@@ -1397,7 +1525,10 @@ void BeatMapEditor::CheckSelectionArea()
     float top = (std::min)(areaStart.y, areaEnd.y);
     float bottom = (std::max)(areaStart.y, areaEnd.y);
 
-    selectedNoteIndices_.clear(); // 選択中のノートインデックスをクリア
+
+    if (right - left >= 30.0f && bottom - top >= 30.0f)
+        selectedNoteIndices_.clear(); // 選択中のノートインデックスをクリア
+
 
     for (size_t i = 0; i < noteIndex_; ++i) // 現在描画中のノート数まで
     {
@@ -1414,6 +1545,7 @@ void BeatMapEditor::CheckSelectionArea()
             noteY >= top    &&
             noteY <= bottom)
         {
+            //SelectNote(actualNoteIndex, true);
             selectedNoteIndices_.push_back(actualNoteIndex); // 選択中のノートインデックスに追加
         }
     }

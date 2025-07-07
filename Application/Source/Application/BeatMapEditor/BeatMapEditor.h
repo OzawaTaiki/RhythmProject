@@ -143,7 +143,12 @@ private:
     /// 選択中のノートを移動
     /// </summary>
     /// <param name="_deltaTime">新しい時間</param>
-    void MoveSelectedNote(float _newTime);
+    void MoveSelectedNoteTemporary(float _newTime);
+
+    /// <summary>
+    /// 選択中のノートを移動確定
+    /// </summary>
+    void ConfirmMoveSelectedMove();
 
     /// <summary>
     /// ライブマッピングを適用
@@ -258,6 +263,17 @@ private:
     /// </summary>
     void DrawSelectionArea();
 
+
+
+
+    ///=======================================
+    /// UI分割
+
+    void DrawLeftPanel();
+    void DrawRightPanel();
+
+
+
 private:
     enum class EditorMode
     {
@@ -271,6 +287,20 @@ private:
         Count // モードの数
     };
 
+    struct NoteColor
+    {
+        Vector4 defaultColor;
+        Vector4 hoverColor;
+        Vector4 selectedColor;
+    };
+
+    struct MoveState
+    {
+        bool isMoving = false; // 移動中フラグ
+        std::vector<float> originalTimes; // 元の時間
+        std::vector<size_t> movingIndices; // 移動対象のノートインデックス
+
+    };
 private:
     // ========================================
     // システム依存関係
@@ -320,6 +350,7 @@ private:
     bool isMovingSelectedNote_ = false;
     int32_t lastSelectedNoteIndex_ = -1;
     bool isRangeSelected_ = false;
+    MoveState moveState_;
 
     // ========================================
     // ロングノート編集状態
@@ -348,11 +379,6 @@ private:
     // ========================================
     // ノート色設定
     // ========================================
-    struct NoteColor {
-        Vector4 defaultColor;
-        Vector4 hoverColor;
-        Vector4 selectedColor;
-    };
     NoteColor normalNoteColor_;
     NoteColor longNoteColor_;
 
