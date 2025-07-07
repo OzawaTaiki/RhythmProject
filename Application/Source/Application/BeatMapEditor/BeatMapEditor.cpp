@@ -32,7 +32,8 @@ void BeatMapEditor::Initialize()
     lineDrawer_ = LineDrawer::GetInstance();
 
     beatMapLoader_ = BeatMapLoader::GetInstance();
-    editorCoordinate_.Initialize(Vector2(1280.0f, 720.0f), 4); // 初期画面サイズとレーン数を設定
+    Vector2 laneAreaSize = Vector2(1280.0f - 600.0f-120.0f, 720.0f); // レーンエリアのサイズを設定
+    editorCoordinate_.Initialize(laneAreaSize); // 初期画面サイズとレーン数を設定
     editorCoordinate_.SetTimeZeroOffsetRatio(0.1f);
 
     beatManager_ = std::make_unique<BeatManager>();
@@ -162,11 +163,18 @@ void BeatMapEditor::Initialize()
     areaSelectionSprite_->SetSize(Vector2(0.0f, 0.0f)); // 範囲選択の初期サイズを設定
 
 
+    dummy_editLaneArea_ = std::make_unique<UISprite>();
+    dummy_editLaneArea_->Initialize("DummySprite");
+    dummy_editLaneArea_->SetPos(Vector2(editorCoordinate_.GetEditAreaX(), editorCoordinate_.GetTopMargin()));
+    dummy_editLaneArea_->SetAnchor(Vector2(0.0f, 0.0f));// ダミースプライトのアンカーを左上に設定
+    dummy_editLaneArea_->SetSize(Vector2(editorCoordinate_.GetEditAreaWidth(), editorCoordinate_.GetEditAreaHeight())); // ダミースプライトのサイズを設定
+
     dummy_editArea_ = std::make_unique<UISprite>();
-    dummy_editArea_->Initialize("DummySprite");
-    dummy_editArea_->SetPos(Vector2(editorCoordinate_.GetEditAreaX(), editorCoordinate_.GetTopMargin()));
-    dummy_editArea_->SetAnchor(Vector2(0.0f, 0.0f));// ダミースプライトのアンカーを左上に設定
-    dummy_editArea_->SetSize(Vector2(editorCoordinate_.GetEditAreaWidth(), editorCoordinate_.GetEditAreaHeight())); // ダミースプライトのサイズを設定
+    dummy_editArea_->Initialize("DummyEditAreaSprite");
+    dummy_editArea_->SetPos(Vector2(300.0f, 0.0f));
+    dummy_editArea_->SetAnchor(Vector2(0.0f, 0.0f)); // ダミーエディットエリアのアンカーを左上に設定
+    dummy_editArea_->SetSize(Vector2(1280.0f - 600.0f, 720.0f)); // ダミーエディットエリアのサイズを設定
+
 
     dummy_window_ = std::make_unique<UISprite>();
     dummy_window_->Initialize("DummyWindowSprite");
@@ -377,13 +385,147 @@ void BeatMapEditor::DrawUI()
     DrawLeftPanel();
     DrawRightPanel();
     return;
-    FileFilterBuilder filterBuilder;
-    filterBuilder.AddSeparateExtensions(FileFilterBuilder::FilterType::DataFiles);
-    static std::string filter  = filterBuilder.Build();
 
-    ImGui::Begin("BeatMap Editor");
+#endif // _DEBUG
+}
+
+
+void BeatMapEditor::DrawLeftPanel()
+{
+#ifdef _DEBUG
+
+    // Modeの表示
+    // BPM offset snap
+
+    const float menuHeight = 18.0f;
+    const ImVec2 panelSize(300.0f, 720.0f - menuHeight); // 左パネルのサイズを設定
+    const ImVec2 panelPos(0.0f, menuHeight); // 左パネルの位置を設定
+
+    ImGui::SetNextWindowPos(panelPos); // パネルの位置を設定
+    ImGui::SetNextWindowSize(panelSize); // パネルのサイズを設定
+
+    const float spacing = 10.0f; // パネル内のスペーシングを設定
+
+    ImGui::Begin("Editor Controls", nullptr,
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
     {
-        //ImGuiHelper::InputText("File Path", currentFilePath_); // ファイルパスの入力フィールド
+        ImGui::SeparatorText("Editor Mode");
+        int* currentEditorModePtr = reinterpret_cast<int*>(&currentEditorMode_);
+        ImGui::RadioButton("Select", currentEditorModePtr, static_cast<int>(EditorMode::Select));
+        ImGui::RadioButton("Note", currentEditorModePtr, static_cast<int>(EditorMode::PlaceNormalNote));
+        ImGui::RadioButton("Long Note", currentEditorModePtr, static_cast<int>(EditorMode::PlaceLongNote));
+
+        ImGui::Dummy(ImVec2(0.0f, spacing)); // スペーシングを追加
+
+        ImGui::SeparatorText("BPM");
+        if (ImGui::DragFloat("BPM", &currentBeatMapData_.bpm, 0.1f, 0.1f, 1000.0f, " %.1f")) // BPMの入力フィールド
+            beatManager_->SetBPM(currentBeatMapData_.bpm); // BPMを設定
+
+        ImGui::Dummy(ImVec2(0.0f, spacing)); // スペーシングを追加
+
+        ImGui::SeparatorText("Offset");
+        if (ImGui::DragFloat("Offset", &currentBeatMapData_.offset, 0.01f, -100.0f, 100.0f, " %.3f s")) // オフセットの入力フィールド
+            beatManager_->SetOffset(currentBeatMapData_.offset); // オフセットを設定
+
+        ImGui::Dummy(ImVec2(0.0f, spacing)); // スペーシングを追加
+
+        ImGui::SeparatorText("Snap Settings");
+        static int snapIntervalIndex = 2; // デフォルトのスナップ間隔を1/4に設定
+        ImGui::RadioButton("1/1", &snapIntervalIndex, 0);
+        ImGui::RadioButton("1/2", &snapIntervalIndex, 1);
+        ImGui::RadioButton("1/4", &snapIntervalIndex, 2);
+        ImGui::RadioButton("1/8", &snapIntervalIndex, 3);
+        ImGui::RadioButton("1/16", &snapIntervalIndex, 4);
+        snapInterval_ = 1.0f / std::powf(2.0f, static_cast<float>(snapIntervalIndex)); // スナップ間隔を計算
+        ImGui::Checkbox("Grid Snap", &gridSnapEnabled_); // グリッドスナップのチェックボックス
+
+        ImGui::Dummy(ImVec2(0.0f, spacing)); // スペーシングを追加
+
+        ImGui::SeparatorText("Music");
+        ImGui::Text("Music File: %s", currentBeatMapData_.audioFilePath.empty() ? "None" : StringUtils::GetAfterLast(currentBeatMapData_.audioFilePath, "\\").c_str());
+
+        ImGui::Text("Music Duration: %.2f seconds", musicSoundInstance_ ? musicSoundInstance_->GetDuration() : 0.0f); // 音楽の再生時間を表示
+        if (ImGui::DragFloat("Volume", &volume_, 0.01f, 0.0f, 1.0f, " %.2f")) // 音量の入力フィールド
+            if (musicVoiceInstance_)
+                musicVoiceInstance_->SetVolume(volume_); // 音量を設定
+
+        if (ImGui::Button("Load Music"))
+        {
+            std::string musicFilePath = FileDialog::OpenFile(FileFilterBuilder::GetFilterString(FileFilterBuilder::FilterType::AudioFiles));
+            if (!musicFilePath.empty())
+            {
+                // 音楽ファイルのパスを設定
+                currentBeatMapData_.audioFilePath = musicFilePath;
+                // 音楽をロード
+                musicSoundInstance_ = AudioSystem::GetInstance()->Load(musicFilePath);
+            }
+        }
+        ImGui::BeginDisabled(!musicSoundInstance_); // 音楽がロードされていない場合は無効化
+        {
+            if (ImGui::Button("Play Begin"))
+            {
+                RestartMusic();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Play Current Time"))
+            {
+                PlayMusic();
+            }
+            ImGui::SameLine();
+            ImGui::BeginDisabled(!musicVoiceInstance_ || !musicVoiceInstance_->IsPlaying()); // 音楽が再生中でない場合は無効化
+            {
+                if (ImGui::Button("Stop Music"))
+                {
+                    StopMusic();
+                }
+            }
+            ImGui::EndDisabled(); // 無効化終了
+        }
+        ImGui::EndDisabled(); // 音楽がロードされていない場合は無効化終了
+
+
+        ImGui::Checkbox("enable Beats", &enableBeats_);
+    }
+
+    ImGui::End();
+
+#endif
+}
+
+void BeatMapEditor::DrawRightPanel()
+{
+
+#ifdef _DEBUG
+
+    // File 情報
+    // 選択ノートの情報
+    // beatMapInfoの情報 noteの総数 楽曲時間
+
+    const float menuHeight = 18.0f;
+    const ImVec2 panelSize(300.0f, 720.0f - menuHeight); // 左パネルのサイズを設定
+    const ImVec2 panelPos(1280.0f - panelSize.x, menuHeight); // 左パネルの位置を設定
+
+    ImGui::SetNextWindowPos(panelPos); // パネルの位置を設定
+    ImGui::SetNextWindowSize(panelSize); // パネルのサイズを設定
+
+    const float spacing = 10.0f; // パネル内のスペーシングを設定
+
+    ImGui::Begin("Information", nullptr,
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+    {
+        ImGui::SeparatorText("BeatMap Info");
+
+        ImGui::Dummy(ImVec2(0.0f, spacing)); // スペーシングを追加
+
+        ImGui::Text("Current File:");
+        ImGui::Text("\t%s", currentFilePath_.empty() ? "None" : StringUtils::GetAfterLast(currentFilePath_, "\\").c_str());
+
+
+        ImGui::Dummy(ImVec2(0.0f, spacing)); // スペーシングを追加
+
+        FileFilterBuilder filterBuilder;
+        filterBuilder.AddSeparateExtensions(FileFilterBuilder::FilterType::DataFiles);
+        static std::string filter = filterBuilder.Build();
 
         if (ImGui::Button("Load BeatMap"))
         {
@@ -416,7 +558,7 @@ void BeatMapEditor::DrawUI()
             ImGui::DragFloat("BPM", &currentBeatMapData_.bpm, 0.1f, 0.1f, 1000.0f); // BPMの入力フィールド
             ImGui::DragFloat("Offset", &currentBeatMapData_.offset, 0.01f, -100.0f, 100.0f); // オフセットの入力フィールド
 
-            if(ImGui::Button("ok"))
+            if (ImGui::Button("ok"))
             {
                 SaveBeatMap(currentFilePath_); // 譜面の保存
                 ImGui::CloseCurrentPopup();
@@ -430,148 +572,28 @@ void BeatMapEditor::DrawUI()
             ImGui::EndPopup();
         }
 
-        if(ImGui::CollapsingHeader("Information", ImGuiTreeNodeFlags_DefaultOpen))
+        ImGui::Dummy(ImVec2(0.0f, spacing / 2.0f)); // スペーシングを追加
+        ImGui::Text("Notes : %zu", currentBeatMapData_.notes.size());
+
+        ImGui::Dummy(ImVec2(0.0f, spacing)); // スペーシングを追加
+
+
+
+        ImGui::SeparatorText("Notes Info");
+
+        if (!selectedNoteIndices_.empty())
         {
-            ImGui::SeparatorText("BeatMap Info");
-            ImGui::Text("Current File: %s", currentFilePath_.empty() ? "None" : currentFilePath_.c_str());
-            ImGui::Text("BPM: %.2f", currentBeatMapData_.bpm);
-            ImGui::Text("Offset: %.2f", currentBeatMapData_.offset);
-            ImGui::Text("Notes Count: %zu", currentBeatMapData_.notes.size());
+            ImGui::Text("Selected Notes: ");
+            ImGui::Text("\t%zu", selectedNoteIndices_.size());
+            ImGui::Dummy(ImVec2(0.0f, spacing)); // スペーシングを追加
 
-            ImGui::SeparatorText("Editor State");
-            ImGui::Text("Current Time: %.2f", currentTime_);
-            ImGui::Text("Is Playing: %s", isPlaying_ ? "Yes" : "No");
-            ImGui::Text("Scroll Offset: %.2f", scrollOffset_);
-            ImGui::Text("Selected Notes: %zu", selectedNoteIndices_.size());
-            ImGui::Text("Grid Snap: %s", gridSnapEnabled_ ? "Enabled" : "Disabled");
+            const size_t kMaxViewableNotes = 5; // 表示可能なノートの最大数
 
-        }
-
-
-        ImGui::DragFloat("Current Time", &currentTime_, 0.01f, 0.0f, 1000.0f);
-        static float zoom = 0;
-        zoom = editorCoordinate_.GetZoom();
-        if(ImGui::DragFloat("Zoom", &zoom, 0.01f, 0.1f, 10.0f))
-        {
-            editorCoordinate_.SetZoom(zoom); // ズームレベルを設定
-        }
-        if (ImGui::Button("Play"))
-        {
-            isPlaying_ = !isPlaying_; // 再生/一時停止の切り替え
-            PlayMusic();
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Stop"))
-        {
-            isPlaying_ = false; // 停止
-            currentTime_ = 0.0f; // 時間をリセット
-        }
-        ImGui::Checkbox("Grid Snap", &gridSnapEnabled_); // グリッドスナップのチェックボックス
-        ImGui::Checkbox("enable Beats", &enableBeats_);
-        // グリッドスナップの間隔を選択するラジオボタン
-        static int snapIntervalIndex = 2;
-        ImGui::RadioButton("1/1", &snapIntervalIndex, 0);
-        ImGui::RadioButton("1/2", &snapIntervalIndex, 1);
-        ImGui::RadioButton("1/4", &snapIntervalIndex, 2);
-        ImGui::RadioButton("1/8", &snapIntervalIndex, 3);
-        ImGui::RadioButton("1/16", &snapIntervalIndex, 4);
-        snapInterval_ = 1.0f / std::powf(2.0f, static_cast<float>(snapIntervalIndex));
-
-        if(ImGui::DragFloat("music Offset", &currentBeatMapData_.offset, 0.001f)) // 音楽のオフセットを調整するフィールド
-            beatManager_->SetOffset(currentBeatMapData_.offset);
-        if(ImGui::DragFloat("BPM", &currentBeatMapData_.bpm, 0.1f)) // BPMの入力フィールド
-            beatManager_->SetBPM(currentBeatMapData_.bpm);
-
-        bool bpmSetting = currentEditorMode_ == EditorMode::BPMSetting;
-        if (ImGui::Checkbox("BPM Setting", &bpmSetting)) // BPM設定モードのチェックボックス
-        {
-            if(bpmSetting)
+            for (size_t i = 0; i < selectedNoteIndices_.size() && i < kMaxViewableNotes; ++i)
             {
-                preCurrentEditorMode_ = currentEditorMode_; // 現在のエディターモードを保存
-                currentEditorMode_ = EditorMode::BPMSetting; // BPM設定モードに切り替え
-                tapBPMCounter_.Reset();
-            }
-            else
-            {
-                currentEditorMode_ = preCurrentEditorMode_; // 元のエディターモードに戻す
-                if (voiceInstanceForBPMSet_ && voiceInstanceForBPMSet_->IsPlaying())
-                {
-                    voiceInstanceForBPMSet_->Stop();
-                    voiceInstanceForBPMSet_.reset();
-                }
-            }
-        }
-
-
-        ImGui::SeparatorText("Music Control");
-        if (ImGui::Button("Load Music"))
-        {
-            std::string musicFilePath = FileDialog::OpenFile(FileFilterBuilder::GetFilterString(FileFilterBuilder::FilterType::AudioFiles));
-
-            if (!musicFilePath.empty())
-            {
-                // 音楽ファイルのパスを設定
-                currentBeatMapData_.audioFilePath = musicFilePath;
-                // 音楽をロード
-                musicSoundInstance_ = AudioSystem::GetInstance()->Load(musicFilePath);
-            }
-        }
-        ImGui::BeginDisabled(!musicSoundInstance_ ); // 音楽がロードされていない場合は無効化
-        {
-            if(ImGui::Button("Play Begin"))
-            {
-                RestartMusic();
-            }
-            ImGui::SameLine();
-
-            if (ImGui::Button("Play Curren Time"))
-            {
-                PlayMusic();
-            }
-            ImGui::SameLine();
-            ImGui::BeginDisabled(!musicVoiceInstance_|| !musicVoiceInstance_->IsPlaying()); // 音楽が再生中でない場合は無効化
-            {
-                if (ImGui::Button("Stop Music"))
-                {
-                    StopMusic();
-                }
-            }
-            ImGui::EndDisabled(); // 無効化終了
-        }
-        ImGui::EndDisabled();
-
-
-
-        ImGui::Text("Music File : %s", currentBeatMapData_.audioFilePath.empty() ? "None" : currentBeatMapData_.audioFilePath.c_str());
-        ImGui::Text("Music Duration: %.2f seconds", musicSoundInstance_ ? musicSoundInstance_->GetDuration() : 0.0f); // 音楽の再生時間を表示
-        if (ImGui::DragFloat("Volume", &volume_, 0.01f, 0.0f, 1.0f)) // 音量の入力フィールド
-        {
-            if (musicVoiceInstance_)
-                musicVoiceInstance_->SetVolume(volume_);
-        }
-
-        if (ImGui::Button("Reset LiveMapping"))
-        {
-            liveMapping_.ResetMappingData(); // ライブマッピングのリセット
-        }
-        if (ImGui::Button("Apply LiveMapping"))
-        {
-            ApplyLiveMapping(); // ライブマッピングの適用
-        }
-    }
-    ImGui::End();
-
-    if (!selectedNoteIndices_.empty())
-    {
-        if (ImGuiDebugManager::GetInstance()->Begin("NoteInfo"))
-        {
-
-            ImGui::Text("Selected Notes: %zu", selectedNoteIndices_.size());
-            for (const auto& index : selectedNoteIndices_)
-            {
-                const NoteData& note = currentBeatMapData_.notes[index];
+                const NoteData& note = currentBeatMapData_.notes[selectedNoteIndices_[i]];
                 ImGui::Separator();
-                ImGui::Text("Note Index: %zu", index);
+                ImGui::Text("Note Index: %zu", selectedNoteIndices_[i]);
                 ImGui::Text("\tLane: %d", note.laneIndex);
                 ImGui::Text("\tTime: %.2f", note.targetTime);
                 ImGui::Text("\tType: %s", note.noteType.c_str());
@@ -579,54 +601,14 @@ void BeatMapEditor::DrawUI()
                 {
                     ImGui::Text("\tHold Duration: %.2f", note.holdDuration);
                 }
+                ImGui::Dummy(ImVec2(0.0f, spacing)); // スペーシングを追加
+
             }
-
-
-
-            ImGui::End();
+            if (selectedNoteIndices_.size() > kMaxViewableNotes)
+            {
+                ImGui::Text("...and %zu more notes", selectedNoteIndices_.size() - kMaxViewableNotes);
+            }
         }
-    };
-
-#endif // _DEBUG
-}
-
-
-void BeatMapEditor::DrawLeftPanel()
-{
-#ifdef _DEBUG
-
-    const float menuHeight = 18.0f;
-    const ImVec2 panelSize(300.0f, 720.0f - menuHeight); // 左パネルのサイズを設定
-    const ImVec2 panelPos(0.0f, menuHeight); // 左パネルの位置を設定
-
-    ImGui::SetNextWindowPos(panelPos); // パネルの位置を設定
-    ImGui::SetNextWindowSize(panelSize); // パネルのサイズを設定
-
-    ImGui::Begin("Editor Controls", nullptr,
-        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
-    {
-
-    }
-    ImGui::End();
-
-#endif
-}
-
-void BeatMapEditor::DrawRightPanel()
-{
-
-#ifdef _DEBUG
-
-    const float menuHeight = 18.0f;
-    const ImVec2 panelSize(300.0f, 720.0f - menuHeight); // 左パネルのサイズを設定
-    const ImVec2 panelPos(1280.0f - panelSize.x, menuHeight); // 左パネルの位置を設定
-
-    ImGui::SetNextWindowPos(panelPos); // パネルの位置を設定
-    ImGui::SetNextWindowSize(panelSize); // パネルのサイズを設定
-
-    ImGui::Begin("Information", nullptr,
-        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
-    {
 
     }
     ImGui::End();
@@ -865,6 +847,21 @@ NoteData BeatMapEditor::DeleteNote(size_t _noteIndex)
     return deletedNote; // 削除したノートのデータを返す
 }
 
+NoteData BeatMapEditor::DeleteNote(uint32_t _laneIndex, float _targetTime)
+{
+    // 指定されたレーンと時間に一致するノートを検索
+    for (size_t i = 0; i < currentBeatMapData_.notes.size(); ++i)
+    {
+        const NoteData& note = currentBeatMapData_.notes[i];
+        if (note.laneIndex == _laneIndex && std::abs(note.targetTime - _targetTime) < 0.05f) // 時間の許容範囲を設定
+        {
+            return DeleteNote(i); // 一致するノートを削除
+        }
+    }
+    Debug::Log("No note found at lane " + std::to_string(_laneIndex) + " at time " + std::to_string(_targetTime) + "\n");
+    return NoteData{}; // 一致するノートがない場合は空のNoteDataを返す
+}
+
 void BeatMapEditor::InsertNote(const NoteData& _note)
 {
     currentBeatMapData_.notes.push_back(_note); // ノートを追加
@@ -1052,9 +1049,12 @@ void BeatMapEditor::HandleInput()
         commandHistory_.Redo(); // Ctrl + Yでリドゥ
     }
 
+    if(input_->IsKeyTriggered(DIK_B))
+        enableBeats_ = !enableBeats_; // Bキーでビートの有無を切り替え
+
     bool selected = false;
     // マウスがエディターエリア内にあるかチェック
-    bool mouseInsideEditorArea = dummy_editArea_->IsMousePointerInside();
+    bool mouseInsideEditorArea = dummy_editLaneArea_->IsMousePointerInside();
     if (!dummy_window_->IsMousePointerInside())
         return;// ダミーウィンドウ外なら何もしない
 
@@ -1149,6 +1149,7 @@ void BeatMapEditor::HandleInput()
         }
     }
 
+
     static float selectHoldNoteDuration = 0.0f; // ホールドノートの選択時の持続時間
     for (size_t i = 0; i < holdNoteIndex_; ++i)
     {
@@ -1212,21 +1213,11 @@ void BeatMapEditor::HandleInput()
     }
 
 
-    //// 選択していない
-    //if (!selected && mouseInsideEditorArea)
-    //{
-    //    // クリックしたときリセット
-    //    if (input_->IsMouseTriggered(0))
-    //    {
-    //        ClearSelection(); // クリックで選択をクリア
-    //    }
-    //}
-
     // ホイールでスクロール
     float wheelDelta = input_->GetMouseWheel();
     if (wheelDelta != 0.0f)
     {
-        if (!mouseInsideEditorArea)
+        if (!mouseInsideEditorArea && dummy_editArea_->IsMousePointerInside())
         {
                 // スクロール量に応じて時間を更新
             float addedTime = wheelDelta * 0.1f / editorCoordinate_.GetZoom();
@@ -1240,7 +1231,7 @@ void BeatMapEditor::HandleInput()
             scrollOffset_ = (std::max)(scrollOffset_, 0.0f);
             editorCoordinate_.SetScrollOffset(scrollOffset_); // スクロールオフセットを更新
         }
-        else
+        else if(mouseInsideEditorArea)
         {
             float addedZoom = wheelDelta * 0.1f; // ホイールの動きに応じてズームを調整
             if (input_->IsKeyPressed(DIK_LSHIFT))
@@ -1394,6 +1385,29 @@ void BeatMapEditor::HandleInput()
         }
     }
 
+    if (input_->IsKeyTriggered(DIK_DELETE))
+    {
+        // 選択されたノートを削除
+        if (!selectedNoteIndices_.empty())
+        {
+            std::vector<uint32_t> selectedNoteIndices;
+            for (size_t index : selectedNoteIndices_)
+            {
+                if (index < currentBeatMapData_.notes.size())
+                {
+                    selectedNoteIndices.push_back(index); // 有効なノートインデックスのみ追加
+                }
+            }
+            if (!selectedNoteIndices.empty())
+            {
+                auto command = std::make_unique<DeleteNoteCommand>(this, selectedNoteIndices);
+                commandHistory_.ExecuteCommand(std::move(command)); // 選択されたノートを削除コマンドを実行
+            }
+            selectedNoteIndices_.clear(); // 選択状態をクリア
+            isModified_ = true; // 譜面が変更されたフラグを立てる
+        }
+
+    }
 
     if (input_->IsKeyPressed(DIK_LCONTROL) && input_->IsKeyTriggered(DIK_DOWN))
     {
