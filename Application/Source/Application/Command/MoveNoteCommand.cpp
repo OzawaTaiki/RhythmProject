@@ -32,7 +32,6 @@ void MoveNoteCommand::Execute()
         float newTime = originalTimes_[i] + deltaTime_;
         beatMapEditor_->SetNoteTime(index, newTime);
     }
-    beatMapEditor_->SortNotesByTime(); // ノートを時間順にソート
 }
 
 void MoveNoteCommand::Undo()
@@ -54,5 +53,4 @@ void MoveNoteCommand::Undo()
             beatMapEditor_->SetNoteTime(static_cast<size_t>(noteIndex), originalTimes_[i]);
         }
     }
-    beatMapEditor_->SortNotesByTime(); // ノートを時間順にソート
 }
