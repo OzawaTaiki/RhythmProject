@@ -18,7 +18,7 @@ public:
     /// </summary>
     /// <param name="_screenSize">画面サイズ</param>
     /// <param name="_laneCount">レーン数(デフォルト4)</param>
-    void Initialize(const Vector2& _screenSize, uint32_t _laneCount = 4);
+    void Initialize(const Vector2& _screenSize, const Vector2& _areaCenter = { 640,360 }, uint32_t _laneCount = 4);
 
     /// <summary>
     /// 画面サイズを設定
@@ -33,7 +33,7 @@ public:
     /// <param name="_height">画面高さ</param>
     void SetScreenSize(float _width, float _height);
 
-    
+
     float GetLaneLeftX(uint32_t _laneIndex) const;
     float GetLaneRightX(uint32_t _laneIndex) const;
 
@@ -161,6 +161,8 @@ private:
 
     Vector2 screenSize_; // 画面サイズ
     uint32_t laneCount_; // レーン数
+
+    Vector2 areaCenter_;
 
     // レイアウト設定
     float editAreaX_;        // 編集エリアの左端X座標

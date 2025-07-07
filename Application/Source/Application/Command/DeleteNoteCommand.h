@@ -9,6 +9,7 @@ class DeleteNoteCommand : public ICommand
 public:
 
     DeleteNoteCommand(BeatMapEditor* _beatMapEditor, uint32_t _noteIndex);
+    DeleteNoteCommand(BeatMapEditor* _beatMapEditor, std::vector<uint32_t> _noteIndex);
 
     void Execute() override;
     void Undo() override;
@@ -17,6 +18,6 @@ public:
 private:
 
     BeatMapEditor* beatMapEditor_ = nullptr; // BeatMapEditorのポインタ
-    uint32_t noteIndex_ = 0; // 削除するノートのインデックス
-    NoteData deletedNoteData_; // 削除したノートのデータを保存
+    std::vector<uint32_t> noteIndex_; // 削除するノートのインデックス
+    std::vector<NoteData> deletedNoteData_; // 削除したノートのデータを保存
 };

@@ -3,6 +3,7 @@
 
 EditorCoordinate::EditorCoordinate() :
     screenSize_(1280.0f, 720.0f),
+    areaCenter_(640.0f, 360.0f), // 初期エリアセンター
     laneCount_(4),
     editAreaX_(100.0f),
     editAreaWidth_(400.0f),
@@ -20,11 +21,12 @@ EditorCoordinate::EditorCoordinate() :
 {
 }
 
-void EditorCoordinate::Initialize(const Vector2& _screenSize, uint32_t _laneCount)
+void EditorCoordinate::Initialize(const Vector2& _screenSize, const Vector2& _areaCenter, uint32_t _laneCount)
 {
     screenSize_ = _screenSize;
     laneCount_ = _laneCount;
 
+    areaCenter_ = _areaCenter;
 
     UpdateLayout();
     InvalidateVisibleRange();
@@ -282,8 +284,8 @@ void EditorCoordinate::UpdateLayout()
     // 編集エリアのレイアウト計算
     // 画面の中央部分をエディット領域として使用
     float sideMargin = screenSize_.x * 0.1f;  // 左右10%をマージン
-    editAreaX_ = sideMargin;
-    editAreaWidth_ = screenSize_.x - (sideMargin * 2.0f);
+    editAreaX_ = areaCenter_.x - screenSize_.x / 2.0f + sideMargin;
+    editAreaWidth_ = screenSize_.x - (sideMargin * 2.0f) ;
 
     // レーン幅計算（4レーン等分）
     laneMargin_ = editAreaWidth_ * 0.02f;  // レーン間の余白（全体の2%）

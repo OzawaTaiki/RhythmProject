@@ -55,7 +55,16 @@ public:
     /// ノートを削除
     /// </summary>
     /// <param name="_noteIndex">削除するノートのインデックス</param>
+    /// <returns>削除されたノートデータ</returns>
     NoteData DeleteNote(size_t _noteIndex);
+
+    /// <summary>
+    /// ノートを削除
+    /// </summary>
+    /// <param name="_laneIndex"> レーンインデックス</param>
+    /// <param name="_targetTime"> ターゲット時間</param>
+    /// <returns> 削除されたノートデータ</returns>
+    NoteData DeleteNote(uint32_t _laneIndex, float _targetTime);
 
 
     /// <summary>
@@ -405,8 +414,9 @@ private:
 
     // 選択・判定用
     std::unique_ptr<UISprite> areaSelectionSprite_;
-    std::unique_ptr<UISprite> dummy_editArea_;
+    std::unique_ptr<UISprite> dummy_editLaneArea_;
     std::unique_ptr<UISprite> dummy_window_;
+    std::unique_ptr<UISprite> dummy_editArea_;
 
     // ========================================
     // 特殊機能
