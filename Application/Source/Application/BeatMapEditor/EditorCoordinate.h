@@ -111,7 +111,6 @@ public:
     /// <returns>グリッドラインのY座標リスト</returns>
     std::vector<std::pair<float, int32_t>> GetGridLinesY(float _bpm, int _division = 4) const;
 
-
     /// <summary>
     /// 時間をグリッドにスナップ
     /// </summary>
@@ -129,7 +128,7 @@ public:
     /// <returns>画面内にある場合true</returns>
     bool IsNoteVisible(float _noteTime) const;
 
-
+    void SetOffsetTime(float _offsetTime) { offsetTime_ = _offsetTime; InvalidateVisibleRange(); }
 
 
     // ========================================
@@ -145,6 +144,9 @@ public:
     float GetEditAreaWidth() const { return editAreaWidth_; }
     float GetLaneMargin() const { return laneMargin_; }
     float GetTimeZeroOffsetRatio() const { return timeZeroOffsetRatio_; }
+    float GetAreaCenterX() const { return areaCenter_.x; }
+    float GetAreaCenterY() const { return areaCenter_.y; }
+    float GetOffsetTime() const { return offsetTime_; }
 
     float GetTopMargin() const { return topMargin_; }
     float GetBottomMargin() const { return bottomMargin_; }
@@ -184,4 +186,5 @@ private:
     mutable bool visibleRangeDirty_;
 
     float timeZeroOffsetRatio_;
+    float offsetTime_ = 0.0f;
 };
