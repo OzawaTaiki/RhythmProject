@@ -195,6 +195,8 @@ std::vector<std::pair<float, int32_t>>  EditorCoordinate::GetGridLinesY(float _b
     float start, end;
     GetVisibleTimeRange(start, end);
 
+    start -= offsetTime_; // オフセット時間を引く
+    end -= offsetTime_; // オフセット時間を引く
 
     int32_t startIndex = static_cast<int32_t>(std::floorf(start / gridInterval)); // 開始グリッドのインデックス
     int32_t endIndex = static_cast<int32_t>(std::ceilf(end / gridInterval)); // 終了グリッドのインデックス
@@ -203,7 +205,7 @@ std::vector<std::pair<float, int32_t>>  EditorCoordinate::GetGridLinesY(float _b
     for (int32_t i = startIndex; i <= endIndex; ++i)
     {
         // 累積誤差の影響を受けないように、グリッド時間を都度計算
-        float time = i * gridInterval; // グリッド時間を計算
+        float time = i * gridInterval + offsetTime_; // グリッド時間を計算
         float screenY = TimeToScreenY(time); // Y座標に変換
         if (screenY >= topMargin_ && screenY <= screenSize_.y - bottomMargin_) // 画面内に収まるかチェック
         {
@@ -211,7 +213,7 @@ std::vector<std::pair<float, int32_t>>  EditorCoordinate::GetGridLinesY(float _b
             {
                 int32_t d = divisions[j];
                 float gridUnit = beatInterval / static_cast<float>(d); // 1/n拍の時間（秒）
-                float val = time / gridUnit; // グリッド単位での時間
+                float val = (time - offsetTime_) / gridUnit; // グリッド単位での時間
                 if (std::abs(val - std::roundf(val)) < 1.0e-3f) // 誤差を考慮して分割数が一致するかチェック
                 {
                     gridLines.push_back({ screenY, j }); // Y座標と分割数をペアで保存
@@ -254,14 +256,20 @@ float EditorCoordinate::SnapTimeToGrid(float _time, float _bpm, int _division) c
 {
     if (_bpm <= 0 || _division <= 0)
     {
-        // 無効なBPMまたは分割数
         return _time;
     }
 
-    float beatInterval = 60.0f / _bpm; // 1拍の時間（秒）
-    float gridInterval = beatInterval / _division; // グリッド1つの時間（秒）
+    float beatInterval = 60.0f / _bpm;
+    float gridInterval = beatInterval / _division;
 
-    return std::roundf(_time / gridInterval) * gridInterval; // グリッドにスナップ
+    // 楽曲時間 → 音楽的時間に変換
+    float musicTime = _time - offsetTime_;
+
+    // 音楽的時間でグリッドにスナップ
+    float snappedMusicTime = std::roundf(musicTime / gridInterval) * gridInterval;
+
+    // 音楽的時間 → 楽曲時間に戻す
+    return snappedMusicTime + offsetTime_;
 }
 
 bool EditorCoordinate::IsNoteVisible(float _noteTime) const

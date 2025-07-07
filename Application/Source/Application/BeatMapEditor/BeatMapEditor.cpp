@@ -425,7 +425,10 @@ void BeatMapEditor::DrawLeftPanel()
 
         ImGui::SeparatorText("Offset");
         if (ImGui::DragFloat("Offset", &currentBeatMapData_.offset, 0.01f, -100.0f, 100.0f, " %.3f s")) // オフセットの入力フィールド
+        {
             beatManager_->SetOffset(currentBeatMapData_.offset); // オフセットを設定
+            editorCoordinate_.SetOffsetTime(currentBeatMapData_.offset); // エディターのオフセットを設定
+        }
 
         ImGui::Dummy(ImVec2(0.0f, spacing)); // スペーシングを追加
 
@@ -700,7 +703,7 @@ void BeatMapEditor::LoadBeatMap(const std::string& _beatMapPath)
     {
         return;
     }
-
+     
      auto future = beatMapLoader_->LoadBeatMap(_beatMapPath);
 
     // ロードが完了するまで待機
@@ -709,6 +712,11 @@ void BeatMapEditor::LoadBeatMap(const std::string& _beatMapPath)
         Reset(); // エディターの状態をリセット
         currentBeatMapData_ = beatMapLoader_->GetLoadedBeatMapData();
         currentFilePath_ = _beatMapPath; // 現在のファイルパスを更新
+
+        beatManager_->SetBPM(currentBeatMapData_.bpm); // BPMを設定
+        beatManager_->SetOffset(currentBeatMapData_.offset); // オフセットを設定
+
+        editorCoordinate_.SetOffsetTime(currentBeatMapData_.offset); // エディターのオフセットを設定
 
         std::string musicFilePath = currentBeatMapData_.audioFilePath;
         if (!musicFilePath.empty())
