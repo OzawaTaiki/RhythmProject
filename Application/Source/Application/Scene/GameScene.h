@@ -21,6 +21,11 @@
 #include <Application/BeatsManager/BeatManager.h>
 #include <Application/BeatMapLoader/BeatMapLoader.h>
 
+enum class GameMode
+{
+    Normal,
+    EditorTest
+};
 
 class GameScene : public BaseScene
 {
@@ -71,7 +76,7 @@ private:
     std::unique_ptr<FeedbackEffect> feedbackEffect_ = nullptr;      // フィードバックエフェクト
 
     BeatMapLoader* beatMapLoader_ = nullptr;
-
+    BeatMapData currentBeatMapData_ = {}; // 現在の譜面データ
     //std::unique_ptr<Stopwatch> stopwatch_ = nullptr;
 
     std::unique_ptr<BeatManager> beatManager_ = nullptr;
@@ -87,8 +92,8 @@ private:
     std::shared_ptr<SoundInstance> soundInstance_ = nullptr;
     std::shared_ptr<VoiceInstance> voiceInstance_ = nullptr;
 
-    //test用
-    std::unique_ptr<AnimationSequence> testAnimationSequence_ = nullptr;
+
+    GameMode gameMode_ = GameMode::Normal;
 
     void ImGui();
 

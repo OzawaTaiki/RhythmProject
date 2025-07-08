@@ -191,6 +191,9 @@
     <ClCompile Include="Source\Application\Command\ChangeHoldDurationCommand.cpp">
       <Filter>Application\BeatMapEditor\Command</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Scene\EditorScene.cpp">
+      <Filter>Application\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Essential\SampleFramework.h">
@@ -316,8 +319,11 @@
     <ClInclude Include="Source\Application\Command\ChangeHoldDurationCommand.h">
       <Filter>Application\BeatMapEditor\Command</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Scene\Data\SelectToGameData.h">
+    <ClInclude Include="Source\Application\Scene\Data\SceneDatas.h">
       <Filter>Application\Scene\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Scene\EditorScene.h">
+      <Filter>Application\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

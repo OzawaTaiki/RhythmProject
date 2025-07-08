@@ -17,7 +17,7 @@ public:
     static BeatMapLoader* GetInstance();
 
     std::future<bool> LoadBeatMap(const std::string& _beatMapPath);
-
+    std::future<bool> LoadBeatMap(const BeatMapData& _beatMapData);
     BeatMapData GetLoadedBeatMapData() const { return loadedBeatMapdata_; }
 
     bool IsLoading() const { return isLoading_; }

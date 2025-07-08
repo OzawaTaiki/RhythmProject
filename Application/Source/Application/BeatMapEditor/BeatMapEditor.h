@@ -5,6 +5,7 @@
 #include <Features/LineDrawer/LineDrawer.h>
 #include <System/Audio/SoundInstance.h>
 #include <System/Audio/VoiceInstance.h>
+#include <Features/TextRenderer/TextRenderer.h>
 
 
 #include <Application/BeatMapEditor/EditorCoordinate.h>
@@ -33,12 +34,15 @@ public:
     ~BeatMapEditor() = default;
 
 
-    void Initialize();
+    void Initialize(const BeatMapData& _beatMapData = {});
     void Update();
     void Draw(const Camera* _camera);
     void Finalize();
 
 public:
+
+    bool ToTestMode() const { return toTest_; }
+    BeatMapData GetBeatMapData() const { return currentBeatMapData_; }
 
     /// <summary>
     /// ノートを配置
@@ -111,6 +115,12 @@ public:
 private:
     ///---------------------
     /// ファイル操作
+
+    /// <summary>
+    /// 譜面データを初期化
+    /// </summary>
+    /// <param name="_beatMapData"> 初期化する譜面データ</param>
+    void InitWithBeatMapData(const BeatMapData& _beatMapData);
 
     /// <summary>
     /// 譜面データをロード
@@ -320,6 +330,7 @@ private:
     LineDrawer* lineDrawer_ = nullptr;
     Input* input_ = nullptr;
     Camera for2dCamera_;
+    TextRenderer* textRenderer_ = nullptr;
     BeatMapLoader* beatMapLoader_ = nullptr;
     std::unique_ptr<BeatManager> beatManager_ = nullptr;
     bool enableBeats_ = false;
@@ -433,6 +444,9 @@ private:
     LiveMapping liveMapping_;
     TapBPMCounter tapBPMCounter_;
 
+
+    bool toTest_ = false;
+    TextParam textParam_;
 };
 
 

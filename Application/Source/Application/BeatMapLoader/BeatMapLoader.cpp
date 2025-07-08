@@ -68,6 +68,38 @@ std::future<bool> BeatMapLoader::LoadBeatMap(const std::string& filePath)
         });
 }
 
+std::future<bool> BeatMapLoader::LoadBeatMap(const BeatMapData& _beatMapData)
+{
+    // すでにロード中なら拒否
+    if (isLoading_) {
+        std::promise<bool> promise;
+        promise.set_value(false);
+        return promise.get_future();
+    }
+    // ロード状態初期化
+    isLoading_ = true;
+    isLoadingSuccess_ = false;
+    errorMessage_.clear();
+    // 非同期処理を開始
+    return std::async(std::launch::async, [this, _beatMapData]() {
+        try {
+            // 譜面データを直接設定
+            loadedBeatMapdata_ = _beatMapData;
+            // 成功フラグ設定
+            isLoadingSuccess_ = true;
+        }
+        catch (const std::exception& e) {
+            // エラー発生時
+            errorMessage_ = e.what();
+            isLoadingSuccess_ = false;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(500)); // .5s待機
+        // ロード完了
+        isLoading_ = false;
+        return isLoadingSuccess_;
+        });
+}
+
 
 BeatMapData BeatMapLoader::ParseJsonToBeatMap(const nlohmann::json& _jsonData)
 {

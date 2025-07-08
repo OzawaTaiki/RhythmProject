@@ -119,6 +119,7 @@
     <ClCompile Include="Source\Application\Note\Judge\JudgeResult.cpp" />
     <ClCompile Include="Source\Application\Note\Judge\NoteJudge.cpp" />
     <ClCompile Include="Source\Application\Note\Note.cpp" />
+    <ClCompile Include="Source\Application\Scene\EditorScene.cpp" />
     <ClCompile Include="Source\Application\Scene\GameScene.cpp" />
     <ClCompile Include="Source\Application\Scene\ResultScene.cpp" />
     <ClCompile Include="Source\Application\Scene\SelectScene.cpp" />
@@ -166,7 +167,8 @@
     <ClInclude Include="Source\Application\Note\Judge\NoteJudge.h" />
     <ClInclude Include="Source\Application\Note\Note.h" />
     <ClInclude Include="Source\Application\Note\NoteType.h" />
-    <ClInclude Include="Source\Application\Scene\Data\SelectToGameData.h" />
+    <ClInclude Include="Source\Application\Scene\Data\SceneDatas.h" />
+    <ClInclude Include="Source\Application\Scene\EditorScene.h" />
     <ClInclude Include="Source\Application\Scene\GameScene.h" />
     <ClInclude Include="Source\Application\Scene\ResultScene.h" />
     <ClInclude Include="Source\Application\Scene\SelectScene.h" />

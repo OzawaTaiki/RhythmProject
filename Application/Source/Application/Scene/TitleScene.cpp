@@ -26,14 +26,6 @@ void TitleScene::Initialize(SceneData* _sceneData)
 
 
 
-    //---------------------------------
-    // Application
-    //---------------------------------
-
-    beatMapEditor_ = std::make_unique<BeatMapEditor>();
-    beatMapEditor_->Initialize();
-
-
 }
 
 void TitleScene::Update()
@@ -47,18 +39,6 @@ void TitleScene::Update()
     lightGroup_->ImGui();
 
 #endif // _DEBUG
-
-    /// ---------------------------------
-    /// Application
-    {
-        beatMapEditor_->Update();
-
-
-
-    }
-    /// Application ここまで
-    /// -----------------------------------
-
 
     if (enableDebugCamera_)
     {
@@ -80,7 +60,6 @@ void TitleScene::Update()
 
 void TitleScene::Draw()
 {
-    beatMapEditor_->Draw(&SceneCamera_);
 }
 
 void TitleScene::DrawShadow(){}
