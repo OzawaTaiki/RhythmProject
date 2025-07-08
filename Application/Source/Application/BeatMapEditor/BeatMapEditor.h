@@ -383,7 +383,6 @@ private:
     // ========================================
     // 描画制御・インデックス管理
     // ========================================
-    float scrollOffset_ = 0.0f;
     uint32_t noteIndex_ = 0;
     uint32_t holdNoteIndex_ = 0;
     std::vector<uint32_t> drawNoteIndices_;

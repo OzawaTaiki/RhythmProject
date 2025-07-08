@@ -117,7 +117,7 @@ void BeatMapEditor::Initialize()
     playheadSprite_->SetRotate(1.57f); // 再生ヘッドの回転を設定（PI/2ラジアン）
 
     float playheadsize = playheadSprite_->GetSize().x; // 再生ヘッドのサイズを取得
-    Vector2 playheadPos = { editorCoordinate_.GetEditAreaX() - playheadsize / 2.0f, editorCoordinate_.TimeToScreenY(scrollOffset_) }; // 再生ヘッドの初期位置を設定
+    Vector2 playheadPos = { editorCoordinate_.GetEditAreaX() - playheadsize / 2.0f, editorCoordinate_.TimeToScreenY(currentTime_) }; // 再生ヘッドの初期位置を設定
     playheadSprite_->SetPos(playheadPos);
 
     // ジャッジラインのスプライトを初期化
@@ -214,11 +214,11 @@ void BeatMapEditor::Update()
 
     // 入力処理
     HandleInput();
+    UpdateTimeline();
 
     // エディター状態の更新
     UpdateEditorState();
 
-    UpdateTimeline();
 }
 
 void BeatMapEditor::Draw(const Camera* _camera)
@@ -381,7 +381,7 @@ void BeatMapEditor::DrawGridLines()
 void BeatMapEditor::DrawJudgeLine()
 {
     float judgeLineXMargin = 30.0f; // ジャッジラインのXマージンを設定
-    Vector2 pos = Vector2(editorCoordinate_.GetEditAreaX() - judgeLineXMargin / 2.0f, editorCoordinate_.TimeToScreenY(scrollOffset_));
+    Vector2 pos = Vector2(editorCoordinate_.GetEditAreaX() - judgeLineXMargin / 2.0f, editorCoordinate_.TimeToScreenY(currentTime_));
     if (isPlaying_)
         pos.y = editorCoordinate_.TimeToScreenY(currentTime_);
     judgeLineSprite_->SetPos(pos);
@@ -1077,7 +1077,7 @@ void BeatMapEditor::HandleInput()
         if (!isPlaying_)
         {
             // 停止時は現在の時間をスクロールオフセットに設定
-            scrollOffset_ = currentTime_;
+            currentTime_ = currentTime_;
             editorCoordinate_.SetScrollOffset(currentTime_);
         }
     }
@@ -1281,9 +1281,9 @@ void BeatMapEditor::HandleInput()
             {
                 addedTime *= 0.1f;
             }
-            scrollOffset_ += addedTime; // 現在の時間を更新
-            scrollOffset_ = (std::max)(scrollOffset_, 0.0f);
-            editorCoordinate_.SetScrollOffset(scrollOffset_); // スクロールオフセットを更新
+            currentTime_ += addedTime; // 現在の時間を更新
+            currentTime_ = (std::max)(currentTime_, 0.0f);
+            editorCoordinate_.SetScrollOffset(currentTime_); // スクロールオフセットを更新
         }
         else if(mouseInsideEditorArea)
         {
@@ -1449,7 +1449,7 @@ void BeatMapEditor::HandleInput()
             {
                 if (index < currentBeatMapData_.notes.size())
                 {
-                    selectedNoteIndices.push_back(index); // 有効なノートインデックスのみ追加
+                    selectedNoteIndices.push_back(static_cast<uint32_t>(index)); // 有効なノートインデックスのみ追加
                 }
             }
             if (!selectedNoteIndices.empty())
@@ -1466,8 +1466,8 @@ void BeatMapEditor::HandleInput()
     if (input_->IsKeyPressed(DIK_LCONTROL) && input_->IsKeyTriggered(DIK_DOWN))
     {
         // CTRL + DOWNで選択中のノートを下に移動
-        scrollOffset_ = 0;
-        editorCoordinate_.SetScrollOffset(scrollOffset_);
+        currentTime_ = 0;
+        editorCoordinate_.SetScrollOffset(currentTime_);
     }
 
     if (input_->IsKeyTriggered(DIK_ESCAPE))
@@ -1489,19 +1489,16 @@ void BeatMapEditor::UpdateEditorState()
         if(musicVoiceInstance_)
             currentTime_ = musicVoiceInstance_->GetElapsedTime();
 
-        editorCoordinate_.SetScrollOffset(currentTime_);
     }
-
     if (musicSoundInstance_)
     {
         if (currentTime_ > musicSoundInstance_->GetDuration())
         {
             isPlaying_ = false; // 音楽の再生が終了したら停止
             currentTime_ = musicSoundInstance_->GetDuration(); // 現在の時間を音楽の長さに設定
-            scrollOffset_ = currentTime_; // スクロールオフセットを更新
-            editorCoordinate_.SetScrollOffset(scrollOffset_); // エディターのスクロールオフセットを更新
         }
     }
+    editorCoordinate_.SetScrollOffset(currentTime_);
 }
 
 void BeatMapEditor::UpdateTimeline()
@@ -1684,7 +1681,7 @@ void BeatMapEditor::Reset()
     isModified_ = false; // 変更されていない状態にする
     currentTime_ = 0.0f; // 現在の時間を初期化
     isPlaying_ = false; // 再生状態を初期化
-    scrollOffset_ = 0.0f; // スクロールオフセットを初期化
+    currentTime_ = 0.0f; // スクロールオフセットを初期化
     selectedNoteIndices_.clear(); // 選択中のノートインデックスをクリア
     currentEditorMode_ = EditorMode::Select; // エディターモードをノーマルに設定
     drawNoteIndices_.clear();

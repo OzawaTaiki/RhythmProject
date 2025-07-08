@@ -166,6 +166,7 @@
     <ClInclude Include="Source\Application\Note\Judge\NoteJudge.h" />
     <ClInclude Include="Source\Application\Note\Note.h" />
     <ClInclude Include="Source\Application\Note\NoteType.h" />
+    <ClInclude Include="Source\Application\Scene\Data\SelectToGameData.h" />
     <ClInclude Include="Source\Application\Scene\GameScene.h" />
     <ClInclude Include="Source\Application\Scene\ResultScene.h" />
     <ClInclude Include="Source\Application\Scene\SelectScene.h" />

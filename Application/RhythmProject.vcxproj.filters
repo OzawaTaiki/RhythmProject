@@ -82,6 +82,9 @@
     <Filter Include="Application\BeatMapEditor\Command\Core">
       <UniqueIdentifier>{7dc5343b-ca7f-453f-af53-f9fc2b9d8298}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Scene\Data">
+      <UniqueIdentifier>{b70322d9-5112-44a6-ac87-505f780bc756}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -312,6 +315,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Command\ChangeHoldDurationCommand.h">
       <Filter>Application\BeatMapEditor\Command</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Scene\Data\SelectToGameData.h">
+      <Filter>Application\Scene\Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
