@@ -75,7 +75,7 @@ public:
     /// ノートを挿入
     /// </summary>
     /// <param name="_note"> 挿入するノートデータ</param>
-    void InsertNote(const NoteData& _note);
+    size_t InsertNote(const NoteData& _note);
 
     /// <summary>
     /// ノートを取得
@@ -174,6 +174,9 @@ private:
     /// </summary>
     void ApplyLiveMapping();
 
+    void CopySelectedNotes();
+
+    void PasteCopiedNotes();
     ///---------------------
     /// 内部処理関連
     ///
@@ -197,6 +200,8 @@ private:
     /// ノートが選択されているか確認
     /// </summary>
     bool IsNoteSelected(uint32_t _noteIndex) const;
+
+    size_t FindInsertNoteIndex(const NoteData& _note) const;
 
     /// <summary>
     /// ホールド終端から対応するノートインデックスを取得
@@ -323,6 +328,21 @@ private:
         std::vector<size_t> movingIndices; // 移動対象のノートインデックス
 
     };
+
+
+    struct ClipboardData
+    {
+        std::vector<NoteData> notes; // コピーしたノートデータ
+        float baseline = 0.0f; // コピーしたノートの基準時間
+
+        void Clear() {
+            notes.clear();
+            baseline = 0.0f;
+        };
+        bool IsEmpty() const {
+            return notes.empty();
+        }
+    };
 private:
     // ========================================
     // システム依存関係
@@ -374,6 +394,7 @@ private:
     int32_t lastSelectedNoteIndex_ = -1;
     bool isRangeSelected_ = false;
     MoveState moveState_;
+    ClipboardData clipboardData_;
 
     // ========================================
     // ロングノート編集状態

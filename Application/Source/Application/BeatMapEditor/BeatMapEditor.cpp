@@ -15,6 +15,8 @@
 #include <Application/Command/DeleteNoteCommand.h>
 #include <Application/Command/MoveNoteCommand.h>
 #include <Application/Command/ChangeHoldDurationCommand.h>
+#include <Application/Command/PasteCommand.h>
+
 
 #include <fstream>
 
@@ -938,13 +940,15 @@ NoteData BeatMapEditor::DeleteNote(uint32_t _laneIndex, float _targetTime)
     return NoteData{}; // 一致するノートがない場合は空のNoteDataを返す
 }
 
-void BeatMapEditor::InsertNote(const NoteData& _note)
+size_t BeatMapEditor::InsertNote(const NoteData& _note)
 {
     currentBeatMapData_.notes.push_back(_note); // ノートを追加
 
     SortNotesByTime(); // ノートを時間順にソート
 
     isModified_ = true; // 譜面が変更されたフラグを立てる
+
+    return FindInsertNoteIndex(_note); // 挿入したノートのインデックスを返す
 }
 
 const NoteData& BeatMapEditor::GetNoteAt(size_t _noteIndex) const
@@ -1074,6 +1078,41 @@ void BeatMapEditor::ApplyLiveMapping()
     }
 }
 
+void BeatMapEditor::CopySelectedNotes()
+{
+    if (selectedNoteIndices_.empty())
+    {
+        return;
+    }
+
+    clipboardData_.Clear(); // クリアしてからコピー
+
+    clipboardData_.baseline = currentTime_; // 現在の時間をクリップボードのベースラインに設定
+
+    for (size_t index : selectedNoteIndices_)
+    {
+        if (index < currentBeatMapData_.notes.size())
+        {
+            clipboardData_.notes.push_back(currentBeatMapData_.notes[index]); // 選択されたノートをクリップボードにコピー
+        }
+    }
+
+}
+
+void BeatMapEditor::PasteCopiedNotes()
+{
+    if (clipboardData_.IsEmpty())
+    {
+        return;
+    }
+
+    // クリップボードのノートを現在の時間に合わせて配置
+    float pasteTimeOffset = currentTime_ - clipboardData_.baseline;
+
+    auto command = std::make_unique<PasteCommand>(this, clipboardData_.notes, pasteTimeOffset);
+    commandHistory_.ExecuteCommand(std::move(command));
+}
+
 // ここではキー入力の分岐だけ if内で関数をよんで各操作をおこなう方がきれいじゃないか？＿
 void BeatMapEditor::HandleInput()
 {
@@ -1123,6 +1162,18 @@ void BeatMapEditor::HandleInput()
     else if (input_->IsKeyPressed(DIK_LCONTROL) && input_->IsKeyTriggered(DIK_Y))
     {
         commandHistory_.Redo(); // Ctrl + Yでリドゥ
+    }
+
+    if (input_->IsKeyPressed(DIK_LCONTROL) && input_->IsKeyTriggered(DIK_C))
+    {
+        CopySelectedNotes(); // Ctrl + Cで選択ノートをコピー
+    }
+    else if (input_->IsKeyPressed(DIK_LCONTROL) && input_->IsKeyTriggered(DIK_V))
+    {
+        if (!clipboardData_.IsEmpty())
+        {
+            PasteCopiedNotes(); // Ctrl + Vでクリップボードのノートを貼り付け
+        }
     }
 
     if(input_->IsKeyTriggered(DIK_B))
@@ -1636,6 +1687,21 @@ void BeatMapEditor::SortNotesByTime()
 bool BeatMapEditor::IsNoteSelected(uint32_t _noteIndex) const
 {
     return std::find(selectedNoteIndices_.begin(), selectedNoteIndices_.end(), _noteIndex) != selectedNoteIndices_.end();
+}
+
+size_t BeatMapEditor::FindInsertNoteIndex(const NoteData& _note) const
+{
+    for (size_t i = 0; i < currentBeatMapData_.notes.size(); ++i)
+    {
+        const NoteData& note = currentBeatMapData_.notes[i];
+        if (std::abs(note.targetTime - _note.targetTime) < 0.001f &&
+            note.laneIndex == _note.laneIndex &&
+            note.noteType == _note.noteType)
+        {
+            return i;
+        }
+    }
+    return SIZE_MAX; // 見つからなかった場合は最大値を返す
 }
 
 int32_t BeatMapEditor::GetNoteIndexFromHoldEnd(uint32_t _laneIndex, float _targetTime) const
