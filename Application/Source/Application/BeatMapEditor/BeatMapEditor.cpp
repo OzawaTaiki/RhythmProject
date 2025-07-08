@@ -26,10 +26,13 @@
 // 流しながらノート入力したーい
 // targetTimeをもとに再生を行う
 
-void BeatMapEditor::Initialize()
+void BeatMapEditor::Initialize(const BeatMapData& _beatMapData)
 {
     input_ = Input::GetInstance();
     lineDrawer_ = LineDrawer::GetInstance();
+    textRenderer_ = TextRenderer::GetInstance();
+
+
 
     beatMapLoader_ = BeatMapLoader::GetInstance();
     Vector2 laneAreaSize = Vector2(1280.0f - 600.0f-120.0f, 720.0f); // レーンエリアのサイズを設定
@@ -39,7 +42,7 @@ void BeatMapEditor::Initialize()
     beatManager_ = std::make_unique<BeatManager>();
     beatManager_->Initialize(120.0f, 0.0f); // 初期BPMとオフセットを設定
 
-    currentBeatMapData_ = BeatMapData(); // 現在の譜面データを初期化
+    InitWithBeatMapData(_beatMapData); // 譜面データを初期化
     isModified_ = false; // 譜面が変更されていない状態に初期化
     currentTime_ = 0.0f; // 現在の時間を初期化
     isPlaying_ = false; // 再生状態を初期化
@@ -196,6 +199,9 @@ void BeatMapEditor::Initialize()
     timelineSprites_["playhead"] = std::make_unique<UISprite>();
     timelineSprites_["playhead"]->Initialize("TimelinePlayheadSprite");
 
+    timelineSprites_["toTestButton"] = std::make_unique<UISprite>();
+    timelineSprites_["toTestButton"]->Initialize("ToTestButtonSprite");
+
     timelineStartPosition_ = timelineSprites_["start"]->GetPos().x; // タイムラインの開始位置を取得
     timelineEndPosition_ = timelineSprites_["end"]->GetPos().x; // タイムラインの終了位置を取得
     timelineWidth_ = timelineEndPosition_ - timelineStartPosition_; // タイムラインの幅を計算
@@ -205,6 +211,11 @@ void BeatMapEditor::Initialize()
     dummy_timeline_->SetPos(Vector2(timelineStartPosition_, timelineSprites_["background"]->GetPos().y)); // タイムラインの開始位置を設定
     dummy_timeline_->SetAnchor(Vector2(0.0f, 0.0f)); // ダミータイムラインのアンカーを左上に設定
     dummy_timeline_->SetSize(Vector2(timelineWidth_, timelineSprites_["background"]->GetSize().y)); // ダミータイムラインのサイズを設定
+
+    textParam_.SetPosition(timelineSprites_["toTestButton"]->GetPos())
+        .SetPivot(timelineSprites_["toTestButton"]->GetAnchor())
+        .SetColor({ 0,0,0,1 });
+
 
     tapBPMCounter_.Initialize(); // タップBPMカウンターの初期化
 }
@@ -413,7 +424,6 @@ void BeatMapEditor::DrawUI()
 
     DrawLeftPanel();
     DrawRightPanel();
-    return;
 
 #endif // _DEBUG
 }
@@ -727,6 +737,8 @@ void BeatMapEditor::DrawTimeline()
     timelineSprites_["start"]->Draw();
     timelineSprites_["end"]->Draw();
     timelineSprites_["playhead"]->Draw();
+    timelineSprites_["toTestButton"]->Draw();
+    textRenderer_->DrawText(L"テスト", textParam_);
 }
 
 
@@ -743,6 +755,29 @@ void BeatMapEditor::Finalize()
     beatMapLoader_ = nullptr; // BeatMapLoaderのインスタンスを解放
 }
 
+void BeatMapEditor::InitWithBeatMapData(const BeatMapData& _beatMapData)
+{
+    Reset(); // エディターの状態をリセット
+
+    if (_beatMapData.title == "None")
+        return;
+
+    currentBeatMapData_ = _beatMapData; // BeatMapDataを設定
+    currentFilePath_ = ""; // 現在のファイルパスを空に設定
+
+    beatManager_->SetBPM(currentBeatMapData_.bpm); // BPMを設定
+    beatManager_->SetOffset(currentBeatMapData_.offset); // オフセットを設定
+
+    editorCoordinate_.SetOffsetTime(currentBeatMapData_.offset); // エディターのオフセットを設定
+
+    std::string musicFilePath = currentBeatMapData_.audioFilePath;
+    if (!musicFilePath.empty())
+    {
+        // 音声ファイルのパスが設定されている場合は、音声をロード
+        musicSoundInstance_ = AudioSystem::GetInstance()->Load(musicFilePath);
+    }
+}
+
 void BeatMapEditor::LoadBeatMap(const std::string& _beatMapPath)
 {
     if (!beatMapLoader_)
@@ -756,20 +791,7 @@ void BeatMapEditor::LoadBeatMap(const std::string& _beatMapPath)
     if (future.get())
     {
         Reset(); // エディターの状態をリセット
-        currentBeatMapData_ = beatMapLoader_->GetLoadedBeatMapData();
-        currentFilePath_ = _beatMapPath; // 現在のファイルパスを更新
-
-        beatManager_->SetBPM(currentBeatMapData_.bpm); // BPMを設定
-        beatManager_->SetOffset(currentBeatMapData_.offset); // オフセットを設定
-
-        editorCoordinate_.SetOffsetTime(currentBeatMapData_.offset); // エディターのオフセットを設定
-
-        std::string musicFilePath = currentBeatMapData_.audioFilePath;
-        if (!musicFilePath.empty())
-        {
-            // 音声ファイルのパスが設定されている場合は、音声をロード
-            musicSoundInstance_ = AudioSystem::GetInstance()->Load(musicFilePath);
-        }
+        InitWithBeatMapData(beatMapLoader_->GetLoadedBeatMapData()); // BeatMapDataを初期化
     }
     else
     {
@@ -1503,7 +1525,7 @@ void BeatMapEditor::UpdateEditorState()
 
 void BeatMapEditor::UpdateTimeline()
 {
-    if(ImGuiDebugManager::GetInstance()->Begin("Timeline Setting"))
+    if (ImGuiDebugManager::GetInstance()->Begin("Timeline Setting"))
     {
         for (auto& [name, tlSprite] : timelineSprites_)
         {
@@ -1514,38 +1536,45 @@ void BeatMapEditor::UpdateTimeline()
         ImGui::End();
     }
 
-    if (musicSoundInstance_)
+    if (!musicSoundInstance_)
+        return; // 音楽がロードされていない場合は何もしない
+
+
+    if (dummy_timeline_->IsMousePointerInside() && input_->IsMousePressed(0))
     {
-        if (dummy_timeline_->IsMousePointerInside() && input_->IsMousePressed(0))
+        Vector2 mousePos = input_->GetMousePosition();
+
+        // マウス座標をタイムラインの相対位置に変換 時間軸状の座標
+        float relativeX = mousePos.x - timelineStartPosition_;
+        float ratio = relativeX / timelineWidth_; // タイムラインの幅に対する比率を計算
+
+        ratio = std::clamp(ratio, 0.0f, 1.0f); // 比率を0から1の範囲に制限
+
+        float time = musicSoundInstance_->GetDuration() * ratio; // 音楽の長さに基づいて時間を計算
+
+        currentTime_ = time; // 現在の時間を更新
+
+        // playheadの座標を更新
+        timelineSprites_["playhead"]->SetPos(Vector2(timelineStartPosition_ + relativeX, timelineSprites_["playhead"]->GetPos().y));
+    }
+    else
+    {
+        Vector2 updatePosition;
+        updatePosition.y = timelineSprites_["playhead"]->GetPos().y; // Y座標は固定
+
+        float ratio = currentTime_ / musicSoundInstance_->GetDuration(); // 現在の時間を音楽の長さで割って比率を計算
+        ratio = std::clamp(ratio, 0.0f, 1.0f); // 比率を0から1の範囲に制限
+        updatePosition.x = timelineStartPosition_ + ratio * timelineWidth_; // タイムラインの開始位置と幅を使ってX座標を計算
+
+        timelineSprites_["playhead"]->SetPos(updatePosition); // playheadの位置を更新
+    }
+
+    if (!currentBeatMapData_.notes.empty())
+    {
+        if (timelineSprites_["toTestButton"]->IsMousePointerInside()&& input_->IsMouseTriggered(0))
         {
-            Vector2 mousePos = input_->GetMousePosition();
-
-            // マウス座標をタイムラインの相対位置に変換 時間軸状の座標
-            float relativeX = mousePos.x - timelineStartPosition_;
-            float ratio = relativeX / timelineWidth_; // タイムラインの幅に対する比率を計算
-
-            ratio = std::clamp(ratio, 0.0f, 1.0f); // 比率を0から1の範囲に制限
-
-            float time = musicSoundInstance_->GetDuration() * ratio; // 音楽の長さに基づいて時間を計算
-
-            currentTime_ = time; // 現在の時間を更新
-
-            // playheadの座標を更新
-            timelineSprites_["playhead"]->SetPos(Vector2(timelineStartPosition_ + relativeX, timelineSprites_["playhead"]->GetPos().y));
+            toTest_ = true;
         }
-        else
-        {
-            Vector2 updatePosition;
-            updatePosition.y = timelineSprites_["playhead"]->GetPos().y; // Y座標は固定
-
-            float ratio = currentTime_ / musicSoundInstance_->GetDuration(); // 現在の時間を音楽の長さで割って比率を計算
-            ratio = std::clamp(ratio, 0.0f, 1.0f); // 比率を0から1の範囲に制限
-            updatePosition.x = timelineStartPosition_ + ratio * timelineWidth_; // タイムラインの開始位置と幅を使ってX座標を計算
-
-            timelineSprites_["playhead"]->SetPos(updatePosition); // playheadの位置を更新
-        }
-
-
     }
 
 }

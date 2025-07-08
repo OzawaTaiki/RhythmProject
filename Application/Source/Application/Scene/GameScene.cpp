@@ -15,7 +15,7 @@
 #include <Features/TextRenderer/TextRenderer.h>
 
 #include <Application/Scene/Transition/SceneTrans.h>
-#include <Application/Scene/Data/SelectToGameData.h>
+#include <Application/Scene/Data/SceneDatas.h>
 
 GameScene::~GameScene()
 {
@@ -60,13 +60,19 @@ void GameScene::Initialize(SceneData* _sceneData)
     std::string beatMapFilePath = "Resources/Data/Game/BeatMap/demo1.json"; // デフォルトの譜面ファイルパス
     if (_sceneData)
     {
-        auto data = static_cast<SelectToGameData*>(_sceneData);
-        if (data)
+        if (_sceneData->beforeScene == "SelectScene")
         {
-            beatMapFilePath = data->selectedBeatMapFilePath; // 選択された譜面ファイルのパスを取得
+            auto selectToGameData = static_cast<SelectToGameData*>(_sceneData);
+            beatMapFilePath = selectToGameData->selectedBeatMapFilePath; // 選択された譜面ファイルパスを取得
+            gameMode_ = GameMode::Normal;
+        }
+        else if (_sceneData->beforeScene == "EditorScene")
+        {
+            auto editorToGameData = static_cast<SharedBeatMapData*>(_sceneData);
+            currentBeatMapData_ = editorToGameData->beatMapData; // エディタから渡された譜面データを取得
+            gameMode_ = GameMode::EditorTest;
         }
     }
-
 
     gameCore_ = std::make_unique<GameCore>(); // レーン数はデフォで4
     gameCore_->Initialize(30.0f, 2.0f); // ノーツの移動速度とオフセット時間を設定
@@ -75,7 +81,6 @@ void GameScene::Initialize(SceneData* _sceneData)
     gameInputManager_->Initialize(input_);
 
     beatMapLoader_ = BeatMapLoader::GetInstance();
-    beatMapLoadFuture_ = beatMapLoader_->LoadBeatMap(beatMapFilePath);
 
     beatManager_ = std::make_unique<BeatManager>();
     beatManager_->Initialize(100);
@@ -88,6 +93,17 @@ void GameScene::Initialize(SceneData* _sceneData)
 
     SceneManager::GetInstance()->SetTransition(std::make_unique<SceneTrans>());
 
+    switch (gameMode_)
+    {
+    case GameMode::Normal:
+        beatMapLoadFuture_ = beatMapLoader_->LoadBeatMap(beatMapFilePath);
+        break;
+    case GameMode::EditorTest:
+        beatMapLoadFuture_ = beatMapLoader_->LoadBeatMap(currentBeatMapData_);
+        break;
+    default:
+        break;
+    }
 
 #ifdef _DEBUG
     beatManager_->SetEnableSound(true); // デバッグ時は音を有効にする
@@ -95,9 +111,6 @@ void GameScene::Initialize(SceneData* _sceneData)
     beatManager_->SetEnableSound(false); // デバッグ時以外は音を無効にする
 #endif // _DEBUG
     isBeatMapLoaded_ = false;
-
-    testAnimationSequence_ = std::make_unique<AnimationSequence>("JudgeTextAnimation");
-    testAnimationSequence_->Initialize("Resources/Data/"); // アニメーションシーケンスの初期化
 
 }
 
@@ -159,6 +172,16 @@ void GameScene::Update()
     if (IsMusicEnd())
     {
         //SceneManager::ReserveScene("ResultScene", nullptr);
+    }
+
+    if (gameMode_ == GameMode::EditorTest)
+    {
+        if (input_->IsKeyTriggered(DIK_ESCAPE))
+        {
+            auto data = std::make_unique<SharedBeatMapData>();
+            data->beatMapData = currentBeatMapData_;
+            SceneManager::ReserveScene("EditorScene", std::move(data)); // エディタシーンに譜面データを渡す
+        }
     }
 }
 
@@ -377,9 +400,6 @@ void GameScene::ImGui()
         //if (IsMusicEnd())
             //voiceInstance_ = soundInstance_->Play(volume, 130.1f); // スペースキーで音楽を再生
 
-        ImGuiTool::TimeLine("JudgeText", testAnimationSequence_.get());
-        if (ImGui::Button("Save"))
-            testAnimationSequence_->Save();
 
 
         ImGui::End();

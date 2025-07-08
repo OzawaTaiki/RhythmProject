@@ -3,7 +3,7 @@
 #include <Utility/FileDialog/FileDialog.h>
 #include <Utility/StringUtils/StringUitls.h>
 #include <Features/Scene/Manager/SceneManager.h>
-#include <Application/Scene/Data/SelectToGameData.h>
+#include <Application/Scene/Data/SceneDatas.h>
 
 void SelectScene::Initialize(SceneData* _sceneData)
 {

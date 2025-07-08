@@ -1,0 +1,28 @@
+{
+    "ToTestButtonSprite": {
+        "ToTestButtonSprite_anchor": {
+            "x": 0.5,
+            "y": 0.5
+        },
+        "ToTestButtonSprite_color": {
+            "w": 1.0,
+            "x": 0.9825547933578491,
+            "y": 1.0,
+            "z": 0.406862735748291
+        },
+        "ToTestButtonSprite_directoryPath": "Resources/images/",
+        "ToTestButtonSprite_isActive": 257,
+        "ToTestButtonSprite_isVisible": 1,
+        "ToTestButtonSprite_label": "ToTestButtonSprite",
+        "ToTestButtonSprite_pos": {
+            "x": 1147.0,
+            "y": 673.0
+        },
+        "ToTestButtonSprite_rotate": 0.0,
+        "ToTestButtonSprite_size": {
+            "x": 150.0,
+            "y": 50.0
+        },
+        "ToTestButtonSprite_textureName": "white.png"
+    }
+}

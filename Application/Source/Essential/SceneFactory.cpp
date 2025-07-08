@@ -7,6 +7,7 @@
 #include <Application/Scene/TitleScene.h>
 #include <Application/Scene/SelectScene.h>
 #include <Application/Scene/ResultScene.h>
+#include <Application/Scene/EditorScene.h>
 
 std::unique_ptr<BaseScene> SceneFactory::CreateScene(const std::string& _name)
 {
@@ -34,6 +35,11 @@ std::unique_ptr<BaseScene> SceneFactory::CreateScene(const std::string& _name)
     {
         return std::make_unique<ResultScene>();
     }
+    else if (_name == "EditorScene")
+    {
+        return std::make_unique<EditorScene>();
+    }
+
 
 
     assert("Scene Not Found");
@@ -70,6 +76,10 @@ std::string SceneFactory::ShowDebugWindow()
     if (ImGui::Button("ResultScene"))
     {
         return "ResultScene";
+    }
+    if (ImGui::Button("EditorScene"))
+    {
+        return "EditorScene";
     }
 
 
