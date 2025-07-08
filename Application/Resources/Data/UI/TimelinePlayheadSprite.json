@@ -1,0 +1,28 @@
+{
+    "TimelinePlayheadSprite": {
+        "TimelinePlayheadSprite_anchor": {
+            "x": 0.5,
+            "y": 0.5
+        },
+        "TimelinePlayheadSprite_color": {
+            "w": 1.0,
+            "x": 0.9852941036224365,
+            "y": 0.2511533796787262,
+            "z": 0.2511533796787262
+        },
+        "TimelinePlayheadSprite_directoryPath": "Resources/images/",
+        "TimelinePlayheadSprite_isActive": 257,
+        "TimelinePlayheadSprite_isVisible": 1,
+        "TimelinePlayheadSprite_label": "TimelinePlayheadSprite",
+        "TimelinePlayheadSprite_pos": {
+            "x": 159.0,
+            "y": 670.0
+        },
+        "TimelinePlayheadSprite_rotate": 0.0,
+        "TimelinePlayheadSprite_size": {
+            "x": 5.0,
+            "y": 80.0
+        },
+        "TimelinePlayheadSprite_textureName": "white.png"
+    }
+}
