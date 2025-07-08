@@ -7,7 +7,9 @@
 #include <Features/LineDrawer/LineDrawer.h>
 #include <System/Time/Stopwatch.h>
 #include <Features/Effect/Manager/ParticleSystem.h>
+#include <Features/TextRenderer/TextRenderer.h>
 
+#include <Features/UI/UIButton.h>
 
 class SelectScene : public BaseScene
 {
@@ -33,6 +35,10 @@ private:
     Input* input_ = nullptr;
     ParticleSystem* particleSystem_ = nullptr;
 
+    TextRenderer* textRenderer_ = nullptr;
+
     std::shared_ptr<LightGroup> lightGroup_ = nullptr;
+
+    std::unique_ptr<UIButton> selectButton_ = nullptr;
 
 };

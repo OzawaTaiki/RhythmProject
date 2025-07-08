@@ -9,11 +9,13 @@
 
 #include <System/Time/GameTime.h>
 
-#include <Application/Scene/Transition/SceneTrans.h>
 #include <Debug/Debug.h>
 #include <Debug/ImguITools.h>
 #include <Debug/ImGuiDebugManager.h>
 #include <Features/TextRenderer/TextRenderer.h>
+
+#include <Application/Scene/Transition/SceneTrans.h>
+#include <Application/Scene/Data/SelectToGameData.h>
 
 GameScene::~GameScene()
 {
@@ -53,8 +55,18 @@ void GameScene::Initialize(SceneData* _sceneData)
 
     ///---------------------------------
     /// Application
-    ///---------------------------------
     GenerateModels();
+
+    std::string beatMapFilePath = "Resources/Data/Game/BeatMap/demo1.json"; // デフォルトの譜面ファイルパス
+    if (_sceneData)
+    {
+        auto data = static_cast<SelectToGameData*>(_sceneData);
+        if (data)
+        {
+            beatMapFilePath = data->selectedBeatMapFilePath; // 選択された譜面ファイルのパスを取得
+        }
+    }
+
 
     gameCore_ = std::make_unique<GameCore>(); // レーン数はデフォで4
     gameCore_->Initialize(30.0f, 2.0f); // ノーツの移動速度とオフセット時間を設定
@@ -63,7 +75,7 @@ void GameScene::Initialize(SceneData* _sceneData)
     gameInputManager_->Initialize(input_);
 
     beatMapLoader_ = BeatMapLoader::GetInstance();
-    beatMapLoadFuture_ = beatMapLoader_->LoadBeatMap("Resources/Data/Game/BeatMap/demo1.json");
+    beatMapLoadFuture_ = beatMapLoader_->LoadBeatMap(beatMapFilePath);
 
     beatManager_ = std::make_unique<BeatManager>();
     beatManager_->Initialize(100);
@@ -234,8 +246,7 @@ bool GameScene::IsComplateLoadBeatMap()
         gameCore_->GenerateNotes(beatMapLoader_->GetLoadedBeatMapData());
 
         // bpmを設定
-        static float bpm = beatMapLoader_->GetLoadedBeatMapData().bpm;
-        beatManager_->SetBPM(bpm);
+        beatManager_->SetBPM(beatMapLoader_->GetLoadedBeatMapData().bpm);
         beatManager_->SetOffset(beatMapLoader_->GetLoadedBeatMapData().offset);
         std::string audioFilePath = beatMapLoader_->GetLoadedBeatMapData().audioFilePath;
         soundInstance_ = AudioSystem::GetInstance()->Load(audioFilePath);
