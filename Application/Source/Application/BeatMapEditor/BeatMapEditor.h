@@ -178,7 +178,10 @@ private:
     /// </summary>
     void UpdateEditorState();
 
-
+    /// <summary>
+    /// タイムラインを更新
+    /// </summary>
+    void UpdateTimeline();
 
     /// <summary>
     /// ノートが選択されているか確認
@@ -272,7 +275,7 @@ private:
     /// </summary>
     void DrawSelectionArea();
 
-
+    void DrawTimeline();
 
 
     ///=======================================
@@ -411,6 +414,13 @@ private:
     std::vector<std::unique_ptr<UISprite>> laneSprites_;
     std::unique_ptr<UISprite> judgeLineSprite_;
     std::unique_ptr<UISprite> playheadSprite_;
+
+    // Timeline
+    std::map<std::string, std::unique_ptr<UISprite>> timelineSprites_;
+    std::unique_ptr<UISprite> dummy_timeline_;
+    float timelineStartPosition_ = 0.0f; // タイムラインの開始位置
+    float timelineEndPosition_ = 0.0f; // タイムラインの終了位置
+    float timelineWidth_ = 0.0f; // タイムラインの幅
 
     // 選択・判定用
     std::unique_ptr<UISprite> areaSelectionSprite_;

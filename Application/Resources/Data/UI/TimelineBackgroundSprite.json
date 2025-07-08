@@ -1,0 +1,28 @@
+{
+    "TimelineBackgroundSprite": {
+        "TimelineBackgroundSprite_anchor": {
+            "x": 0.0,
+            "y": 0.0
+        },
+        "TimelineBackgroundSprite_color": {
+            "w": 1.0,
+            "x": 0.20000000298023224,
+            "y": 0.20000000298023224,
+            "z": 0.20000000298023224
+        },
+        "TimelineBackgroundSprite_directoryPath": "Resources/images/",
+        "TimelineBackgroundSprite_isActive": 257,
+        "TimelineBackgroundSprite_isVisible": 1,
+        "TimelineBackgroundSprite_label": "TimelineBackgroundSprite",
+        "TimelineBackgroundSprite_pos": {
+            "x": 0.0,
+            "y": 620.0
+        },
+        "TimelineBackgroundSprite_rotate": 0.0,
+        "TimelineBackgroundSprite_size": {
+            "x": 1280.0,
+            "y": 100.0
+        },
+        "TimelineBackgroundSprite_textureName": "white.png"
+    }
+}

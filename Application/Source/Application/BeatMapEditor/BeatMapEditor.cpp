@@ -183,6 +183,29 @@ void BeatMapEditor::Initialize()
     dummy_window_->SetSize(Vector2(1280.0f, 720.0f)); // ダミーウィンドウのサイズを設定
 
 
+    timelineSprites_.clear();
+    timelineSprites_["background"] = std::make_unique<UISprite>();
+    timelineSprites_["background"]->Initialize("TimelineBackgroundSprite");
+
+    timelineSprites_["start"] = std::make_unique<UISprite>();
+    timelineSprites_["start"]->Initialize("TimelineStartSprite");
+
+    timelineSprites_["end"] = std::make_unique<UISprite>();
+    timelineSprites_["end"]->Initialize("TimelineEndSprite");
+
+    timelineSprites_["playhead"] = std::make_unique<UISprite>();
+    timelineSprites_["playhead"]->Initialize("TimelinePlayheadSprite");
+
+    timelineStartPosition_ = timelineSprites_["start"]->GetPos().x; // タイムラインの開始位置を取得
+    timelineEndPosition_ = timelineSprites_["end"]->GetPos().x; // タイムラインの終了位置を取得
+    timelineWidth_ = timelineEndPosition_ - timelineStartPosition_; // タイムラインの幅を計算
+
+    dummy_timeline_ = std::make_unique<UISprite>();
+    dummy_timeline_->Initialize("DummyTimelineSprite");
+    dummy_timeline_->SetPos(Vector2(timelineStartPosition_, timelineSprites_["background"]->GetPos().y)); // タイムラインの開始位置を設定
+    dummy_timeline_->SetAnchor(Vector2(0.0f, 0.0f)); // ダミータイムラインのアンカーを左上に設定
+    dummy_timeline_->SetSize(Vector2(timelineWidth_, timelineSprites_["background"]->GetSize().y)); // ダミータイムラインのサイズを設定
+
     tapBPMCounter_.Initialize(); // タップBPMカウンターの初期化
 }
 
@@ -194,6 +217,8 @@ void BeatMapEditor::Update()
 
     // エディター状態の更新
     UpdateEditorState();
+
+    UpdateTimeline();
 }
 
 void BeatMapEditor::Draw(const Camera* _camera)
@@ -218,10 +243,11 @@ void BeatMapEditor::Draw(const Camera* _camera)
     // 再生ヘッドの描画
     DrawPlayhead();
 
-    DrawUI();
 
     DrawSelectionArea();
+    DrawTimeline();
 
+    DrawUI();
 }
 
 void BeatMapEditor::DrawNotes()
@@ -345,6 +371,9 @@ void BeatMapEditor::DrawGridLines()
 
     for (auto& [y, n] : gridY)
     {
+        if (y > timelineSprites_["background"]->GetPos().y)
+            continue;
+
         lineDrawer_->RegisterPoint(Vector2(gridLeftX, y), Vector2(gridRightX, y), gridColors[n]);
     }
 }
@@ -398,7 +427,8 @@ void BeatMapEditor::DrawLeftPanel()
     // BPM offset snap
 
     const float menuHeight = 18.0f;
-    const ImVec2 panelSize(300.0f, 720.0f - menuHeight); // 左パネルのサイズを設定
+    const float timelineHeight = 100.0f; // タイムラインの高さを設定
+    const ImVec2 panelSize(300.0f, 720.0f - menuHeight-timelineHeight); // 左パネルのサイズを設定
     const ImVec2 panelPos(0.0f, menuHeight); // 左パネルの位置を設定
 
     ImGui::SetNextWindowPos(panelPos); // パネルの位置を設定
@@ -485,7 +515,12 @@ void BeatMapEditor::DrawLeftPanel()
             ImGui::EndDisabled(); // 無効化終了
         }
         ImGui::EndDisabled(); // 音楽がロードされていない場合は無効化終了
-
+        static float playSpeed = 1.0f; // 再生速度の初期値
+        ImGui::DragFloat("play Speed", &playSpeed, 0.01f, 0.1f, 2.0f, " %.2f"); // 再生速度の入力フィールド
+        if (musicVoiceInstance_)
+        {
+            musicVoiceInstance_->SetPlaySpeed(playSpeed); // 再生速度を設定
+        }
 
         ImGui::Checkbox("enable Beats", &enableBeats_);
     }
@@ -505,7 +540,8 @@ void BeatMapEditor::DrawRightPanel()
     // beatMapInfoの情報 noteの総数 楽曲時間
 
     const float menuHeight = 18.0f;
-    const ImVec2 panelSize(300.0f, 720.0f - menuHeight); // 左パネルのサイズを設定
+    const float timelineHeight = 100.0f; // タイムラインの高さを設定
+    const ImVec2 panelSize(300.0f, 720.0f - menuHeight - timelineHeight); // 左パネルのサイズを設定
     const ImVec2 panelPos(1280.0f - panelSize.x, menuHeight); // 左パネルの位置を設定
 
     ImGui::SetNextWindowPos(panelPos); // パネルの位置を設定
@@ -683,6 +719,16 @@ void BeatMapEditor::DrawSelectionArea()
     }
 }
 
+void BeatMapEditor::DrawTimeline()
+{
+    lineDrawer_->RegisterPoint(timelineSprites_["start"]->GetPos(), timelineSprites_["end"]->GetPos(), { 1,1,1,1 });
+
+    timelineSprites_["background"]->Draw();
+    timelineSprites_["start"]->Draw();
+    timelineSprites_["end"]->Draw();
+    timelineSprites_["playhead"]->Draw();
+}
+
 
 void BeatMapEditor::Finalize()
 {
@@ -703,7 +749,7 @@ void BeatMapEditor::LoadBeatMap(const std::string& _beatMapPath)
     {
         return;
     }
-     
+
      auto future = beatMapLoader_->LoadBeatMap(_beatMapPath);
 
     // ロードが完了するまで待機
@@ -1456,6 +1502,55 @@ void BeatMapEditor::UpdateEditorState()
             editorCoordinate_.SetScrollOffset(scrollOffset_); // エディターのスクロールオフセットを更新
         }
     }
+}
+
+void BeatMapEditor::UpdateTimeline()
+{
+    if(ImGuiDebugManager::GetInstance()->Begin("Timeline Setting"))
+    {
+        for (auto& [name, tlSprite] : timelineSprites_)
+        {
+            tlSprite->ImGui();
+        }
+
+        dummy_timeline_->ImGui();
+        ImGui::End();
+    }
+
+    if (musicSoundInstance_)
+    {
+        if (dummy_timeline_->IsMousePointerInside() && input_->IsMousePressed(0))
+        {
+            Vector2 mousePos = input_->GetMousePosition();
+
+            // マウス座標をタイムラインの相対位置に変換 時間軸状の座標
+            float relativeX = mousePos.x - timelineStartPosition_;
+            float ratio = relativeX / timelineWidth_; // タイムラインの幅に対する比率を計算
+
+            ratio = std::clamp(ratio, 0.0f, 1.0f); // 比率を0から1の範囲に制限
+
+            float time = musicSoundInstance_->GetDuration() * ratio; // 音楽の長さに基づいて時間を計算
+
+            currentTime_ = time; // 現在の時間を更新
+
+            // playheadの座標を更新
+            timelineSprites_["playhead"]->SetPos(Vector2(timelineStartPosition_ + relativeX, timelineSprites_["playhead"]->GetPos().y));
+        }
+        else
+        {
+            Vector2 updatePosition;
+            updatePosition.y = timelineSprites_["playhead"]->GetPos().y; // Y座標は固定
+
+            float ratio = currentTime_ / musicSoundInstance_->GetDuration(); // 現在の時間を音楽の長さで割って比率を計算
+            ratio = std::clamp(ratio, 0.0f, 1.0f); // 比率を0から1の範囲に制限
+            updatePosition.x = timelineStartPosition_ + ratio * timelineWidth_; // タイムラインの開始位置と幅を使ってX座標を計算
+
+            timelineSprites_["playhead"]->SetPos(updatePosition); // playheadの位置を更新
+        }
+
+
+    }
+
 }
 
 int32_t BeatMapEditor::FindNoteAtTime(uint32_t _laneIndex, float _targetTime, float _tolerance) const
