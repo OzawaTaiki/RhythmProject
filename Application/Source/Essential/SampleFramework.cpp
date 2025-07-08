@@ -31,7 +31,7 @@ void SampleFramework::Initialize(const std::wstring& _winTitle)
     Time_MT::GetInstance()->Initialize();
 
     // 最初のシーンで初期化
-    sceneManager_->Initialize("TitleScene");
+    sceneManager_->Initialize("EditorScene");
 }
 
 void SampleFramework::Update()

@@ -194,6 +194,9 @@
     <ClCompile Include="Source\Application\Scene\EditorScene.cpp">
       <Filter>Application\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Command\PasteCommand.cpp">
+      <Filter>Application\BeatMapEditor\Command</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Essential\SampleFramework.h">
@@ -324,6 +327,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Scene\EditorScene.h">
       <Filter>Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Command\PasteCommand.h">
+      <Filter>Application\BeatMapEditor\Command</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
