@@ -70,6 +70,8 @@ void GameScene::Initialize(SceneData* _sceneData)
         {
             auto editorToGameData = static_cast<SharedBeatMapData*>(_sceneData);
             currentBeatMapData_ = editorToGameData->beatMapData; // エディタから渡された譜面データを取得
+            if (currentBeatMapData_.title == "None")
+                currentBeatMapData_.title = "test";
             gameMode_ = GameMode::EditorTest;
         }
     }

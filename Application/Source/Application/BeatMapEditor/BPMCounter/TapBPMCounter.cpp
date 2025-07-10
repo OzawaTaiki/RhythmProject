@@ -18,14 +18,27 @@ void TapBPMCounter::Update()
     stopwatch_.Update();
     if (input_->IsKeyTriggered(DIK_SPACE)) // スペースキーが押されたら
     {
-        if (tapTimes_.empty())
-            stopwatch_.Start();
-
-
         float currentTime = stopwatch_.GetElapsedTime<float>(); // 現在の時間を取得
+
+        if (tapTimes_.empty())
+        {
+            stopwatch_.Start();
+        }/*
+        else if (tapTimes_.back() != 0.0f && tapTimes_.back() * 2.0f < currentTime)
+        {
+            stopwatch_.Reset();
+            currentTime = 0.0f;
+        }*/
         totalTime_ += currentTime;
-        tapTimes_.push_back(currentTime); // タップ時間を記録
+        if (currentTime != 0.0f)
+            tapTimes_.push_back(currentTime); // タップ時間を記録
         stopwatch_.Reset(); // ストップウォッチをリセット
+    }
+
+    if (tapTimes_.size() > 10) // タップ時間が100を超えたら古いものを削除
+    {
+        totalTime_ -= tapTimes_.front(); // 古いタップ時間を合計から引く
+        tapTimes_.pop_front(); // 古いタップ時間を削除
     }
 
 #ifdef _DEBUG
@@ -59,7 +72,7 @@ float TapBPMCounter::GetBPM() const
 
     int32_t tapCount = static_cast<int32_t>(tapTimes_.size());
 
-    float averageTime = totalTime_ / (tapCount - 1); // タップ間の平均時間を計算
+    float averageTime = totalTime_ / (tapCount); // タップ間の平均時間を計算
 
     if (averageTime <= 0.0f)
         return 0.0f; // 平均時間が0以下の場合はBPMを計算できない

@@ -23,10 +23,10 @@
 // TODO いろいろ
 /// ブリッジに重ねてノーツを置けてしまう
 /// zoom スクロール grid分割 全部キーボードあるいはマウスでできるように
-/// 最低限 Undoは実装したい
-/// BPM調整するやつ
-// 流しながらノート入力したーい
-// targetTimeをもとに再生を行う
+///     Undo実装したい
+///     BPM調整するやつ
+//      流しながらノート入力したーい
+//      targetTimeをもとに再生を行う
 
 void BeatMapEditor::Initialize(const BeatMapData& _beatMapData)
 {
@@ -462,6 +462,22 @@ void BeatMapEditor::DrawLeftPanel()
         ImGui::SeparatorText("BPM");
         if (ImGui::DragFloat("BPM", &currentBeatMapData_.bpm, 0.1f, 0.1f, 1000.0f, " %.1f")) // BPMの入力フィールド
             beatManager_->SetBPM(currentBeatMapData_.bpm); // BPMを設定
+
+        static bool bpmCounter = false; // BPMカウンターの状態
+        if (ImGui::Checkbox("BPM Counter", &bpmCounter)) // BPMカウンターのチェックボックス
+        {
+            if (bpmCounter)
+            {
+                tapBPMCounter_.Initialize(); // BPMカウンターを初期化
+                preCurrentEditorMode_ = currentEditorMode_; // 前のエディターのモードを保存
+                currentEditorMode_ = EditorMode::BPMSetting; // エディターのモードをタップBPMに設定
+            }
+            else
+            {
+                voiceInstanceForBPMSet_->Stop();
+                currentEditorMode_ = preCurrentEditorMode_; // 前のエディターのモードに戻す
+            }
+        }
 
         ImGui::Dummy(ImVec2(0.0f, spacing)); // スペーシングを追加
 
@@ -1113,7 +1129,7 @@ void BeatMapEditor::PasteCopiedNotes()
     commandHistory_.ExecuteCommand(std::move(command));
 }
 
-// ここではキー入力の分岐だけ if内で関数をよんで各操作をおこなう方がきれいじゃないか？＿
+//todo: ここではキー入力の分岐だけ if内で関数をよんで各操作をおこなう方がきれいじゃないか？
 void BeatMapEditor::HandleInput()
 {
     if (currentEditorMode_ == EditorMode::BPMSetting)
