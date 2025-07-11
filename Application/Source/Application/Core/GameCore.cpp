@@ -35,7 +35,7 @@ void GameCore::Initialize(float _noteSpeed, float _offset)
     judgeResult_->Initialize();
 
     noteJudge_->SetLaneTotalWidth(Lane::GetTotalWidth());
-
+    noteJudge_->SetSpeed(_noteSpeed);
 
     noteDeletePosition_ = -noteJudge_->GetMissJudgeThreshold() * noteSpeed_; // ノーツを削除する位置を設定
 }
