@@ -70,15 +70,27 @@ void SampleScene::Initialize(SceneData* _sceneData)
 
     human_ = std::make_unique<ObjectModel>("human");
     // モデルのを読み込む
-    human_->Initialize("human/walk.gltf");
+    human_->Initialize("BrainStem/BrainStem.gltf");
     // アニメーション読み込み
     // 任意の名前を設定できる
-    human_->LoadAnimation("human/walk.gltf", "walk");
-
+    human_->LoadAnimation("BrainStem/BrainStem.gltf", "anim");
     bool loop = true;
     // アニメーションを再生する
-    human_->SetAnimation("walk", loop);
+    human_->SetAnimation("anim", loop);
 
+    human2_ = std::make_unique<ObjectModel>("human2");
+
+    human2_->Initialize("BrainStem/BrainStem.gltf");
+    human2_->LoadAnimation("BrainStem/BrainStem.gltf", "anim");
+    human2_->translate_.x = 2.0f;
+    human2_->drawSkeleton_ = true;
+
+
+    weapon_ = std::make_unique<ObjectModel>("weapon");
+    weapon_->Initialize("Weapon/Sword.gltf");
+    weapon_->scale_ = { 0.5f,0.5f,0.5f };
+    weapon_->SetParent(human_->GetWorldTransform());
+    weapon_->SetParent(human_->GetSkeletonSpaceMatrix("nodes[17]"));
 
     // 地面ようのいたポリを生成する
     Plane groundPlane;
@@ -99,7 +111,7 @@ void SampleScene::Initialize(SceneData* _sceneData)
     ground_->GetUVTransform().SetScale({ 10,10 });
 
     // 地面のテクスチャを読み込む 描画時に使用する
-    groundTextureHandle_ = TextureManager::GetInstance()->Load("white.png");
+    groundTextureHandle_ = TextureManager::GetInstance()->Load("tile.png");
 
 
     // 2Dスプライトの初期化
@@ -110,12 +122,10 @@ void SampleScene::Initialize(SceneData* _sceneData)
     // 音声データの読み込み
     soundInstance_ = AudioSystem::GetInstance()->Load("Resources/Sounds/Alarm01.wav");
 
-    //skyBox_ = std::make_unique<SkyBox>();
-    //skyBox_->Initialize(30.0f);
-    //skyBox_->SetTexture("rosendal_plains_2_2k.dds");
+    skyBox_ = std::make_unique<SkyBox>();
+    skyBox_->Initialize(30.0f);
+    skyBox_->SetTexture("rosendal_plains_2_2k.dds");
 
-    emitter_ = std::make_unique<ParticleEmitter>();
-    emitter_->Initialize("TapEffect_01");
 
     DepthBasedOutLine::GetInstance()->SetCamera(&SceneCamera_);
 
@@ -134,6 +144,7 @@ void SampleScene::Update()
     {
         ImGui::Begin("Engine");
         {
+            static float volume = 1.0f;
             // サウンドの再生
             if (ImGui::Button("play Sound"))
             {
@@ -141,11 +152,10 @@ void SampleScene::Update()
                 {
                     // 返り値で VoiceInstanceを受け取る
                     // これを使用して音量やピッチの変更ができる
-                    voiceInstance_ = soundInstance_->Play(0.3f);
+                    voiceInstance_ = soundInstance_->Play(volume);
                 }
             }
 
-            static float volume = 1.0f;
             if (ImGui::DragFloat("Volume", &volume, 0.0f, 1.0f))
             {
                 if (voiceInstance_)
@@ -161,6 +171,14 @@ void SampleScene::Update()
                     voiceInstance_ = nullptr; // VoiceInstanceを解放
                 }
             }
+
+            static bool loop = true;
+            ImGui::Checkbox("Loop", &loop);
+            if(ImGui::Button("Anim"))
+                human_->SetAnimation("anim", loop);
+
+            if(ImGui::Button("anim##2"))
+                human2_->SetAnimation("anim", loop);
         }
         ImGui::End();
 
@@ -168,16 +186,29 @@ void SampleScene::Update()
         lights_->ImGui();
 
     }
-    ImGui::Begin("Emitter");
-    emitter_->ShowDebugWindow();
-    ImGui::End();
 
 #endif // _DEBUG
 
+    if (input_->IsControllerConnected())
+    {
+        Vector2 leftStick = input_->GetPadLeftStick();
+
+        if (leftStick.Length() != 0.0f)
+        {
+            human_->translate_.x += leftStick.x * 0.1f;
+            human_->translate_.z += leftStick.y * 0.1f;
+        }
+    }
+    if (input_->IsKeyTriggered(DIK_SPACE))
+    {
+        human2_->SetAnimation("anim", true);
+    }
+
     // モデルの更新
     human_->Update();
+    human2_->Update();
     ground_->Update();
-    emitter_->Update(0.016f);
+    weapon_->Update();
 
 
 
@@ -203,19 +234,22 @@ void SampleScene::Update()
 void SampleScene::Draw()
 {
     // skyBooxの描画
-    //skyBox_->Draw(&SceneCamera_);
+    skyBox_->Draw(&SceneCamera_);
 
     // Model描画用のPSO等をセット
     ModelManager::GetInstance()->PreDrawForObjectModel();
 
     // SkyBoxのキューブマップを描画キューに追加(任意)
-    //skyBox_->QueueCmdCubeTexture();
+    skyBox_->QueueCmdCubeTexture();
 
     // groundの描画
     ground_->Draw(&SceneCamera_, groundTextureHandle_, drawColor_);
     // humanの描画
     human_->Draw(&SceneCamera_, drawColor_);
 
+    human2_->Draw(&SceneCamera_, drawColor_);
+
+    weapon_->Draw(&SceneCamera_, drawColor_);
 
     // Sprite用のPSO等をセット
     Sprite::PreDraw();

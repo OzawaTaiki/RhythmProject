@@ -61,6 +61,8 @@ private:
 
 
     std::unique_ptr<ObjectModel> human_= nullptr;
+    std::unique_ptr<ObjectModel> human2_= nullptr;
+    std::unique_ptr<ObjectModel> weapon_ = nullptr;
     std::unique_ptr<ObjectModel> ground_ = nullptr;
 
     uint32_t groundTextureHandle_ = 0;
@@ -76,7 +78,6 @@ private:
     std::shared_ptr<VoiceInstance> voiceInstance_ = nullptr;
 
     std::unique_ptr<SkyBox> skyBox_ = nullptr;
-
 
 
 #ifdef _DEBUG
