@@ -58,21 +58,28 @@ void GameScene::Initialize(SceneData* _sceneData)
     GenerateModels();
 
     std::string beatMapFilePath = "Resources/Data/Game/BeatMap/demo1.json"; // デフォルトの譜面ファイルパス
+    gameMode_ = GameMode::Normal;
     if (_sceneData)
     {
         if (_sceneData->beforeScene == "SelectScene")
         {
-            auto selectToGameData = static_cast<SelectToGameData*>(_sceneData);
-            beatMapFilePath = selectToGameData->selectedBeatMapFilePath; // 選択された譜面ファイルパスを取得
-            gameMode_ = GameMode::Normal;
+            auto selectToGameData = dynamic_cast<SelectToGameData*>(_sceneData);
+            if (selectToGameData)
+            {
+                beatMapFilePath = selectToGameData->selectedBeatMapFilePath; // 選択された譜面ファイルパスを取得
+                gameMode_ = GameMode::Normal;
+            }
         }
         else if (_sceneData->beforeScene == "EditorScene")
         {
-            auto editorToGameData = static_cast<SharedBeatMapData*>(_sceneData);
-            currentBeatMapData_ = editorToGameData->beatMapData; // エディタから渡された譜面データを取得
-            if (currentBeatMapData_.title == "None")
-                currentBeatMapData_.title = "test";
-            gameMode_ = GameMode::EditorTest;
+
+            auto editorToGameData = dynamic_cast<SharedBeatMapData*>(_sceneData);
+            if (editorToGameData)
+            {
+                currentBeatMapData_ = editorToGameData->beatMapData; // エディタから渡された譜面データを取得
+                if (currentBeatMapData_.title == "None")                    currentBeatMapData_.title = "test";
+                gameMode_ = GameMode::EditorTest;
+            }
         }
     }
 
