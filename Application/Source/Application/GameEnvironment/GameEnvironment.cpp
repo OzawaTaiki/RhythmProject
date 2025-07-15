@@ -89,8 +89,14 @@ void GameEnvironment::SetBPM(float _bpm)
 {
     // BPMに基づいて時間スケールを設定
 
+    const float kSpeakerSwingBpmThreshold = 160.0f;// スピーカーのアニメーション速度を変更する閾値
+
     timeScale_ = 1.0f / (60.0f / _bpm);
-    timeScale_ *= -0.5f; // bomまんまだと早すぎるから二分の一
+    // スピーカーのアニメーション速度を調整 早くなりすぎないようにスケーリング。
+    if (_bpm < kSpeakerSwingBpmThreshold)
+        timeScale_ *= 0.5f;
+    else
+        timeScale_ *= 0.25f;
 
     GameTime::GetChannel("GameEnvironment").SetGameSpeed(timeScale_);
 
