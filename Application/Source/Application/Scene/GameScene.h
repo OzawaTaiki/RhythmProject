@@ -17,6 +17,7 @@
 #include <Application/Core/GameCore.h>
 #include <Application/Input/GameInputManager.h>
 #include <Application/FeedBack/FeedbackEffect.h>
+#include <Application/GameEnvironment/GameEnvironment.h>
 
 #include <Application/BeatsManager/BeatManager.h>
 #include <Application/BeatMapLoader/BeatMapLoader.h>
@@ -74,14 +75,14 @@ private:
     std::unique_ptr<GameCore> gameCore_ = nullptr;                  // ゲームの核となる部分
     std::unique_ptr<GameInputManager> gameInputManager_ = nullptr;  // ゲームの入力管理
     std::unique_ptr<FeedbackEffect> feedbackEffect_ = nullptr;      // フィードバックエフェクト
+    std::unique_ptr<GameEnvironment> gameEnvironment_ = nullptr; // ゲーム環境のオブジェクト配置
 
     BeatMapLoader* beatMapLoader_ = nullptr;
     BeatMapData currentBeatMapData_ = {}; // 現在の譜面データ
-    //std::unique_ptr<Stopwatch> stopwatch_ = nullptr;
 
     std::unique_ptr<BeatManager> beatManager_ = nullptr;
-
     std::future<bool> beatMapLoadFuture_ = {};
+
 
     bool isBeatMapLoaded_ = false;
 

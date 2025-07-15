@@ -97,6 +97,9 @@ void GameScene::Initialize(SceneData* _sceneData)
     feedbackEffect_ = std::make_unique<FeedbackEffect>();
     feedbackEffect_->Initialize(&SceneCamera_);
 
+    gameEnvironment_ = std::make_unique<GameEnvironment>();
+    gameEnvironment_->Initiaize();
+
     gameCore_->SetJudgeCallback([&](int32_t _laneIndex, JudgeType _judgeType) {feedbackEffect_->PlayJudgeEffect(_laneIndex, _judgeType); });
 
 
@@ -156,10 +159,13 @@ void GameScene::Update()
     }
 
 
+    float deltaTime = static_cast<float>(GameTime::GetInstance()->GetDeltaTime());
+
     gameInputManager_->Update(); // 入力更新
     beatManager_->Update();
-    gameCore_->Update(static_cast<float>(GameTime::GetInstance()->GetDeltaTime()), gameInputManager_->GetInputData());
+    gameCore_->Update(deltaTime, gameInputManager_->GetInputData());
     feedbackEffect_->Update();
+    gameEnvironment_->Update(deltaTime);
 
 
 #pragma endregion // Application
@@ -198,6 +204,7 @@ void GameScene::Draw()
 {
     ModelManager::GetInstance()->PreDrawForObjectModel();
     gameCore_->Draw(&SceneCamera_);
+    gameEnvironment_->Draw(&SceneCamera_);
 
     ModelManager::GetInstance()->PreDrawForAlphaObjectModel();
 
@@ -283,6 +290,7 @@ bool GameScene::IsComplateLoadBeatMap()
         std::string audioFilePath = beatMapLoader_->GetLoadedBeatMapData().audioFilePath;
         soundInstance_ = AudioSystem::GetInstance()->Load(audioFilePath);
 
+        gameEnvironment_->SetBPM(beatMapLoader_->GetLoadedBeatMapData().bpm);
 
         // ロード完了
         Debug::Log("BeatMap Loaded Successfully\n");
@@ -348,6 +356,10 @@ bool GameScene::IsMusicEnd() const
 void GameScene::ImGui()
 {
 #ifdef _DEBUG
+
+    if (input_->IsKeyTriggered(DIK_SPACE))
+        gameEnvironment_->StartAnimation();
+
 
     if(ImGuiDebugManager::GetInstance()->Begin("GameScene"))
 
