@@ -387,6 +387,7 @@ void GameScene::ImGui()
         if (ImGui::Button("SetBPM"))
         {
             beatManager_->SetBPM(bpm);
+            gameEnvironment_->SetBPM(bpm);
         }
 
         static float volume = 0.2f;
