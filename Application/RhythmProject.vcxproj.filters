@@ -85,6 +85,9 @@
     <Filter Include="Application\Scene\Data">
       <UniqueIdentifier>{b70322d9-5112-44a6-ac87-505f780bc756}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Environment">
+      <UniqueIdentifier>{3270d924-6385-41eb-a1e7-adc5b2108b38}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -196,6 +199,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Command\PasteCommand.cpp">
       <Filter>Application\BeatMapEditor\Command</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\GameEnvironment\GameEnvironment.cpp">
+      <Filter>Application\Environment</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -330,6 +336,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Command\PasteCommand.h">
       <Filter>Application\BeatMapEditor\Command</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\GameEnvironment\GameEnvironment.h">
+      <Filter>Application\Environment</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
