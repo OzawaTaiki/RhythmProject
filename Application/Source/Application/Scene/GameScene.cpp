@@ -152,10 +152,16 @@ void GameScene::Update()
     {
         voiceInstance_->Stop();
         voiceInstance_.reset();
-        voiceInstance_ = soundInstance_->Play(0.5f); // ボリュームとオフセットを設定して再生
-        gameCore_->Restart(voiceInstance_); // ゲームコアに音声インスタンスを設定
-        gameInputManager_->SetMusicVoiceInstance(voiceInstance_);
+
+        voiceInstance_ = soundInstance_->GenerateVoiceInstance(0.3f, 0.0f); // ボリュームとオフセットを設定して再生
+
         beatManager_->Reset();
+
+        gameCore_->Restart(voiceInstance_);
+        gameInputManager_->SetMusicVoiceInstance(voiceInstance_);
+        beatManager_->SetMusicVoiceInstance(voiceInstance_);
+
+        isWatingForStart_ = true;
     }
 
 
