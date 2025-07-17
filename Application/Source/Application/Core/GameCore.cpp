@@ -175,7 +175,11 @@ void GameCore::CreateBeatMapNotes()
 
 void GameCore::Restart(std::shared_ptr<VoiceInstance> _voiceInstance)
 {
+    isWaitingForStart_ = true;
+    waitTimer_ = 0.0f;
+
     SetMusicVoiceInstance(_voiceInstance);
     CreateBeatMapNotes();
     judgeResult_->Initialize();
+
 }

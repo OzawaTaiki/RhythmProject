@@ -69,6 +69,7 @@ public:
     /// </summary>
     void Restart(std::shared_ptr<VoiceInstance> _voiceInstance);
 
+
     /// <summary>
     /// 判定時のコールバック関数を設定する
     /// </summary>
