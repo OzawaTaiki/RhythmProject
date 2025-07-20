@@ -7,9 +7,6 @@
     <Filter Include="Application">
       <UniqueIdentifier>{0dec1c24-a800-462c-b567-f3efd305fac6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Scene">
-      <UniqueIdentifier>{6ff9434d-5779-4bf7-92c0-840b550980a2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Application\Lane">
       <UniqueIdentifier>{8db313fb-adad-492f-a52d-78f42409e5cf}</UniqueIdentifier>
     </Filter>
@@ -22,32 +19,14 @@
     <Filter Include="Application\Input">
       <UniqueIdentifier>{3ad8ebcf-5d40-4839-be37-72693e4efbaa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Combo">
-      <UniqueIdentifier>{2011a953-d490-40cc-b885-03ca2c69f81c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Score">
-      <UniqueIdentifier>{e9b0c341-6a49-49f5-a30c-c6e8b68d119d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Judge\Result">
-      <UniqueIdentifier>{c7db6b80-829a-4785-839a-06cd65fe6f5c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Application\Debug">
       <UniqueIdentifier>{030b9c6d-7706-47a8-b7c0-7dbe29b06417}</UniqueIdentifier>
     </Filter>
     <Filter Include="Application\BeatManager">
       <UniqueIdentifier>{9ad010fc-e9bf-47bb-80d3-07a75d91c4b5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Effects">
-      <UniqueIdentifier>{d0b45143-0256-4531-9b83-fc72c18b5001}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Application\BeatMapLoader">
       <UniqueIdentifier>{22209b8d-cf6c-4276-8a03-28c097c8a183}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Effects\LaneEffect">
-      <UniqueIdentifier>{8d76655d-dae6-4ce7-b884-14bd6cb43774}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Effects\TapEffects">
-      <UniqueIdentifier>{1becb388-379b-4a7f-a968-049ec8f0f527}</UniqueIdentifier>
     </Filter>
     <Filter Include="Application\BeatMapEditor">
       <UniqueIdentifier>{42d12039-f238-4928-b0c9-82f58e97bf2d}</UniqueIdentifier>
@@ -57,9 +36,6 @@
     </Filter>
     <Filter Include="Application\Core">
       <UniqueIdentifier>{46caf4df-5c0f-4b24-bcd4-fe67a832479f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Scene\SceneTransition">
-      <UniqueIdentifier>{30c8c9a1-4a23-4e0e-99d2-b0dd0e1f73b5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Application\FeedBack">
       <UniqueIdentifier>{15913ee5-bced-4b13-9693-e57cfca2a57f}</UniqueIdentifier>
@@ -82,11 +58,38 @@
     <Filter Include="Application\BeatMapEditor\Command\Core">
       <UniqueIdentifier>{7dc5343b-ca7f-453f-af53-f9fc2b9d8298}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Environment">
+      <UniqueIdentifier>{3270d924-6385-41eb-a1e7-adc5b2108b38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\FeedBack\LaneEffect">
+      <UniqueIdentifier>{8d76655d-dae6-4ce7-b884-14bd6cb43774}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\FeedBack\TapEffects">
+      <UniqueIdentifier>{1becb388-379b-4a7f-a968-049ec8f0f527}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Result">
+      <UniqueIdentifier>{e8f93c9b-9596-4e37-bf76-9fc7d4f79075}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Result\Combo">
+      <UniqueIdentifier>{2011a953-d490-40cc-b885-03ca2c69f81c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Result\Judge">
+      <UniqueIdentifier>{c7db6b80-829a-4785-839a-06cd65fe6f5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene">
+      <UniqueIdentifier>{6ff9434d-5779-4bf7-92c0-840b550980a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\SceneTransition">
+      <UniqueIdentifier>{30c8c9a1-4a23-4e0e-99d2-b0dd0e1f73b5}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Application\Scene\Data">
       <UniqueIdentifier>{b70322d9-5112-44a6-ac87-505f780bc756}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Environment">
-      <UniqueIdentifier>{3270d924-6385-41eb-a1e7-adc5b2108b38}</UniqueIdentifier>
+    <Filter Include="Application\Result\Score">
+      <UniqueIdentifier>{e9b0c341-6a49-49f5-a30c-c6e8b68d119d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\ResultUI">
+      <UniqueIdentifier>{d745dc63-befd-417a-9be5-ce27bf844dd8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -113,7 +116,7 @@
       <Filter>Application\Judge</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Note\Judge\JudgeResult.cpp">
-      <Filter>Application\Judge\Result</Filter>
+      <Filter>Application\Result\Judge</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\BeatsManager\BeatManager.cpp">
       <Filter>Application\BeatManager</Filter>
@@ -122,19 +125,19 @@
       <Filter>Application\BeatMapLoader</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Effects\LaneEffect\LaneEffect.cpp">
-      <Filter>Application\Effects\LaneEffect</Filter>
+      <Filter>Application\FeedBack\LaneEffect</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Effects\TapEffects\TriggerEffects.cpp">
-      <Filter>Application\Effects\TapEffects</Filter>
+      <Filter>Application\FeedBack\TapEffects</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Effects\TapEffects\HitparticleModifier.cpp">
-      <Filter>Application\Effects\TapEffects</Filter>
+      <Filter>Application\FeedBack\TapEffects</Filter>
     </ClCompile>
     <ClCompile Include="Source\Essential\ParticleModifierFactory.cpp">
       <Filter>Essential</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Effects\TapEffects\LightPillarModifier.cpp">
-      <Filter>Application\Effects\TapEffects</Filter>
+      <Filter>Application\FeedBack\TapEffects</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Scene\TitleScene.cpp">
       <Filter>Application\Scene</Filter>
@@ -172,7 +175,6 @@
     <ClCompile Include="Source\Application\FeedBack\FeedbackEffect.cpp">
       <Filter>Application\FeedBack</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\FeedBack\JudgeEffect\JudgeEffect.cpp" />
     <ClCompile Include="Source\Application\BeatMapEditor\BPMCounter\TapBPMCounter.cpp">
       <Filter>Application\BeatMapEditor\BPMCounter</Filter>
     </ClCompile>
@@ -203,6 +205,15 @@
     <ClCompile Include="Source\Application\GameEnvironment\GameEnvironment.cpp">
       <Filter>Application\Environment</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\FeedBack\JudgeEffect\JudgeEffect.cpp">
+      <Filter>Application\FeedBack\JudgeEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Result\UI\ResultUI.cpp">
+      <Filter>Application\ResultUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Note\Judge\JudgeType.cpp">
+      <Filter>Application\Judge</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Essential\SampleFramework.h">
@@ -227,7 +238,7 @@
       <Filter>Application\Judge</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Note\Judge\JudgeResult.h">
-      <Filter>Application\Judge\Result</Filter>
+      <Filter>Application\Result\Judge</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\BeatsManager\BeatManager.h">
       <Filter>Application\BeatManager</Filter>
@@ -239,19 +250,19 @@
       <Filter>Application\BeatMapLoader</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Effects\LaneEffect\LaneEffect.h">
-      <Filter>Application\Effects\LaneEffect</Filter>
+      <Filter>Application\FeedBack\LaneEffect</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Effects\TapEffects\HitparticleModifier.h">
-      <Filter>Application\Effects\TapEffects</Filter>
+      <Filter>Application\FeedBack\TapEffects</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Effects\TapEffects\TriggerEffects.h">
-      <Filter>Application\Effects\TapEffects</Filter>
+      <Filter>Application\FeedBack\TapEffects</Filter>
     </ClInclude>
     <ClInclude Include="Source\Essential\ParticleModifierFactory.h">
       <Filter>Essential</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Effects\TapEffects\LightPillarModifier.h">
-      <Filter>Application\Effects\TapEffects</Filter>
+      <Filter>Application\FeedBack\TapEffects</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Scene\TitleScene.h">
       <Filter>Application\Scene</Filter>
@@ -339,6 +350,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\GameEnvironment\GameEnvironment.h">
       <Filter>Application\Environment</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Result\ResultData.h">
+      <Filter>Application\Result</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Result\UI\ResultUI.h">
+      <Filter>Application\ResultUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

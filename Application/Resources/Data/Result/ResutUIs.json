@@ -1,0 +1,459 @@
+{
+    "ResutUIs": {
+        "Bad_Text_bottomColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Bad_Text_delay": 1.7999999523162842,
+        "Bad_Text_outlineColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Bad_Text_outlineScale": 0.029999999329447746,
+        "Bad_Text_pivot": {
+            "x": 0.5,
+            "y": 0.5
+        },
+        "Bad_Text_pos": {
+            "x": 580.0,
+            "y": 360.0
+        },
+        "Bad_Text_rotate": 0.0,
+        "Bad_Text_scale": {
+            "x": 1.0,
+            "y": 1.0
+        },
+        "Bad_Text_topColor": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Bad_Text_useGradient": true,
+        "Bad_Text_useOutline": true,
+        "Bad_count_bottomColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Bad_count_delay": 1.7999999523162842,
+        "Bad_count_outlineColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Bad_count_outlineScale": 0.029999999329447746,
+        "Bad_count_pivot": {
+            "x": 1.0,
+            "y": 0.5
+        },
+        "Bad_count_pos": {
+            "x": 720.0,
+            "y": 360.0
+        },
+        "Bad_count_rotate": 0.0,
+        "Bad_count_scale": {
+            "x": 1.0,
+            "y": 1.0
+        },
+        "Bad_count_topColor": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Bad_count_useGradient": true,
+        "Bad_count_useOutline": true,
+        "Combo_Text_bottomColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Combo_Text_delay": 2.5,
+        "Combo_Text_outlineColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Combo_Text_outlineScale": 0.029999999329447746,
+        "Combo_Text_pivot": {
+            "x": 0.5,
+            "y": 0.5
+        },
+        "Combo_Text_pos": {
+            "x": 580.0,
+            "y": 500.0
+        },
+        "Combo_Text_rotate": 0.0,
+        "Combo_Text_scale": {
+            "x": 1.0,
+            "y": 1.0
+        },
+        "Combo_Text_topColor": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Combo_Text_useGradient": true,
+        "Combo_Text_useOutline": true,
+        "Combo_count_bottomColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Combo_count_delay": 2.5,
+        "Combo_count_outlineColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Combo_count_outlineScale": 0.029999999329447746,
+        "Combo_count_pivot": {
+            "x": 0.0,
+            "y": 0.0
+        },
+        "Combo_count_pos": {
+            "x": 670.0,
+            "y": 480.0
+        },
+        "Combo_count_rotate": 0.0,
+        "Combo_count_scale": {
+            "x": 1.0,
+            "y": 1.0
+        },
+        "Combo_count_topColor": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Combo_count_useGradient": true,
+        "Combo_count_useOutline": true,
+        "Good_Text_bottomColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Good_Text_delay": 1.5,
+        "Good_Text_outlineColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Good_Text_outlineScale": 0.029999999329447746,
+        "Good_Text_pivot": {
+            "x": 0.5,
+            "y": 0.5
+        },
+        "Good_Text_pos": {
+            "x": 580.0,
+            "y": 320.0
+        },
+        "Good_Text_rotate": 0.0,
+        "Good_Text_scale": {
+            "x": 1.0,
+            "y": 1.0
+        },
+        "Good_Text_topColor": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Good_Text_useGradient": true,
+        "Good_Text_useOutline": true,
+        "Good_count_bottomColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Good_count_delay": 1.5,
+        "Good_count_outlineColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Good_count_outlineScale": 0.029999999329447746,
+        "Good_count_pivot": {
+            "x": 1.0,
+            "y": 0.5
+        },
+        "Good_count_pos": {
+            "x": 720.0,
+            "y": 320.0
+        },
+        "Good_count_rotate": 0.0,
+        "Good_count_scale": {
+            "x": 1.0,
+            "y": 1.0
+        },
+        "Good_count_topColor": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Good_count_useGradient": true,
+        "Good_count_useOutline": true,
+        "Miss_Text_bottomColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Miss_Text_delay": 2.0999999046325684,
+        "Miss_Text_outlineColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Miss_Text_outlineScale": 0.029999999329447746,
+        "Miss_Text_pivot": {
+            "x": 0.5,
+            "y": 0.5
+        },
+        "Miss_Text_pos": {
+            "x": 580.0,
+            "y": 400.0
+        },
+        "Miss_Text_rotate": 0.0,
+        "Miss_Text_scale": {
+            "x": 1.0,
+            "y": 1.0
+        },
+        "Miss_Text_topColor": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Miss_Text_useGradient": true,
+        "Miss_Text_useOutline": true,
+        "Miss_count_bottomColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Miss_count_delay": 2.0999999046325684,
+        "Miss_count_outlineColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Miss_count_outlineScale": 0.029999999329447746,
+        "Miss_count_pivot": {
+            "x": 1.0,
+            "y": 0.5
+        },
+        "Miss_count_pos": {
+            "x": 720.0,
+            "y": 400.0
+        },
+        "Miss_count_rotate": 0.0,
+        "Miss_count_scale": {
+            "x": 1.0,
+            "y": 1.0
+        },
+        "Miss_count_topColor": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Miss_count_useGradient": true,
+        "Miss_count_useOutline": true,
+        "Perfect_Text_bottomColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Perfect_Text_delay": 1.2000000476837158,
+        "Perfect_Text_outlineColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Perfect_Text_outlineScale": 0.029999999329447746,
+        "Perfect_Text_pivot": {
+            "x": 0.5,
+            "y": 0.5
+        },
+        "Perfect_Text_pos": {
+            "x": 580.0,
+            "y": 280.0
+        },
+        "Perfect_Text_rotate": 0.0,
+        "Perfect_Text_scale": {
+            "x": 1.0,
+            "y": 1.0
+        },
+        "Perfect_Text_topColor": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Perfect_Text_useGradient": true,
+        "Perfect_Text_useOutline": true,
+        "Perfect_count_bottomColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Perfect_count_delay": 1.2000000476837158,
+        "Perfect_count_outlineColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Perfect_count_outlineScale": 0.029999999329447746,
+        "Perfect_count_pivot": {
+            "x": 1.0,
+            "y": 0.5
+        },
+        "Perfect_count_pos": {
+            "x": 720.0,
+            "y": 280.0
+        },
+        "Perfect_count_rotate": 0.0,
+        "Perfect_count_scale": {
+            "x": 1.0,
+            "y": 1.0
+        },
+        "Perfect_count_topColor": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Perfect_count_useGradient": true,
+        "Perfect_count_useOutline": true,
+        "Score_Text_bottomColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Score_Text_delay": 0.5,
+        "Score_Text_outlineColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Score_Text_outlineScale": 0.029999999329447746,
+        "Score_Text_pivot": {
+            "x": 0.5,
+            "y": 0.0
+        },
+        "Score_Text_pos": {
+            "x": 550.0,
+            "y": 180.0
+        },
+        "Score_Text_rotate": 0.0,
+        "Score_Text_scale": {
+            "x": 1.0,
+            "y": 1.0
+        },
+        "Score_Text_topColor": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Score_Text_useGradient": true,
+        "Score_Text_useOutline": true,
+        "Score_Value_bottomColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Score_Value_delay": 0.6000000238418579,
+        "Score_Value_outlineColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Score_Value_outlineScale": 0.029999999329447746,
+        "Score_Value_pivot": {
+            "x": 1.0,
+            "y": 0.0
+        },
+        "Score_Value_pos": {
+            "x": 750.0,
+            "y": 180.0
+        },
+        "Score_Value_rotate": 0.0,
+        "Score_Value_scale": {
+            "x": 1.0,
+            "y": 1.0
+        },
+        "Score_Value_topColor": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Score_Value_useGradient": true,
+        "Score_Value_useOutline": true,
+        "Title_bottomColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Title_delay": 0.0,
+        "Title_outlineColor": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Title_outlineScale": 0.029999999329447746,
+        "Title_pivot": {
+            "x": 0.5,
+            "y": 0.5
+        },
+        "Title_pos": {
+            "x": 639.0,
+            "y": 128.0
+        },
+        "Title_rotate": 0.0,
+        "Title_scale": {
+            "x": 1.0,
+            "y": 1.0
+        },
+        "Title_topColor": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Title_useGradient": true,
+        "Title_useOutline": true
+    }
+}

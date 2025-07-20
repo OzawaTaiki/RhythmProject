@@ -1,0 +1,28 @@
+{
+    "Retry": {
+        "Retry_anchor": {
+            "x": 0.5,
+            "y": 0.5
+        },
+        "Retry_color": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Retry_directoryPath": "Resources/images/",
+        "Retry_isActive": 257,
+        "Retry_isVisible": 1,
+        "Retry_label": "Retry",
+        "Retry_pos": {
+            "x": 920.0,
+            "y": 640.0
+        },
+        "Retry_rotate": 0.0,
+        "Retry_size": {
+            "x": 360.0,
+            "y": 50.0
+        },
+        "Retry_textureName": "white.png"
+    }
+}

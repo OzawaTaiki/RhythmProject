@@ -1,5 +1,7 @@
 #include "ResultScene.h"
 
+#include <Application/Scene/Data/SceneDatas.h>
+
 void ResultScene::Initialize(SceneData* _sceneData)
 {
     SceneCamera_.Initialize();
@@ -21,8 +23,23 @@ void ResultScene::Initialize(SceneData* _sceneData)
     lightGroup_ = std::make_shared<LightGroup>();
     lightGroup_->Initialize();
 
-
     LightingSystem::GetInstance()->SetActiveGroup(lightGroup_);
+
+    // ------------------
+    // application
+
+    if (_sceneData)
+    {
+        auto data = dynamic_cast<GameToResultData*>(_sceneData);
+        if (data)
+        {
+            resultData_ = data->resultData;
+        }
+    }
+
+    resultUI_ = std::make_unique<ResultUI>();
+    resultUI_->Initialize(resultData_);
+
 }
 
 void ResultScene::Update()
@@ -36,6 +53,9 @@ void ResultScene::Update()
     lightGroup_->ImGui();
 
 #endif // _DEBUG
+
+    resultUI_->Update(static_cast<float>(GameTime::GetInstance()->GetDeltaTime()));
+
 
     if (enableDebugCamera_)
     {
@@ -58,7 +78,7 @@ void ResultScene::Update()
 
 void ResultScene::Draw()
 {
-
+    resultUI_->Draw();
 }
 
 void ResultScene::DrawShadow() {}

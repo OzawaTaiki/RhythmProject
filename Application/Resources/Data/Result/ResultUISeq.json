@@ -1,0 +1,93 @@
+{
+    "ResultUISeq": {
+        "IsLooping": false,
+        "MaxPlayTime": 1.0,
+        "SequenceSize": 3,
+        "alpha_keyFrames": [
+            {
+                "easingType": 0,
+                "isDelete": false,
+                "isSelect": false,
+                "time": 0.0,
+                "value": {
+                    "type": "float",
+                    "value": 0.0
+                }
+            },
+            {
+                "easingType": 16,
+                "isDelete": false,
+                "isSelect": false,
+                "time": 1.0,
+                "value": {
+                    "type": "float",
+                    "value": 1.0
+                }
+            }
+        ],
+        "alpha_variableType": 1,
+        "labels": [
+            "movement",
+            "scale",
+            "alpha"
+        ],
+        "movement_keyFrames": [
+            {
+                "easingType": 15,
+                "isDelete": false,
+                "isSelect": false,
+                "time": 0.10000000149011612,
+                "value": {
+                    "type": "Vector2",
+                    "value": {
+                        "x": 20.0,
+                        "y": 0.0
+                    }
+                }
+            },
+            {
+                "easingType": 15,
+                "isDelete": false,
+                "isSelect": false,
+                "time": 0.5,
+                "value": {
+                    "type": "Vector2",
+                    "value": {
+                        "x": 0.0,
+                        "y": 0.0
+                    }
+                }
+            }
+        ],
+        "movement_variableType": 2,
+        "scale_keyFrames": [
+            {
+                "easingType": 0,
+                "isDelete": false,
+                "isSelect": false,
+                "time": 0.0,
+                "value": {
+                    "type": "Vector2",
+                    "value": {
+                        "x": 0.0,
+                        "y": 0.0
+                    }
+                }
+            },
+            {
+                "easingType": 18,
+                "isDelete": false,
+                "isSelect": true,
+                "time": 0.30000001192092896,
+                "value": {
+                    "type": "Vector2",
+                    "value": {
+                        "x": 1.0,
+                        "y": 1.0
+                    }
+                }
+            }
+        ],
+        "scale_variableType": 2
+    }
+}

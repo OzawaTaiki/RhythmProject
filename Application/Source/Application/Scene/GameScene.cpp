@@ -122,8 +122,10 @@ void GameScene::Initialize(SceneData* _sceneData)
 #else
     beatManager_->SetEnableSound(false); // デバッグ時以外は音を無効にする
 #endif // _DEBUG
+
     isBeatMapLoaded_ = false;
 
+    isTransitionToResultScene_ = true;
 }
 
 void GameScene::Update()
@@ -144,7 +146,13 @@ void GameScene::Update()
 
     UpdateGameStartOffset();
 
+#ifdef _DEBUG
     ImGui();
+
+    if(input_->IsKeyTriggered(DIK_F8))
+        isTransitionToResultScene_ = !isTransitionToResultScene_; // F8キーで結果シーンへの遷移を切り替え
+
+#endif // _DEBUG
 
 #pragma region Application
 
@@ -163,6 +171,7 @@ void GameScene::Update()
 
         isWatingForStart_ = true;
     }
+
 
 
     float deltaTime = static_cast<float>(GameTime::GetInstance()->GetDeltaTime());
@@ -192,7 +201,8 @@ void GameScene::Update()
 
     if (IsMusicEnd())
     {
-        //SceneManager::ReserveScene("ResultScene", nullptr);
+        if(isTransitionToResultScene_)
+            SceneManager::ReserveScene("ResultScene", nullptr);
     }
 
     if (gameMode_ == GameMode::EditorTest)
@@ -223,9 +233,7 @@ void GameScene::Draw()
     particleSystem_->DrawParticles();
 }
 
-void GameScene::DrawShadow()
-{
-}
+void GameScene::DrawShadow() {}
 
 void GameScene::GenerateModels()
 {// 2x2 y+向き
@@ -434,6 +442,8 @@ void GameScene::ImGui()
     }
 
     SceneCamera_.ImGui();
+
+
 
 #endif // _DEBUG
 
