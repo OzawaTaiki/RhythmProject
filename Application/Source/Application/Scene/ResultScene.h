@@ -9,6 +9,9 @@
 #include <Features/Effect/Manager/ParticleSystem.h>
 
 
+#include <Application/Result/ResultData.h>
+#include <Application/Result/UI/ResultUI.h>
+
 class ResultScene : public BaseScene
 {
 public:
@@ -34,5 +37,14 @@ private:
     ParticleSystem* particleSystem_ = nullptr;
 
     std::shared_ptr<LightGroup> lightGroup_ = nullptr;
+
+
+    // -----------------------
+    // Application
+
+    ResultData resultData_ = {}; // 結果データ
+
+    std::unique_ptr<ResultUI> resultUI_ = nullptr; // 結果UI
+
 
 };

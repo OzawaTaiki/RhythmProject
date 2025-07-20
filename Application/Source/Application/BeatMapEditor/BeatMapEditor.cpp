@@ -1592,6 +1592,7 @@ void BeatMapEditor::UpdateEditorState()
 
 void BeatMapEditor::UpdateTimeline()
 {
+#ifdef _DEBUG
     if (ImGuiDebugManager::GetInstance()->Begin("Timeline Setting"))
     {
         for (auto& [name, tlSprite] : timelineSprites_)
@@ -1602,6 +1603,7 @@ void BeatMapEditor::UpdateTimeline()
         dummy_timeline_->ImGui();
         ImGui::End();
     }
+#endif // _DEBUG
 
     if (!musicSoundInstance_)
         return; // 音楽がロードされていない場合は何もしない

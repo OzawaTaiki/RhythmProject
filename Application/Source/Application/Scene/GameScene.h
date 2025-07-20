@@ -97,6 +97,7 @@ private:
     GameMode gameMode_ = GameMode::Normal;
 
     void ImGui();
-
+    // 楽曲終了後遷移するか
+    bool isTransitionToResultScene_ = false;
 
 };

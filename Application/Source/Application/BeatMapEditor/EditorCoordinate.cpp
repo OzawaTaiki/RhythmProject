@@ -1,5 +1,6 @@
 #include "EditorCoordinate.h"
 #include <Debug/Debug.h>
+#include <algorithm>
 
 EditorCoordinate::EditorCoordinate() :
     screenSize_(1280.0f, 720.0f),
