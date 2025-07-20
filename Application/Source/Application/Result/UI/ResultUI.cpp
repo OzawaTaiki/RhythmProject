@@ -29,7 +29,7 @@ void ResultUI::Initialize(ResultData _resultData)
         if (!param.counterValue.has_value())
             param.counterValue = std::make_optional<CounterValue>();
 
-        if (param.counterValue->value == 0)
+        if (param.counterValue->value == -1)
             param.counterValue->value = 192;
     }
 #endif // _DEBUG

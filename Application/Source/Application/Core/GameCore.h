@@ -82,6 +82,25 @@ public:
     /// </summary>
     /// <param name="_speed">ノーツの移動速度</param>
     void SetNoteSpeed(float _speed) { noteSpeed_ = _speed; noteJudge_->SetSpeed(noteSpeed_); }
+
+    /// <summary>
+    /// 最大コンボ数を取得する
+    /// </summary>
+    /// <returns>最大コンボ数</returns>
+    int32_t GetMaxCombo() const { return maxCombo_; }
+
+    /// <summary>
+    /// 現在のコンボ数を取得する
+    /// </summary>
+    /// <returns>現在のコンボ数</returns>
+    int32_t GetCombo() const { return combo_; }
+
+    /// <summary>
+    /// 判定結果を取得する
+    /// </summary>
+    /// <returns>判定結果のマップ</returns>
+    std::map<JudgeType, uint32_t> GetJudgeResult() const { return judgeResult_->GetJudgeResult(); }
+
 private:
 
     void JudgeNotes(const std::vector<InputDate>& _inputData);
@@ -110,6 +129,10 @@ private:
     // score あとまわし
 
     // note spawner あったらいいな
+
+    // コンボ
+    int32_t combo_ = 0; // 現在のコンボ数
+    int32_t maxCombo_ = 0; // 最大コンボ数
 
     //-------------------------
     // コールバック関連
