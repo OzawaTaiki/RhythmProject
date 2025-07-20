@@ -202,7 +202,15 @@ void GameScene::Update()
     if (IsMusicEnd())
     {
         if(isTransitionToResultScene_)
-            SceneManager::ReserveScene("ResultScene", nullptr);
+        {
+            auto data = std::make_unique<GameToResultData>();
+            data->resultData.musicTitle = beatMapLoader_->GetLoadedBeatMapData().title; // 譜面のタイトルを取得
+            data->resultData.combo = gameCore_->GetMaxCombo();
+            data->resultData.score = gameCore_->GetMaxCombo() * 100; // 仮のスコア計算
+            data->resultData.judgeResult = gameCore_->GetJudgeResult();
+
+            SceneManager::ReserveScene("ResultScene", std::move(data)); // 結果シーンにデータを渡す
+        }
     }
 
     if (gameMode_ == GameMode::EditorTest)
@@ -375,13 +383,15 @@ void GameScene::ImGui()
         gameEnvironment_->StartAnimation();
 
 
-    if(ImGuiDebugManager::GetInstance()->Begin("GameScene"))
-
+    if (input_->IsKeyTriggered(DIK_F1))
     {
-        if (input_->IsKeyTriggered(DIK_F1))
-        {
-            enableDebugCamera_ = !enableDebugCamera_;
-        }
+        enableDebugCamera_ = !enableDebugCamera_;
+    }
+    if(ImGuiDebugManager::GetInstance()->Begin("GameScene"))
+    {
+        ImGui::Text("combo: %d", gameCore_->GetCombo());
+        ImGui::Text("maxCombo: %d", gameCore_->GetMaxCombo());
+
         float time = voiceInstance_->GetElapsedTime();
         ImGui::Text("Elapsed Time: %.2f", time);
 

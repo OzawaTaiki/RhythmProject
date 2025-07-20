@@ -7,7 +7,13 @@
 // TODO : 判定ラインパーフェクトでない
 // 判定ラインでパーフェクトにならない 一本目の黄色ラインがそうなっている なぁぜ
 
-GameCore::GameCore(int32_t _laneCount)
+GameCore::GameCore(int32_t _laneCount) :
+    laneCount_(_laneCount),
+    isWaitingForStart_(true),
+    waitTimer_(0.0f),
+    noteDeletePosition_(0.0f),
+    maxCombo_(0),
+    combo_(0)
 {
     lanes_.resize(_laneCount);
 }
@@ -38,13 +44,21 @@ void GameCore::Initialize(float _noteSpeed, float _offset)
     noteJudge_->SetSpeed(_noteSpeed);
 
     noteDeletePosition_ = -noteJudge_->GetMissJudgeThreshold() * noteSpeed_; // ノーツを削除する位置を設定
+
+    combo_ = 0; // コンボの初期化
+    maxCombo_ = 0; // 最大コンボの初期化
 }
 
 void GameCore::Update(float  _deltaTime, const std::vector<InputDate>& _inputData)
 {
     for (auto& lane : lanes_)
     {
-        judgeResult_->AddJudge(JudgeType::Miss, lane->DeleteNotesOutOfScreen(noteDeletePosition_));
+        int32_t deleteCount = lane->DeleteNotesOutOfScreen(noteDeletePosition_);
+        judgeResult_->AddJudge(JudgeType::Miss, deleteCount); // 削除されたノーツの数をミスとしてカウント
+        if (deleteCount > 0)
+        {
+            combo_ = 0; // ノーツが削除されたらコンボをリセット
+        }
     }
 
     JudgeNotes(_inputData);
@@ -132,6 +146,17 @@ void GameCore::JudgeNotes(const std::vector<InputDate>& _inputData)
 
         if (onJudgeCallback_)
             onJudgeCallback_(laneIndex, result); // 判定時のコールバックを呼び出す
+
+        if (result == JudgeType::Perfect ||
+            result == JudgeType::Good)
+        {
+            ++combo_; // コンボを増やす
+            maxCombo_ = (std::max)(maxCombo_, combo_); // 最大コンボを更新
+        }
+        else
+        {
+            combo_ = 0; // コンボが途切れたらリセット
+        }
     }
 }
 

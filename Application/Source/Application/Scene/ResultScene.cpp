@@ -28,6 +28,12 @@ void ResultScene::Initialize(SceneData* _sceneData)
     // ------------------
     // application
 
+    resultData_.judgeResult[JudgeType::Perfect] = -1;
+    resultData_.judgeResult[JudgeType::Good] = -1;
+    resultData_.judgeResult[JudgeType::Bad] = -1;
+    resultData_.judgeResult[JudgeType::Miss] = -1;
+
+
     if (_sceneData)
     {
         auto data = dynamic_cast<GameToResultData*>(_sceneData);
