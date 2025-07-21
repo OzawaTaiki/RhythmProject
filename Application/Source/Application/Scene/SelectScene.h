@@ -7,7 +7,7 @@
 #include <Features/LineDrawer/LineDrawer.h>
 #include <System/Time/Stopwatch.h>
 #include <Features/Effect/Manager/ParticleSystem.h>
-#include <Features/TextRenderer/TextRenderer.h>
+#include <Features/TextRenderer/TextGenerator.h>
 
 #include <Features/UI/UIButton.h>
 
@@ -35,7 +35,7 @@ private:
     Input* input_ = nullptr;
     ParticleSystem* particleSystem_ = nullptr;
 
-    TextRenderer* textRenderer_ = nullptr;
+    TextGenerator text_;
 
     std::shared_ptr<LightGroup> lightGroup_ = nullptr;
 

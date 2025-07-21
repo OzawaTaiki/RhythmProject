@@ -32,7 +32,7 @@ void BeatMapEditor::Initialize(const BeatMapData& _beatMapData)
 {
     input_ = Input::GetInstance();
     lineDrawer_ = LineDrawer::GetInstance();
-    textRenderer_ = TextRenderer::GetInstance();
+    text_.Initialize(FontConfig());
 
 
 
@@ -756,7 +756,7 @@ void BeatMapEditor::DrawTimeline()
     timelineSprites_["end"]->Draw();
     timelineSprites_["playhead"]->Draw();
     timelineSprites_["toTestButton"]->Draw();
-    textRenderer_->DrawText(L"テスト", textParam_);
+    text_.Draw(L"テスト", textParam_);
 }
 
 

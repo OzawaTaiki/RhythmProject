@@ -26,7 +26,7 @@ void SelectScene::Initialize(SceneData* _sceneData)
     lightGroup_ = std::make_shared<LightGroup>();
     lightGroup_->Initialize();
 
-    textRenderer_ = TextRenderer::GetInstance();
+    text_.Initialize(FontConfig());
 
 
     LightingSystem::GetInstance()->SetActiveGroup(lightGroup_);
@@ -90,10 +90,10 @@ void SelectScene::Update()
         .SetPosition({ 640, 200 })
         .SetScale({ 1.0f, 1.0f });
 
-    textRenderer_->DrawText(L"せれくとしーん", param);
+    text_.Draw(L"せれくとしーん", param);
 
     param.SetPosition({ 640, 360 });
-    textRenderer_->DrawText(L"譜面ファイル選択(仮)", param);
+    text_.Draw(L"譜面ファイル選択(仮)", param);
 }
 
 void SelectScene::Draw()

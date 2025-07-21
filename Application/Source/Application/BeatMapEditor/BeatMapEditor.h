@@ -5,7 +5,7 @@
 #include <Features/LineDrawer/LineDrawer.h>
 #include <System/Audio/SoundInstance.h>
 #include <System/Audio/VoiceInstance.h>
-#include <Features/TextRenderer/TextRenderer.h>
+#include <Features/TextRenderer/TextGenerator.h>
 
 
 #include <Application/BeatMapEditor/EditorCoordinate.h>
@@ -350,9 +350,9 @@ private:
     LineDrawer* lineDrawer_ = nullptr;
     Input* input_ = nullptr;
     Camera for2dCamera_;
-    TextRenderer* textRenderer_ = nullptr;
     BeatMapLoader* beatMapLoader_ = nullptr;
     std::unique_ptr<BeatManager> beatManager_ = nullptr;
+    TextGenerator text_;
     bool enableBeats_ = false;
 
     // ========================================
@@ -458,6 +458,8 @@ private:
     std::unique_ptr<UISprite> dummy_editLaneArea_;
     std::unique_ptr<UISprite> dummy_window_;
     std::unique_ptr<UISprite> dummy_editArea_;
+
+
 
     // ========================================
     // 特殊機能

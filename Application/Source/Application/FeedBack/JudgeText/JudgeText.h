@@ -3,7 +3,7 @@
 #include <Math/Vector/Vector3.h>
 #include <Math/Vector/Vector4.h>
 #include <Features/Animation/Sequence/AnimationSequence.h>
-#include <Features/TextRenderer/TextRenderer.h>
+#include <Features/TextRenderer/TextGenerator.h>
 
 #include <Application/Note/Judge/JudgeType.h>
 
@@ -73,7 +73,7 @@ private:
     static float displayYOffset_; // Y軸のオフセット
 private:
 
-    TextRenderer* textRenderer_ = nullptr; // テキストレンダラー
+    TextGenerator text_;
 
     JudgeType judgeType_; // 判定タイプ
 

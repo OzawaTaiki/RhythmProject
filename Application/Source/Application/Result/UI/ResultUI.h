@@ -7,7 +7,7 @@
 #include <Features/Animation/Sequence/AnimationSequence.h>
 #include <Features/Json/JsonBinder.h>
 
-#include <Features/TextRenderer/TextRenderer.h>
+#include <Features/TextRenderer/TextGenerator.h>
 
 #include <Application/Result/ResultData.h>
 
@@ -131,4 +131,6 @@ private:
 
     bool transitionToTitle_ = false; // タイトルへ遷移するかどうか
     bool replay_ = false; // リプレイするかどうか
+
+    TextGenerator text_; // テキストジェネレータ
 };
