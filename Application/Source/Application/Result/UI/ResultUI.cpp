@@ -11,8 +11,8 @@ void ResultUI::Initialize(ResultData _resultData)
     textParams_[TextType::Score_value].counterValue = std::make_optional<CounterValue>();
     textParams_[TextType::Score_value].counterValue->value = _resultData.score;
 
-    textParams_[TextType::Score_value].counterValue = std::make_optional<CounterValue>();
-    textParams_[TextType::Score_value].counterValue->value = _resultData.score;
+    textParams_[TextType::Combo_value].counterValue = std::make_optional<CounterValue>();
+    textParams_[TextType::Combo_value].counterValue->value = _resultData.combo;
 
     for (auto& [judgeType, count] : _resultData.judgeResult)
     {
@@ -192,7 +192,19 @@ void ResultUI::InitUIGroup()
     auto mainBg = uiGroup_->CreateSprite("main_bg");
 
     auto toTitleButton = uiGroup_->CreateButton("To_Title");
+
+    toTitleButton->SetCallBackOnClickEnd([this]()
+        {
+            transitionToTitle_ = true;
+        });
+
     auto retryButton = uiGroup_->CreateButton("Retry");
+
+    retryButton->SetCallBackOnClickEnd([this]()
+        {
+            replay_ = true;
+        });
+
 
     UIGroup::LinkHorizontal({ toTitleButton, retryButton });
 

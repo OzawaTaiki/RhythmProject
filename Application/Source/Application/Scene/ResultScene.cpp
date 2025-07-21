@@ -1,6 +1,7 @@
 #include "ResultScene.h"
 
 #include <Application/Scene/Data/SceneDatas.h>
+#include <Features/Scene/Manager/SceneManager.h>
 
 void ResultScene::Initialize(SceneData* _sceneData)
 {
@@ -62,6 +63,15 @@ void ResultScene::Update()
 
     resultUI_->Update(static_cast<float>(GameTime::GetInstance()->GetDeltaTime()));
 
+
+    if (resultUI_->IsTransitionToTitle())
+    {
+        SceneManager::GetInstance()->ReserveScene("TitleScene", nullptr);
+    }
+    else if (resultUI_->IsReplay())
+    {
+        SceneManager::GetInstance()->ReserveScene("GameScene", nullptr);
+    }
 
     if (enableDebugCamera_)
     {
