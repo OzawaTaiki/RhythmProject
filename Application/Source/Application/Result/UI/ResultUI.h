@@ -28,6 +28,8 @@ public:
     // 描画
     void Draw();
 
+    bool IsTransitionToTitle() const { return transitionToTitle_; }
+    bool IsReplay() const { return replay_; }
 
 private:
 
@@ -103,16 +105,16 @@ private:
         float animationTimer = 0.0f; // アニメーションタイマー
     };
 
-
     float animationDuration_ = 0.25f;
+    std::unique_ptr<AnimationSequence> animationSequence_ = nullptr; // アニメーションシーケンス
 
     std::unique_ptr<UIGroup> uiGroup_ = nullptr; // UIグループ
+
 #ifdef _DEBUG
     std::vector<UISprite*> debugSprites_; // デバッグ用スプライト
     std::vector<UIButton*> debugButtons_; // デバッグ用ボタン
 #endif // _DEBUG
 
-    std::unique_ptr<AnimationSequence> animationSequence_ = nullptr; // アニメーションシーケンス
 
     // textParamの拡張
     struct ExtendedTextParam
@@ -126,4 +128,7 @@ private:
     std::map<TextType, ExtendedTextParam> textParams_; // テキストパラメータのマップ
 
     std::unique_ptr<JsonBinder> jsonBinder_ = nullptr; // JSONバインダー
+
+    bool transitionToTitle_ = false; // タイトルへ遷移するかどうか
+    bool replay_ = false; // リプレイするかどうか
 };
