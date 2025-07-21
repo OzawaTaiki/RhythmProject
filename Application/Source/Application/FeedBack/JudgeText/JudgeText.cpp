@@ -14,7 +14,7 @@ JudgeText::JudgeText():
     alpha_(1.0f), // 初期アルファ値を設定
     scale_(1.0f, 1.0f), // 初期スケールを設定
     displayDuration_(1.0f), // 初期表示時間を設定
-    textRenderer_(TextRenderer::GetInstance()) // テキストレンダラーのインスタンスを取得
+    text_({}) // テキストレンダラーのインスタンスを取得
 {
 }
 
@@ -36,8 +36,7 @@ void JudgeText::Initialize(JudgeType _judgeType, int32_t _laneIndex, const Camer
     judgeText_ = GetJudgeText(judgeType_); // 判定テキストの初期化
     GetJudgeTextColor(judgeType_, topColor_, bottomColor_); // 判定テキストの色を取得
 
-    if(!textRenderer_)
-        textRenderer_ = TextRenderer::GetInstance(); // テキストレンダラーのインスタンスを取得
+    text_.Initialize(FontConfig()); // テキストレンダラーの初期化
 
     animationSequence_ = std::make_unique<AnimationSequence>("JudgeTextAnimation");
     animationSequence_->Initialize("Resources/Data/AnimSeq/"); // アニメーションシーケンスの初期化
@@ -62,7 +61,7 @@ void JudgeText::Update(float _deltaTime)
 
 void JudgeText::Draw()
 {
-    textRenderer_->DrawText(judgeText_, textParam_);
+    text_.Draw(judgeText_, textParam_);
 }
 
 void JudgeText::AnimateText()

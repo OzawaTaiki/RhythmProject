@@ -42,6 +42,7 @@ void ResultUI::Initialize(ResultData _resultData)
     InitUIGroup();
     InitTextParams();
 
+    text_.Initialize(FontConfig());
 }
 
 
@@ -180,7 +181,7 @@ void ResultUI::Draw()
             break;
 
         // テキストの描画
-        TextRenderer::GetInstance()->DrawText(param.label, param.textParam);
+        text_.Draw(param.label, param.textParam);
     }
 }
 
