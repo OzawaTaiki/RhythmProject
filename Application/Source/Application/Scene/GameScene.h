@@ -18,6 +18,7 @@
 #include <Application/Input/GameInputManager.h>
 #include <Application/FeedBack/FeedbackEffect.h>
 #include <Application/GameEnvironment/GameEnvironment.h>
+#include <Application/GameUI/GameUI.h>
 
 #include <Application/BeatsManager/BeatManager.h>
 #include <Application/BeatMapLoader/BeatMapLoader.h>
@@ -76,6 +77,7 @@ private:
     std::unique_ptr<GameInputManager> gameInputManager_ = nullptr;  // ゲームの入力管理
     std::unique_ptr<FeedbackEffect> feedbackEffect_ = nullptr;      // フィードバックエフェクト
     std::unique_ptr<GameEnvironment> gameEnvironment_ = nullptr; // ゲーム環境のオブジェクト配置
+    std::unique_ptr<GameUI> gameUI_ = nullptr; // ゲームUI
 
     BeatMapLoader* beatMapLoader_ = nullptr;
     BeatMapData currentBeatMapData_ = {}; // 現在の譜面データ

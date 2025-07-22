@@ -115,6 +115,7 @@
     <ClCompile Include="Source\Application\FeedBack\JudgeSound\JudgeSound.cpp" />
     <ClCompile Include="Source\Application\FeedBack\JudgeText\JudgeText.cpp" />
     <ClCompile Include="Source\Application\GameEnvironment\GameEnvironment.cpp" />
+    <ClCompile Include="Source\Application\GameUI\GameUI.cpp" />
     <ClCompile Include="Source\Application\Input\GameInputManager.cpp" />
     <ClCompile Include="Source\Application\Lane\Lane.cpp" />
     <ClCompile Include="Source\Application\Note\Judge\JudgeLine.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="Source\Application\FeedBack\JudgeSound\JudgeSound.h" />
     <ClInclude Include="Source\Application\FeedBack\JudgeText\JudgeText.h" />
     <ClInclude Include="Source\Application\GameEnvironment\GameEnvironment.h" />
+    <ClInclude Include="Source\Application\GameUI\GameUI.h" />
     <ClInclude Include="Source\Application\Input\GameInputManager.h" />
     <ClInclude Include="Source\Application\Input\InputData.h" />
     <ClInclude Include="Source\Application\Lane\Lane.h" />

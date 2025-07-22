@@ -192,20 +192,24 @@ void ResultUI::InitUIGroup()
 
     auto mainBg = uiGroup_->CreateSprite("main_bg");
 
-    auto toTitleButton = uiGroup_->CreateButton("To_Title");
+    TextParam param;
+    param.SetColor(Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+
+    auto toTitleButton = uiGroup_->CreateButton("To_Title",L"タイトルへ");
 
     toTitleButton->SetCallBackOnClickEnd([this]()
         {
             transitionToTitle_ = true;
         });
+    toTitleButton->SetTextParam(param);
 
-    auto retryButton = uiGroup_->CreateButton("Retry");
+    auto retryButton = uiGroup_->CreateButton("Retry", L"リトライ");
 
     retryButton->SetCallBackOnClickEnd([this]()
         {
             replay_ = true;
         });
-
+    retryButton->SetTextParam(param);
 
     UIGroup::LinkHorizontal({ toTitleButton, retryButton });
 
