@@ -19,9 +19,6 @@
     <Filter Include="Application\Input">
       <UniqueIdentifier>{3ad8ebcf-5d40-4839-be37-72693e4efbaa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Debug">
-      <UniqueIdentifier>{030b9c6d-7706-47a8-b7c0-7dbe29b06417}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Application\BeatManager">
       <UniqueIdentifier>{9ad010fc-e9bf-47bb-80d3-07a75d91c4b5}</UniqueIdentifier>
     </Filter>
@@ -90,6 +87,9 @@
     </Filter>
     <Filter Include="Application\ResultUI">
       <UniqueIdentifier>{d745dc63-befd-417a-9be5-ce27bf844dd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\GameUI">
+      <UniqueIdentifier>{13c5d4ef-a997-4fc9-94e7-0c3ea5aadc0d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -213,6 +213,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Note\Judge\JudgeType.cpp">
       <Filter>Application\Judge</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\GameUI\GameUI.cpp">
+      <Filter>Application\GameUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -356,6 +359,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Result\UI\ResultUI.h">
       <Filter>Application\ResultUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\GameUI\GameUI.h">
+      <Filter>Application\GameUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

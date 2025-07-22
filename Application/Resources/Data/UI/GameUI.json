@@ -1,0 +1,76 @@
+{
+    "GameUI": {
+        "ComboTextParam": {
+            "bottomColor": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "outlineColor": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "outlineScale": 0.029999999329447746,
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "position": {
+                "x": 1000.0,
+                "y": 288.0
+            },
+            "rotate": 0.0,
+            "scale": {
+                "x": 0.8999999761581421,
+                "y": 0.8999999761581421
+            },
+            "topColor": {
+                "w": 1.0,
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "useGradient": false,
+            "useOutline": false
+        },
+        "ComboValueTextParam": {
+            "bottomColor": {
+                "w": 1.0,
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "outlineColor": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "outlineScale": 0.03999999910593033,
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "position": {
+                "x": 980.0,
+                "y": 256.0
+            },
+            "rotate": 0.0,
+            "scale": {
+                "x": 1.100000023841858,
+                "y": 1.100000023841858
+            },
+            "topColor": {
+                "w": 1.0,
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "useGradient": false,
+            "useOutline": false
+        }
+    }
+}

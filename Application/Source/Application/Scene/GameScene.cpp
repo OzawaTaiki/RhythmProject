@@ -100,6 +100,9 @@ void GameScene::Initialize(SceneData* _sceneData)
     gameEnvironment_ = std::make_unique<GameEnvironment>();
     gameEnvironment_->Initiaize();
 
+    gameUI_ = std::make_unique<GameUI>();
+    gameUI_->Initialize();
+
     gameCore_->SetJudgeCallback([&](int32_t _laneIndex, JudgeType _judgeType) {feedbackEffect_->PlayJudgeEffect(_laneIndex, _judgeType); });
 
 
@@ -181,6 +184,7 @@ void GameScene::Update()
     gameCore_->Update(deltaTime, gameInputManager_->GetInputData());
     feedbackEffect_->Update();
     gameEnvironment_->Update(deltaTime);
+    gameUI_->Update(gameCore_->GetCombo()); // コンボ値をUIに渡す
 
 
 #pragma endregion // Application
@@ -228,13 +232,15 @@ void GameScene::Draw()
 {
     ModelManager::GetInstance()->PreDrawForObjectModel();
     gameCore_->Draw(&SceneCamera_);
-    gameEnvironment_->Draw(&SceneCamera_);
+    //gameEnvironment_->Draw(&SceneCamera_);
 
     ModelManager::GetInstance()->PreDrawForAlphaObjectModel();
 
 
     Sprite::PreDraw();
-    //noteKeyController_->Draw();
+
+    gameUI_->Draw(); // UIの描画
+
 
     feedbackEffect_->Draw();
 
