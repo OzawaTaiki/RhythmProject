@@ -29,7 +29,7 @@ void SampleFramework::Initialize(const std::wstring& _winTitle)
     LayerSystem::Initialize();
 
     // 最初のシーンで初期化
-    sceneManager_->Initialize("EditorScene");
+    sceneManager_->Initialize("Sample");
 }
 
 void SampleFramework::Update()

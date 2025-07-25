@@ -19,7 +19,7 @@ public:
     ~GameEnvironment() = default;
 
 
-    void Initiaize(const std::string& _filePath = "Resources/Data/Game/Environment.json");
+    void Initialize(const std::string& _filePath = "Resources/Data/Game/Environment.json");
 
     void Update(float _deltaTime);
 

@@ -3,7 +3,7 @@
 #include <Features/Json/Loader/JsonFileIO.h>
 #include <Utility/StringUtils/StringUitls.h>
 
-void GameEnvironment::Initiaize(const std::string& _filePath)
+void GameEnvironment::Initialize(const std::string& _filePath)
 {
     GameTime::GetChannel("GameEnvironment");
     Serialize(_filePath);

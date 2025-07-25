@@ -101,7 +101,7 @@ void GameScene::Initialize(SceneData* _sceneData)
     feedbackEffect_->Initialize(&SceneCamera_);
 
     gameEnvironment_ = std::make_unique<GameEnvironment>();
-    gameEnvironment_->Initiaize();
+    gameEnvironment_->Initialize();
 
     gameUI_ = std::make_unique<GameUI>();
     gameUI_->Initialize();

@@ -12,6 +12,10 @@
 #include <Application/Result/ResultData.h>
 #include <Application/Result/UI/ResultUI.h>
 
+#include <Application/GameEnvironment/GameEnvironment.h>
+
+#include <Features/PostEffects/BoxFilter.h>
+
 class ResultScene : public BaseScene
 {
 public:
@@ -46,5 +50,8 @@ private:
 
     std::unique_ptr<ResultUI> resultUI_ = nullptr; // 結果UI
 
+    std::unique_ptr<GameEnvironment> gameEnvironment_ = nullptr; // ゲーム環境
 
+    std::unique_ptr<BoxFilter> boxFilter_ = nullptr; // ポストエフェクトのボックスフィルター
+    BoxFilterData boxFilterData_ = {}; // ボックスフィルターのデータ
 };

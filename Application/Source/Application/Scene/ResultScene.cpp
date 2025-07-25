@@ -3,6 +3,9 @@
 #include <Application/Scene/Data/SceneDatas.h>
 #include <Features/Scene/Manager/SceneManager.h>
 
+#include <Framework/LayerSystem/LayerSystem.h>
+#include <Features/Model/Manager/ModelManager.h>
+
 void ResultScene::Initialize(SceneData* _sceneData)
 {
     SceneCamera_.Initialize();
@@ -47,6 +50,20 @@ void ResultScene::Initialize(SceneData* _sceneData)
     resultUI_ = std::make_unique<ResultUI>();
     resultUI_->Initialize(resultData_);
 
+
+    gameEnvironment_ = std::make_unique<GameEnvironment>();
+    gameEnvironment_->Initialize();
+
+    boxFilter_ = std::make_unique<BoxFilter>();
+    boxFilter_->Initialize();
+
+    boxFilterData_.kernelSize = 5; // カーネルサイズを設定
+
+    boxFilter_->SetData(&boxFilterData_);
+
+
+    LayerSystem::CreateLayer("GameEnvironment", 0);
+    LayerSystem::CreateLayer("Main", 1);
 }
 
 void ResultScene::Update()
@@ -61,8 +78,10 @@ void ResultScene::Update()
 
 #endif // _DEBUG
 
-    resultUI_->Update(static_cast<float>(GameTime::GetInstance()->GetDeltaTime()));
+    float deltaTime = static_cast<float>(GameTime::GetInstance()->GetDeltaTime());
 
+    resultUI_->Update(deltaTime);
+    gameEnvironment_->Update(deltaTime);
 
     if (resultUI_->IsTransitionToTitle())
     {
@@ -87,13 +106,19 @@ void ResultScene::Update()
     }
 
     particleSystem_->Update();
-
-
-
 }
 
 void ResultScene::Draw()
 {
+    ModelManager::GetInstance()->PreDrawForObjectModel();
+    LayerSystem::SetLayer("GameEnvironment");
+
+    gameEnvironment_->Draw(&SceneCamera_);
+
+    LayerSystem::ApplyPostEffect("GameEnvironment", "Main", boxFilter_.get());
+
+    LayerSystem::SetLayer("Main");
+
     resultUI_->Draw();
 }
 

@@ -1,4 +1,5 @@
 #include "TitleScene.h"
+#include <Features/Scene/Manager/SceneManager.h>
 
 void TitleScene::Initialize(SceneData* _sceneData)
 {
@@ -39,6 +40,13 @@ void TitleScene::Update()
     lightGroup_->ImGui();
 
 #endif // _DEBUG
+
+
+    if (input_->IsKeyTriggered(DIK_SPACE))
+    {
+        // シーンの切り替え
+        SceneManager::ReserveScene("GameScene", nullptr);
+    }
 
     if (enableDebugCamera_)
     {

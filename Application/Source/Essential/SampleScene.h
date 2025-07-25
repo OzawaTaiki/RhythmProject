@@ -22,9 +22,9 @@
 #include <system/Audio/VoiceInstance.h>
 
 #include <Features/Model/SkyBox.h>
-#include <features/PostEffects/BoxFilter.h>
-#include <Features/PostEffects/DepthBasedOutLine.h>
+#include <Features/PostEffects/GrayScale.h>
 
+#include <Features/TextRenderer/TextGenerator.h>
 
 class SampleScene : public BaseScene
 {
@@ -79,11 +79,11 @@ private:
 
     std::unique_ptr<SkyBox> skyBox_ = nullptr;
 
-    BoxFilter* boxFilter_ = nullptr;
-    BoxFilterData boxFilterData_;
+    std::unique_ptr<GrayScale> grayScale_ = nullptr;
+    GrayScaleData grayScaleData_;
 
-    DepthBasedOutLine* depthBasedOutLine_ = nullptr;
-    DepthBasedOutLineData depthBasedOutLineData_;
+    // テキストジェネレータ
+    TextGenerator textGenerator_;
 
 #ifdef _DEBUG
     void ImGui();
