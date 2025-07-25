@@ -23,6 +23,11 @@
 #include <Application/BeatsManager/BeatManager.h>
 #include <Application/BeatMapLoader/BeatMapLoader.h>
 
+#include <Features/PostEffects/BoxFilter.h>
+#include <Features/PostEffects/Vignette.h>
+#include <Features/PostEffects/DepthBasedOutLine.h>
+
+
 enum class GameMode
 {
     Normal,
@@ -97,6 +102,9 @@ private:
 
 
     GameMode gameMode_ = GameMode::Normal;
+
+    std::unique_ptr<DepthBasedOutLine> depthBasedOutLine_ = nullptr;
+    DepthBasedOutLineData depthBasedOutLineData_ = {};
 
     void ImGui();
     // 楽曲終了後遷移するか

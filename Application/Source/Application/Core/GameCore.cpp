@@ -58,6 +58,10 @@ void GameCore::Update(float  _deltaTime, const std::vector<InputDate>& _inputDat
         if (deleteCount > 0)
         {
             combo_ = 0; // ノーツが削除されたらコンボをリセット
+            if (onMissCallback_)
+            {
+                onMissCallback_(); // ミス時のコールバックを呼び出す
+            }
         }
     }
 
@@ -86,10 +90,6 @@ void GameCore::Update(float  _deltaTime, const std::vector<InputDate>& _inputDat
 
 void GameCore::Draw(const Camera* _camera)
 {
-    LineDrawer::GetInstance()->RegisterPoint(Vector3(-4, 0, 0), Vector3(4, 0, 0));
-
-    noteJudge_->DrawJudgeLine();
-
     for (const auto& lane : lanes_)
     {
         if (lane)
@@ -97,6 +97,10 @@ void GameCore::Draw(const Camera* _camera)
             lane->Draw(_camera);
         }
     }
+    LineDrawer::GetInstance()->RegisterPoint(Vector3(-4, 0, 0), Vector3(4, 0, 0));
+
+    noteJudge_->DrawJudgeLine();
+
 }
 
 void GameCore::GenerateNotes(const BeatMapData& _beatMapData)
@@ -156,6 +160,10 @@ void GameCore::JudgeNotes(const std::vector<InputDate>& _inputData)
         else
         {
             combo_ = 0; // コンボが途切れたらリセット
+            if (onMissCallback_)
+            {
+                onMissCallback_(); // ミス時のコールバックを呼び出す
+            }
         }
     }
 }

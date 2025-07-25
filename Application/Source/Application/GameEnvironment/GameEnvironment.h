@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Features/Model/ObjectModel.h>
+#include <Features/UVTransform/SpriteSheetAnimetion.h>
 
 
 #include <memory>
@@ -18,7 +19,7 @@ public:
     ~GameEnvironment() = default;
 
 
-    void Initiaize();
+    void Initiaize(const std::string& _filePath = "Resources/Data/Game/Environment.json");
 
     void Update(float _deltaTime);
 
@@ -29,8 +30,14 @@ public:
     void StartAnimation();
 private:
 
-    std::vector<std::unique_ptr<ObjectModel>> speakers_ = {};
-    std::vector<std::unique_ptr<ObjectModel>> floors_ = {};
+    void Serialize(const std::string& _filePath);
+
+
+private:
+    std::vector<std::unique_ptr<ObjectModel>> environmentObjects_ = {};
+    std::unique_ptr<ObjectModel> overFloor_ = nullptr;
+
+    SpriteSheetAnimation spriteSheetAnimation_; // 連番画像アニメーション
 
     std::vector<Vector4> floorColors_ = {
         { 0.2f, 0.2f, 0.2f, 1.0f }, // UnderFloor

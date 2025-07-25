@@ -1,6 +1,7 @@
 #include "SampleScene.h"
 
 #include <Core/DXCommon/TextureManager/TextureManager.h>
+#include <Core/DXCommon/RTV/RTVManager.h>
 
 #include <Features/Scene/Manager/SceneManager.h>
 #include <Features/Sprite/Sprite.h>
@@ -8,13 +9,17 @@
 #include <Features/Model/Primitive/Triangle.h>
 #include <Features/Model/Primitive/Plane.h>
 #include <Features/Collision/Manager/CollisionManager.h>
-#include <Features/PostEffects/DepthBasedOutLine.h>
+
+
 
 #include <Debug/ImGuiManager.h>
+#include <Framework/LayerSystem/LayerSystem.h>
 
 
 SampleScene::~SampleScene()
 {
+    delete boxFilter_;
+    delete depthBasedOutLine_;
 }
 
 void SampleScene::Initialize(SceneData* _sceneData)
@@ -117,7 +122,32 @@ void SampleScene::Initialize(SceneData* _sceneData)
     emitter_ = std::make_unique<ParticleEmitter>();
     emitter_->Initialize("TapEffect_01");
 
-    DepthBasedOutLine::GetInstance()->SetCamera(&SceneCamera_);
+
+
+    boxFilter_ = new BoxFilter();
+    boxFilter_->Initialize();
+
+    boxFilterData_ = BoxFilterData();
+    boxFilterData_.kernelSize = 5; // カーネルサイズを設定
+
+    boxFilter_->SetData(&boxFilterData_);
+
+    // DepthBasedOutLineの初期化
+    depthBasedOutLine_ = new DepthBasedOutLine();
+    depthBasedOutLine_->Initialize();
+    depthBasedOutLine_->SetCamera(&SceneCamera_);
+    depthBasedOutLineData_ = DepthBasedOutLineData();
+
+    depthBasedOutLine_->SetData(&depthBasedOutLineData_);
+
+
+    LayerSystem::CreateLayer("Model", 0);
+    LayerSystem::CreateLayer("Sprite", 1);
+    LayerSystem::CreateOutputLayer("BoxFilter");
+
+
+
+
 
 }
 
@@ -161,6 +191,14 @@ void SampleScene::Update()
                     voiceInstance_ = nullptr; // VoiceInstanceを解放
                 }
             }
+
+            if(ImGui::InputInt("Kernel Size", &boxFilterData_.kernelSize))
+                boxFilter_->SetData(&boxFilterData_);
+
+            ImGui::SeparatorText("Depth outline");
+
+            depthBasedOutLineData_.ImGui();
+
         }
         ImGui::End();
 
@@ -210,12 +248,15 @@ void SampleScene::Draw()
 
     // SkyBoxのキューブマップを描画キューに追加(任意)
     //skyBox_->QueueCmdCubeTexture();
-
+    LayerSystem::SetLayer("Model");
     // groundの描画
     ground_->Draw(&SceneCamera_, groundTextureHandle_, drawColor_);
     // humanの描画
     human_->Draw(&SceneCamera_, drawColor_);
 
+    LayerSystem::ApplyPostEffect("Model", "BoxFilter", depthBasedOutLine_);
+    //LayerSystem::ApplyPostEffect("Model", "BoxFilter", boxFilter_);
+    LayerSystem::SetLayer("Sprite");
 
     // Sprite用のPSO等をセット
     Sprite::PreDraw();

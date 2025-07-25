@@ -91,6 +91,9 @@
     <Filter Include="Application\GameUI">
       <UniqueIdentifier>{13c5d4ef-a997-4fc9-94e7-0c3ea5aadc0d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\FeedBack\MissedVignette">
+      <UniqueIdentifier>{c684dc34-a1f7-469e-b109-12b541e03171}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -216,6 +219,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\GameUI\GameUI.cpp">
       <Filter>Application\GameUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\FeedBack\MissedVignette\MissedVignette.cpp">
+      <Filter>Application\FeedBack\MissedVignette</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -362,6 +368,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\GameUI\GameUI.h">
       <Filter>Application\GameUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\FeedBack\MissedVignette\MissedVignette.h">
+      <Filter>Application\FeedBack\MissedVignette</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

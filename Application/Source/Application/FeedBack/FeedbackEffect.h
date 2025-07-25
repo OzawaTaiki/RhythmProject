@@ -4,6 +4,7 @@
 #include <Application/FeedBack/JudgeSound/JudgeSound.h>
 #include <Application/FeedBack/JudgeEffect/JudgeEffect.h>
 #include <Application/FeedBack/JudgeText/JudgeText.h>
+#include <Application/FeedBack/MissedVignette/MissedVignette.h>
 
 #include <memory>
 #include <vector>
@@ -29,6 +30,13 @@ public:
     /// </summary>
     void PlayJudgeEffect(int32_t _laneIndex, JudgeType _judgeType);
 
+    /// <summary>
+    /// ミス時のエフェクトを再生する
+    /// </summary>
+    void PlayMissedEffect();
+
+
+    void ApplyMissedVignetteEffect(const std::string& _input, const std::string& _output);
 private:
 
     /// <summary>
@@ -57,6 +65,9 @@ private:
     std::array<std::unique_ptr<JudgeText>, kMaxJudgeTexts_> judgeTextPool_;
     std::bitset<kMaxJudgeTexts_> usedJudgeTexts_; // 使用中のテキストを管理するビットセット
 
+
+    /// ミス時のエフェクト
+    std::unique_ptr<MissedVignette> missedVignette_; // ミス時のビネットエフェクト
 
     /// UI
 

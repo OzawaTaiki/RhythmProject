@@ -22,6 +22,8 @@
 #include <system/Audio/VoiceInstance.h>
 
 #include <Features/Model/SkyBox.h>
+#include <features/PostEffects/BoxFilter.h>
+#include <Features/PostEffects/DepthBasedOutLine.h>
 
 
 class SampleScene : public BaseScene
@@ -77,7 +79,11 @@ private:
 
     std::unique_ptr<SkyBox> skyBox_ = nullptr;
 
+    BoxFilter* boxFilter_ = nullptr;
+    BoxFilterData boxFilterData_;
 
+    DepthBasedOutLine* depthBasedOutLine_ = nullptr;
+    DepthBasedOutLineData depthBasedOutLineData_;
 
 #ifdef _DEBUG
     void ImGui();
