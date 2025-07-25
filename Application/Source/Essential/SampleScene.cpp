@@ -1,6 +1,7 @@
 #include "SampleScene.h"
 
 #include <Core/DXCommon/TextureManager/TextureManager.h>
+#include <Core/DXCommon/RTV/RTVManager.h>
 
 #include <Features/Scene/Manager/SceneManager.h>
 #include <Features/Sprite/Sprite.h>
@@ -8,9 +9,11 @@
 #include <Features/Model/Primitive/Triangle.h>
 #include <Features/Model/Primitive/Plane.h>
 #include <Features/Collision/Manager/CollisionManager.h>
-#include <Features/PostEffects/DepthBasedOutLine.h>
+
+
 
 #include <Debug/ImGuiManager.h>
+#include <Framework/LayerSystem/LayerSystem.h>
 
 
 SampleScene::~SampleScene()
@@ -94,9 +97,9 @@ void SampleScene::Initialize(SceneData* _sceneData)
     // 地面を生成する
     ground_ = std::make_unique<ObjectModel>("ground");
     // 生成した板ポリを使用する (生成時に設定した名前を渡す)
-    ground_->Initialize("groundPlane");
+    ground_->Initialize("terrain.obj");
     // UV変換を設定する
-    ground_->GetUVTransform().SetScale({ 10,10 });
+    //ground_->GetUVTransform().SetScale({ 10,10 });
 
     // 地面のテクスチャを読み込む 描画時に使用する
     groundTextureHandle_ = TextureManager::GetInstance()->Load("white.png");
@@ -117,7 +120,22 @@ void SampleScene::Initialize(SceneData* _sceneData)
     emitter_ = std::make_unique<ParticleEmitter>();
     emitter_->Initialize("TapEffect_01");
 
-    DepthBasedOutLine::GetInstance()->SetCamera(&SceneCamera_);
+
+
+    grayScale_ = std::make_unique<GrayScale>();
+    grayScale_->Initialize();
+
+    grayScaleData_.intensity = 1.0f;
+
+    grayScale_->SetData(&grayScaleData_);
+
+
+    LayerSystem::CreateLayer("Model", 0);
+    LayerSystem::CreateLayer("Main", 1);
+
+
+    textGenerator_.Initialize(FontConfig());
+
 
 }
 
@@ -161,6 +179,8 @@ void SampleScene::Update()
                     voiceInstance_ = nullptr; // VoiceInstanceを解放
                 }
             }
+
+
         }
         ImGui::End();
 
@@ -174,13 +194,27 @@ void SampleScene::Update()
 
 #endif // _DEBUG
 
+    if (input_->IsKeyTriggered(DIK_SPACE))
+    {
+        // シーンの切り替え
+        SceneManager::ReserveScene("GameScene",nullptr);
+    }
+
+    if (input_->IsKeyPressed(DIK_LEFT))
+        grayScaleData_.intensity -= 0.01f;
+    if (input_->IsKeyPressed(DIK_RIGHT))
+        grayScaleData_.intensity += 0.01f;
+
+    grayScaleData_.intensity = std::clamp(grayScaleData_.intensity, 0.0f, 1.0f);
+
     // モデルの更新
     human_->Update();
     ground_->Update();
     emitter_->Update(0.016f);
 
 
-
+    textGenerator_.Draw(L"← → でグレースケールの強度変化", Vector2(200, 300), Vector4(1, 0, 0, 1));
+    textGenerator_.Draw(L"Space でシーンチェンジ", Vector2(200, 500), Vector4(1, 0, 0, 1));
     // --------------------------------
     // シーン共通更新処理
 
@@ -210,17 +244,19 @@ void SampleScene::Draw()
 
     // SkyBoxのキューブマップを描画キューに追加(任意)
     //skyBox_->QueueCmdCubeTexture();
-
+    LayerSystem::SetLayer("Model");
     // groundの描画
-    ground_->Draw(&SceneCamera_, groundTextureHandle_, drawColor_);
+    ground_->Draw(&SceneCamera_,  drawColor_);
     // humanの描画
     human_->Draw(&SceneCamera_, drawColor_);
 
+    //LayerSystem::ApplyPostEffect("Model", "BoxFilter", boxFilter_);
 
     // Sprite用のPSO等をセット
     Sprite::PreDraw();
     // スプライトの描画
-    sprite_->Draw();
+    sprite_->Draw(Vector4(1, 1, 1, 1));
+    LayerSystem::ApplyPostEffect("Model", "Main", grayScale_.get());
 
 
     ParticleSystem::GetInstance()->DrawParticles();

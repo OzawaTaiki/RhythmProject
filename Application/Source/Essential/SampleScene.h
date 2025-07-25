@@ -22,7 +22,9 @@
 #include <system/Audio/VoiceInstance.h>
 
 #include <Features/Model/SkyBox.h>
+#include <Features/PostEffects/GrayScale.h>
 
+#include <Features/TextRenderer/TextGenerator.h>
 
 class SampleScene : public BaseScene
 {
@@ -77,7 +79,11 @@ private:
 
     std::unique_ptr<SkyBox> skyBox_ = nullptr;
 
+    std::unique_ptr<GrayScale> grayScale_ = nullptr;
+    GrayScaleData grayScaleData_;
 
+    // テキストジェネレータ
+    TextGenerator textGenerator_;
 
 #ifdef _DEBUG
     void ImGui();

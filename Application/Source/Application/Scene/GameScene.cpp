@@ -16,6 +16,9 @@
 
 #include <Application/Scene/Transition/SceneTrans.h>
 #include <Application/Scene/Data/SceneDatas.h>
+#include <Framework/LayerSystem/LayerSystem.h>
+#include <Features/ColorMask/ColorMask.h>
+#include <Core/DXCommon/TextureManager/TextureManager.h>
 
 GameScene::~GameScene()
 {
@@ -98,13 +101,13 @@ void GameScene::Initialize(SceneData* _sceneData)
     feedbackEffect_->Initialize(&SceneCamera_);
 
     gameEnvironment_ = std::make_unique<GameEnvironment>();
-    gameEnvironment_->Initiaize();
+    gameEnvironment_->Initialize();
 
     gameUI_ = std::make_unique<GameUI>();
     gameUI_->Initialize();
 
     gameCore_->SetJudgeCallback([&](int32_t _laneIndex, JudgeType _judgeType) {feedbackEffect_->PlayJudgeEffect(_laneIndex, _judgeType); });
-
+    gameCore_->SetMissCallback([&]() {feedbackEffect_->PlayMissedEffect(); });
 
     SceneManager::GetInstance()->SetTransition(std::make_unique<SceneTrans>());
 
@@ -129,6 +132,21 @@ void GameScene::Initialize(SceneData* _sceneData)
     isBeatMapLoaded_ = false;
 
     isTransitionToResultScene_ = true;
+
+    LayerSystem::CreateLayer("GameEnvironment", 0);
+    LayerSystem::CreateLayer("GameCore", 1);
+    LayerSystem::CreateLayer("FeedbackEffect", 2);
+    LayerSystem::CreateOutputLayer("effect");
+
+
+    depthBasedOutLine_ = std::make_unique<DepthBasedOutLine>();
+    depthBasedOutLine_->Initialize();
+
+    depthBasedOutLineData_ = DepthBasedOutLineData();
+    depthBasedOutLineData_.edgeColor.z = 0.8f;
+    depthBasedOutLineData_.edgeWidth = 1.5f;
+    depthBasedOutLine_->SetCamera(&SceneCamera_);
+    depthBasedOutLine_->SetData(&depthBasedOutLineData_);
 }
 
 void GameScene::Update()
@@ -136,16 +154,6 @@ void GameScene::Update()
     // ロードが完了してなかったら更新しない
     if (!IsComplateLoadBeatMap())
         return;
-
-    // ごちゃついてきたから少し整理
-    /*
-        isWating は曲を再生するまでの待機状態を表すフラグ
-        これが真のときは noteは動いていてほしい 描画もしてくれ
-        負のときは？ それはすでにゲームが始まっている状態 なにも制限する必要はない
-        -> 特に制限する必要はなく 時間がたったら音楽を再生するだけ
-        なので、ゲーム開始オフセット時間を超えたら falseにする(必要ある?wkrn)
-
-    */
 
     UpdateGameStartOffset();
 
@@ -155,11 +163,13 @@ void GameScene::Update()
     if(input_->IsKeyTriggered(DIK_F8))
         isTransitionToResultScene_ = !isTransitionToResultScene_; // F8キーで結果シーンへの遷移を切り替え
 
+    depthBasedOutLineData_.ImGui();
+
 #endif // _DEBUG
 
 #pragma region Application
 
-    if (input_->IsKeyTriggered(DIK_R))
+    if (input_->IsKeyPressed(DIK_LSHIFT) && input_->IsKeyTriggered(DIK_R))
     {
         voiceInstance_->Stop();
         voiceInstance_.reset();
@@ -175,7 +185,7 @@ void GameScene::Update()
         isWatingForStart_ = true;
     }
 
-
+    depthBasedOutLineData_.edgeColor.x = std::sin(static_cast<float>((Time::GetCurrentTime)())) * 0.5f + 0.5f;
 
     float deltaTime = static_cast<float>(GameTime::GetInstance()->GetDeltaTime());
 
@@ -230,21 +240,29 @@ void GameScene::Update()
 
 void GameScene::Draw()
 {
+    // レイヤーごとに描画
     ModelManager::GetInstance()->PreDrawForObjectModel();
+
+    LayerSystem::SetLayer("GameEnvironment");
+
+    gameEnvironment_->Draw(&SceneCamera_);
+
+    //LayerSystem::ApplyPostEffect("GameEnvironment", "effect", boxFilter_.get());
+    feedbackEffect_->ApplyMissedVignetteEffect("GameEnvironment", "GameCore");
+
+    ModelManager::GetInstance()->PreDrawForObjectModel();
+    LayerSystem::SetLayer("GameCore");
     gameCore_->Draw(&SceneCamera_);
-    //gameEnvironment_->Draw(&SceneCamera_);
 
-    ModelManager::GetInstance()->PreDrawForAlphaObjectModel();
-
-
+    LayerSystem::ApplyPostEffect("GameCore", "FeedbackEffect", depthBasedOutLine_.get());
     Sprite::PreDraw();
 
     gameUI_->Draw(); // UIの描画
 
 
+    LayerSystem::SetLayer("FeedbackEffect");
     feedbackEffect_->Draw();
 
-    particleSystem_->DrawParticles();
 }
 
 void GameScene::DrawShadow() {}
@@ -273,6 +291,8 @@ void GameScene::GenerateModels()
     plane_py01.SetPivot(Vector3(0, 1, 0));
 
     plane_py01.Generate("pY1x1p01Plane");// y+向き 1x1 pivot(0,1,0)
+
+
 
     // ほそ長いやつ
     Plane plane2;

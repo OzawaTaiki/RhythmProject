@@ -18,6 +18,11 @@ void FeedbackEffect::Initialize(Camera* _camera)
         judgeTextPool_[i] = std::make_unique<JudgeText>();
         usedJudgeTexts_.set(i, false); // 初期化時は全て未使用
     }
+
+    // ミス時のビネットエフェクトの初期化
+    missedVignette_ = std::make_unique<MissedVignette>();
+    missedVignette_->Initialize();
+
 }
 
 void FeedbackEffect::Update()
@@ -38,6 +43,9 @@ void FeedbackEffect::Update()
             }
         }
     }
+
+    if (missedVignette_)
+        missedVignette_->Update(0.016f); // TODO 仮のデルタタイムを使用
 }
 
 void FeedbackEffect::Draw()
@@ -61,6 +69,22 @@ void FeedbackEffect::PlayJudgeEffect(int32_t _laneIndex, JudgeType _judgeType)
         judgeEffect_->Play(_laneIndex);
 
     AllocateJudgeText(_judgeType, _laneIndex); // 判定テキストを割り当てる
+}
+
+void FeedbackEffect::PlayMissedEffect()
+{
+    if (missedVignette_)
+    {
+        missedVignette_->Emit(); // ミス時のビネットエフェクトを発動
+    }
+}
+
+void FeedbackEffect::ApplyMissedVignetteEffect(const std::string& _input, const std::string& _output)
+{
+    if (missedVignette_)
+    {
+        missedVignette_->ApplyEffect(_input, _output); // ビネットエフェクトを適用
+    }
 }
 
 void FeedbackEffect::AllocateJudgeText(JudgeType _judgeType, int32_t _laneIndex)

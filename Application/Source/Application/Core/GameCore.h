@@ -76,6 +76,11 @@ public:
     /// <param name="_callback">コールバック関数</param>
     void SetJudgeCallback(const std::function<void(int32_t,JudgeType)>& _callback) { onJudgeCallback_ = _callback; }
 
+    /// <summary>
+    /// ミス時のコールバック関数を設定する
+    /// </summary>
+    /// <param name="_callback">コールバック関数</param>
+    void SetMissCallback(const std::function<void(void)>& _callback) { onMissCallback_ = _callback; }
 
     /// <summary>
     /// ノーツの移動速度を設定する
@@ -128,18 +133,20 @@ private:
 
     // score あとまわし
 
-    // note spawner あったらいいな
 
     // コンボ
     int32_t combo_ = 0; // 現在のコンボ数
     int32_t maxCombo_ = 0; // 最大コンボ数
+
+
 
     //-------------------------
     // コールバック関連
 
     // 判定時のコールバック関数
     std::function<void(int32_t, JudgeType)> onJudgeCallback_;
-
+    // ミス時のコールバック関数
+    std::function<void(void)> onMissCallback_;
 
     float noteDeletePosition_ = -10.0f; // ノーツを削除する位置
 

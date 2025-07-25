@@ -114,6 +114,7 @@
     <ClCompile Include="Source\Application\FeedBack\JudgeEffect\JudgeEffect.cpp" />
     <ClCompile Include="Source\Application\FeedBack\JudgeSound\JudgeSound.cpp" />
     <ClCompile Include="Source\Application\FeedBack\JudgeText\JudgeText.cpp" />
+    <ClCompile Include="Source\Application\FeedBack\MissedVignette\MissedVignette.cpp" />
     <ClCompile Include="Source\Application\GameEnvironment\GameEnvironment.cpp" />
     <ClCompile Include="Source\Application\GameUI\GameUI.cpp" />
     <ClCompile Include="Source\Application\Input\GameInputManager.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="Source\Application\FeedBack\JudgeEffect\JudgeEffect.h" />
     <ClInclude Include="Source\Application\FeedBack\JudgeSound\JudgeSound.h" />
     <ClInclude Include="Source\Application\FeedBack\JudgeText\JudgeText.h" />
+    <ClInclude Include="Source\Application\FeedBack\MissedVignette\MissedVignette.h" />
     <ClInclude Include="Source\Application\GameEnvironment\GameEnvironment.h" />
     <ClInclude Include="Source\Application\GameUI\GameUI.h" />
     <ClInclude Include="Source\Application\Input\GameInputManager.h" />

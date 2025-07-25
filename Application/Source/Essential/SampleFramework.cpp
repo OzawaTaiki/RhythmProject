@@ -7,6 +7,8 @@
 #include <System/Time/Time_MT.h>
 #include <Essential/ParticleModifierFactory.h>
 
+#include <Framework/LayerSystem/LayerSystem.h>
+
 void SampleFramework::Initialize(const std::wstring& _winTitle)
 {
     Framework::Initialize(L"GameEngine");
@@ -24,8 +26,10 @@ void SampleFramework::Initialize(const std::wstring& _winTitle)
 
     Time_MT::GetInstance()->Initialize();
 
+    LayerSystem::Initialize();
+
     // 最初のシーンで初期化
-    sceneManager_->Initialize("EditorScene");
+    sceneManager_->Initialize("Sample");
 }
 
 void SampleFramework::Update()
@@ -60,6 +64,12 @@ void SampleFramework::Draw()
     //=============================
 
     textRenderer_->EndFrame();
+
+    PSOManager::GetInstance()->SetPipeLineStateObject(PSOFlags::Type::Composite);
+    PSOManager::GetInstance()->SetRootSignature(PSOFlags::Type::Composite);
+
+    LayerSystem::CompositeAllLayers("default");
+    particleManager_->DrawParticles();
 
     dxCommon_->PreDraw();
     // スワップチェインに戻す
