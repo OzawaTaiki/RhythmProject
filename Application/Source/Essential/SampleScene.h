@@ -64,6 +64,8 @@ private:
 
     std::unique_ptr<ObjectModel> human_= nullptr;
     std::unique_ptr<ObjectModel> ground_ = nullptr;
+    std::unique_ptr<ObjectModel> cube_ = nullptr;
+    std::unique_ptr<ObjectModel> brainStem_ = nullptr;
 
     uint32_t groundTextureHandle_ = 0;
 

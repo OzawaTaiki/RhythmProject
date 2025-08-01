@@ -50,7 +50,7 @@ void SampleScene::Initialize(SceneData* _sceneData)
 
     // DLを取得して初期化 (任意)
     auto DL = lights_->GetDirectionalLight();
-    DL->SetDirection(Vector3(-1.0f, -1.0f, 0.0f).Normalize());
+    DL->SetDirection(Vector3(-0.5f, -0.3f, -0.7f).Normalize());
 
     // ライトの追加(任意)
     // 追加するライトを初期化する
@@ -58,7 +58,7 @@ void SampleScene::Initialize(SceneData* _sceneData)
     pointLight->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
     pointLight->SetIntensity(1.0f);
     pointLight->SetRadius(30.0f);
-    pointLight->SetPosition({ 0.0f, 5.0f, 0.0f });
+    pointLight->SetPosition({ 1.0f, 3.0f, -2.0f });
 
     // ライトグループにポイントライトを追加する
     lights_->AddPointLight("pointlight", pointLight);
@@ -82,6 +82,8 @@ void SampleScene::Initialize(SceneData* _sceneData)
     // アニメーションを再生する
     human_->SetAnimation("walk", loop);
 
+    human_->GetMaterial(0)->SetEnableEnvironment(true);
+    human_->GetMaterial(0)->SetEnvScale(0.5f);
 
     // 地面ようのいたポリを生成する
     Plane groundPlane;
@@ -94,16 +96,31 @@ void SampleScene::Initialize(SceneData* _sceneData)
     // 任意の名前で生成する
     groundPlane.Generate("groundPlane");
 
+
+    brainStem_ = std::make_unique<ObjectModel>("brainStem");
+    brainStem_->Initialize("brainStem/brainStem.gltf");
+    // アニメーションを読み込む
+    brainStem_->LoadAnimation("brainStem/brainStem.gltf", "dance");
+    brainStem_->SetAnimation("dance", true); // アニメーションをループ再生する
+    brainStem_->translate_.x = 2;
     // 地面を生成する
     ground_ = std::make_unique<ObjectModel>("ground");
     // 生成した板ポリを使用する (生成時に設定した名前を渡す)
     ground_->Initialize("terrain.obj");
-    // UV変換を設定する
-    //ground_->GetUVTransform().SetScale({ 10,10 });
+
 
     // 地面のテクスチャを読み込む 描画時に使用する
     groundTextureHandle_ = TextureManager::GetInstance()->Load("white.png");
 
+    cube_ = std::make_unique<ObjectModel>("cube");
+    cube_->Initialize("cube/cube.obj");
+
+    cube_->GetMaterial(1)->SetEnvScale(0.7f);
+    cube_->GetMaterial(1)->SetEnableEnvironment(true);
+
+    cube_->euler_.z = 1.3f;
+    cube_->translate_.x = -2;
+    cube_->translate_.y = 2;
 
     // 2Dスプライトの初期化
     uint32_t textureHandle = TextureManager::GetInstance()->Load("uvChecker.png");
@@ -113,9 +130,9 @@ void SampleScene::Initialize(SceneData* _sceneData)
     // 音声データの読み込み
     soundInstance_ = AudioSystem::GetInstance()->Load("Resources/Sounds/Alarm01.wav");
 
-    //skyBox_ = std::make_unique<SkyBox>();
-    //skyBox_->Initialize(30.0f);
-    //skyBox_->SetTexture("rosendal_plains_2_2k.dds");
+    skyBox_ = std::make_unique<SkyBox>();
+    skyBox_->Initialize(30.0f);
+    skyBox_->SetTexture("rosendal_plains_2_2k.dds");
 
     emitter_ = std::make_unique<ParticleEmitter>();
     emitter_->Initialize("TapEffect_01");
@@ -179,8 +196,6 @@ void SampleScene::Update()
                     voiceInstance_ = nullptr; // VoiceInstanceを解放
                 }
             }
-
-
         }
         ImGui::End();
 
@@ -194,10 +209,19 @@ void SampleScene::Update()
 
 #endif // _DEBUG
 
+    static float sin = 0.0f;
+    static float envScale = 0.5f;
+    sin = std::sin(static_cast<float>((Time::GetCurrentTime)()));
+    envScale = sin * 0.5f + 0.5f;
+    human_->GetMaterial(0)->SetEnvScale(envScale);
+
+    cube_->euler_.y = sin * 1.57f;
+
+
     if (input_->IsKeyTriggered(DIK_SPACE))
     {
         // シーンの切り替え
-        SceneManager::ReserveScene("GameScene",nullptr);
+        //SceneManager::ReserveScene("GameScene",nullptr);
     }
 
     if (input_->IsKeyPressed(DIK_LEFT))
@@ -209,12 +233,12 @@ void SampleScene::Update()
 
     // モデルの更新
     human_->Update();
+    cube_->Update();
     ground_->Update();
+    brainStem_->Update();
     emitter_->Update(0.016f);
 
 
-    textGenerator_.Draw(L"← → でグレースケールの強度変化", Vector2(200, 300), Vector4(1, 0, 0, 1));
-    textGenerator_.Draw(L"Space でシーンチェンジ", Vector2(200, 500), Vector4(1, 0, 0, 1));
     // --------------------------------
     // シーン共通更新処理
 
@@ -237,18 +261,22 @@ void SampleScene::Update()
 void SampleScene::Draw()
 {
     // skyBooxの描画
-    //skyBox_->Draw(&SceneCamera_);
+    skyBox_->Draw(&SceneCamera_);
 
     // Model描画用のPSO等をセット
     ModelManager::GetInstance()->PreDrawForObjectModel();
 
     // SkyBoxのキューブマップを描画キューに追加(任意)
-    //skyBox_->QueueCmdCubeTexture();
+    skyBox_->QueueCmdCubeTexture();
     LayerSystem::SetLayer("Model");
     // groundの描画
     ground_->Draw(&SceneCamera_,  drawColor_);
     // humanの描画
     human_->Draw(&SceneCamera_, drawColor_);
+
+    brainStem_->Draw(&SceneCamera_, drawColor_);
+
+    cube_->Draw(&SceneCamera_, drawColor_);
 
     //LayerSystem::ApplyPostEffect("Model", "BoxFilter", boxFilter_);
 
@@ -256,7 +284,7 @@ void SampleScene::Draw()
     Sprite::PreDraw();
     // スプライトの描画
     sprite_->Draw(Vector4(1, 1, 1, 1));
-    LayerSystem::ApplyPostEffect("Model", "Main", grayScale_.get());
+    //LayerSystem::ApplyPostEffect("Model", "Main", grayScale_.get());
 
 
     ParticleSystem::GetInstance()->DrawParticles();
@@ -265,7 +293,8 @@ void SampleScene::Draw()
 
 void SampleScene::DrawShadow()
 {
-    human_->DrawShadow(&SceneCamera_);
+    human_->DrawShadow();
+    brainStem_->DrawShadow();
 }
 
 #ifdef _DEBUG
