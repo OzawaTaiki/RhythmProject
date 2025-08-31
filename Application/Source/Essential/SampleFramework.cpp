@@ -34,8 +34,14 @@ void SampleFramework::Initialize(const std::wstring& _winTitle)
 
     Setting::Load();
 
+#ifdef _DEBUG
     // 最初のシーンで初期化
     sceneManager_->Initialize("GameScene");
+#else
+    sceneManager_->Initialize("TitleScene");
+#endif
+
+
 }
 
 void SampleFramework::Update()

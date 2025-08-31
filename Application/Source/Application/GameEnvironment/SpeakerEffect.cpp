@@ -29,7 +29,7 @@ void SpeakerEffect::PlaySpeakerEffect(ObjectModel* _parent)
     triangleParticleEmitter_.SetParentTransform(_parent->GetWorldTransform());
     rectanglleParticleEmitter_.SetParentTransform(_parent->GetWorldTransform());
 
-    ringEmitter_.GenerateParticles();
+    //ringEmitter_.GenerateParticles();
     triangleParticleEmitter_.GenerateParticles();
     rectanglleParticleEmitter_.GenerateParticles();
 }
