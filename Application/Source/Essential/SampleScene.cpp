@@ -9,12 +9,15 @@
 #include <Features/Model/Primitive/Triangle.h>
 #include <Features/Model/Primitive/Plane.h>
 #include <Features/Collision/Manager/CollisionManager.h>
-
+#include <Debug/Debug.h>
 
 
 #include <Debug/ImGuiManager.h>
 #include <Framework/LayerSystem/LayerSystem.h>
 
+#include <Features/AudioSpectrum/AudioSpectrum.h>
+#include <Features/WaveformDisplay/WaveformAnalyzer.h>
+#include <Features/AudioSpectrum/SpectrumValidator.h>
 
 SampleScene::~SampleScene()
 {
@@ -112,6 +115,7 @@ void SampleScene::Initialize(SceneData* _sceneData)
 
     // 音声データの読み込み
     soundInstance_ = AudioSystem::GetInstance()->Load("Resources/Sounds/Alarm01.wav");
+    //soundInstance_ = AudioSystem::GetInstance()->Load("Resources/Sounds/Music/Luminous_memory.wav");
 
     //skyBox_ = std::make_unique<SkyBox>();
     //skyBox_->Initialize(30.0f);
@@ -132,6 +136,8 @@ void SampleScene::Initialize(SceneData* _sceneData)
 
     textGenerator_.Initialize(FontConfig());
 
+    textureGenerator_ = std::make_unique<SpectrumTextureGenerator>();
+    textureGenerator_->Initialize();
 
 }
 
@@ -192,6 +198,8 @@ void SampleScene::Update()
     emitter2_->ShowDebugWindow();
     ImGui::End();
 
+    sprite_->ImGui();
+
 #endif // _DEBUG
 
     if (input_->IsKeyTriggered(DIK_SPACE))
@@ -200,6 +208,44 @@ void SampleScene::Update()
         SceneManager::ReserveScene("GameScene",nullptr);
     }
 
+    //SpectrumTest::Test();
+    {
+        AudioSpectrum audioSpectrum(1024, 0.5f);
+        const int sampleRate = 44100;
+        const float duration = 5.0f;
+
+        static auto audioData
+         = soundInstance_->GetAudioData();
+            //= SegmentedAudioGenerator::GenerateSegmentedTones(sampleRate, duration);
+        audioSpectrum.SetAudioData(audioData);
+        audioSpectrum.SetSampleRate(sampleRate);
+        float curentTime = 0.0f;
+        if (voiceInstance_ && voiceInstance_->IsPlaying())
+            curentTime = voiceInstance_->GetElapsedTime();
+        float rms = WaveformAnalyzer::GetRMSAtTime(soundInstance_.get(), curentTime, 50.0f);
+
+        auto spectrum = audioSpectrum.GetSpectrumAtTime(curentTime);
+        textureGenerator_->Generate(spectrum, 300.0f, rms, 64);
+        // TODO : 音圧を倍率とする
+    }
+
+
+    /*std::array<std::complex<float>, 8> testData = {
+        std::complex<float>(0.0f, 0.0f),
+        std::complex<float>(1.0f, 0.0f),
+        std::complex<float>(2.0f, 0.0f),
+        std::complex<float>(3.0f, 0.0f),
+        std::complex<float>(4.0f, 0.0f),
+        std::complex<float>(5.0f, 0.0f),
+        std::complex<float>(6.0f, 0.0f),
+        std::complex<float>(7.0f, 0.0f)
+    };
+    AudioSpectrum::Butterfly8(testData);
+    std::vector<float>fftTest ={
+        0.0f,1.0f,2.0f,3.0f,4.0f,5.0f,6.0f,7.0f
+    };
+    std::vector<std::complex<float>> output;
+    AudioSpectrum::FFT(fftTest, output);*/
 
     // モデルの更新
     human_->Update();
@@ -249,7 +295,8 @@ void SampleScene::Draw()
     // Sprite用のPSO等をセット
     Sprite::PreDraw();
     // スプライトの描画
-    sprite_->Draw(Vector4(1, 1, 1, 1));
+    //sprite_->Draw(Vector4(1, 1, 1, 1));
+    sprite_->Draw(textureGenerator_->GetTextureHandle());
 
 
     ParticleSystem::GetInstance()->DrawParticles();

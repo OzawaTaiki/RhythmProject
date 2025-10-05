@@ -80,6 +80,9 @@ void BeatMapEditor::Initialize(const BeatMapData& _beatMapData)
 
     selectedNoteIndices_.clear(); // 選択中のノートインデックスをクリア
 
+    waveformBounds_ = WaveformBounds(Vector2(300.0f, 0.0f), Vector2(1280.0f - 600.0f, 96.0f)); // 波形の表示範囲を初期化
+    waveformBackground_ = std::make_unique<UISprite>();
+    waveformBackground_->Initialize("waveformBackground");
 }
 
 void BeatMapEditor::Update()
@@ -93,6 +96,8 @@ void BeatMapEditor::Update()
 
     // エディター状態の更新
     UpdateEditorState();
+
+    waveformDisplay_.SetStartTime(currentTime_);
 
 }
 
@@ -123,6 +128,10 @@ void BeatMapEditor::Draw(const Camera* _camera)
     DrawTimeline();
 
     DrawUI();
+
+    // 波形の描画
+    waveformBackground_->Draw();
+    waveformDisplay_.Draw();
 }
 
 void BeatMapEditor::DrawNotes()
@@ -379,6 +388,7 @@ void BeatMapEditor::DrawLeftPanel()
                 currentBeatMapData_.audioFilePath = musicFilePath;
                 // 音楽をロード
                 musicSoundInstance_ = AudioSystem::GetInstance()->Load(musicFilePath);
+                waveformDisplay_.Initialize(musicSoundInstance_.get(), waveformBounds_, for2dCamera_.GetViewProjection());
             }
         }
         ImGui::BeginDisabled(!musicSoundInstance_); // 音楽がロードされていない場合は無効化
@@ -813,6 +823,7 @@ void BeatMapEditor::InitWithBeatMapData(const BeatMapData& _beatMapData)
     {
         // 音声ファイルのパスが設定されている場合は、音声をロード
         musicSoundInstance_ = AudioSystem::GetInstance()->Load(musicFilePath);
+        waveformDisplay_.Initialize(musicSoundInstance_.get(), waveformBounds_, for2dCamera_.GetViewProjection());
     }
 }
 
@@ -1149,7 +1160,7 @@ void BeatMapEditor::PasteCopiedNotes()
 
 void BeatMapEditor::HandleInput()
 {
-    if (!dummy_window_->IsMousePointerInside())
+    if (!dummy_window_->IsPointInside(input_->GetMousePosition()))
         return;// ダミーウィンドウ外なら何もしない
 
     HandleGlobalInput();
@@ -1309,12 +1320,12 @@ void BeatMapEditor::HandleModeSpecificInput()
 
 void BeatMapEditor::HandleMouseInput()
 {
-    bool mouseInsideEditorArea = dummy_editLaneArea_->IsMousePointerInside();
+    bool mouseInsideEditorArea = dummy_editLaneArea_->IsPointInside(input_->GetMousePosition());
     // ホイールでスクロール
     float wheelDelta = input_->GetMouseWheel();
     if (wheelDelta != 0.0f)
     {
-        if (!mouseInsideEditorArea && dummy_editArea_->IsMousePointerInside())
+        if (!mouseInsideEditorArea && dummy_editArea_->IsPointInside(input_->GetMousePosition()))
         {
             // スクロール量に応じて時間を更新
             float addedTime = wheelDelta * 0.1f / editorCoordinate_.GetZoom();
@@ -1397,7 +1408,7 @@ void BeatMapEditor::HandleSelectModeInput()
             if (actualNoteIndex >= currentBeatMapData_.notes.size())
                 continue; // インデックスが範囲外ならスキップ
 
-            if (noteSprites_[i]->IsMousePointerInside())
+            if (noteSprites_[i]->IsPointInside(input_->GetMousePosition()))
             {
                 // ホバー時の視覚的フィードバック
                 if (currentBeatMapData_.notes[actualNoteIndex].noteType == "normal")
@@ -1481,7 +1492,7 @@ void BeatMapEditor::HandleSelectModeInput()
     {
         auto& note = holdNoteEnd_[i];
 
-        if (note->IsMousePointerInside())
+        if (note->IsPointInside(input_->GetMousePosition()))
         {
             int32_t actualNoteIndex = GetNoteIndexFromHoldEnd(editorCoordinate_.ScreenXToLane(note->GetPos().x), editorCoordinate_.ScreenYToTime(note->GetPos().y));
             if (actualNoteIndex < 0)
@@ -1594,7 +1605,7 @@ void BeatMapEditor::HandleDeleteModeInput()
         for (size_t i = 0; i < noteIndex_; ++i) // 現在描画中のノート数まで
         {
             uint32_t actualNoteIndex = drawNoteIndices_[i]; // 実際のノートインデックスを取得
-            if (noteSprites_[i]->IsMousePointerInside())
+            if (noteSprites_[i]->IsPointInside(input_->GetMousePosition()))
             {
                 auto command = std::make_unique<DeleteNoteCommand>(this, actualNoteIndex);
                 commandHistory_.ExecuteCommand(std::move(command)); // ノートを削除コマンドを実行
@@ -1703,7 +1714,7 @@ void BeatMapEditor::UpdateTimeline()
         return; // 音楽がロードされていない場合は何もしない
 
 
-    if (dummy_timeline_->IsMousePointerInside() && input_->IsMousePressed(0))
+    if (dummy_timeline_->IsPointInside(input_->GetMousePosition()) && input_->IsMousePressed(0))
     {
         Vector2 mousePos = input_->GetMousePosition();
 
@@ -1734,7 +1745,7 @@ void BeatMapEditor::UpdateTimeline()
 
     if (!currentBeatMapData_.notes.empty())
     {
-        if (timelineSprites_["toTestButton"]->IsMousePointerInside()&& input_->IsMouseTriggered(0))
+        if (timelineSprites_["toTestButton"]->IsPointInside(input_->GetMousePosition())&& input_->IsMouseTriggered(0))
         {
             toTest_ = true;
         }

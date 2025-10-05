@@ -201,7 +201,7 @@ void ResultUI::InitUIGroup()
 
     auto toTitleButton = uiGroup_->CreateButton("To_Title",L"タイトルへ");
 
-    toTitleButton->SetCallBackOnClickEnd([this]()
+    toTitleButton->SetOnClickEnd([this]()
         {
             transitionToTitle_ = true;
         });
@@ -209,19 +209,19 @@ void ResultUI::InitUIGroup()
 
     auto retryButton = uiGroup_->CreateButton("Retry", L"リトライ");
 
-    retryButton->SetCallBackOnClickEnd([this]()
+    retryButton->SetOnClickEnd([this]()
         {
             replay_ = true;
         });
     retryButton->SetTextParam(param);
 
-    UIGroup::LinkHorizontal({ toTitleButton, retryButton });
+    UIGroup::LinkHorizontal({ toTitleButton.get(), retryButton.get() });
 
 #ifdef _DEBUG
     // デバッグ用のスプライトとボタンを追加
-    debugSprites_.push_back(mainBg);
-    debugButtons_.push_back(toTitleButton);
-    debugButtons_.push_back(retryButton);
+    debugSprites_.push_back(mainBg.get());
+    debugButtons_.push_back(toTitleButton.get());
+    debugButtons_.push_back(retryButton.get());
 #endif // _DEBUG
 
 }

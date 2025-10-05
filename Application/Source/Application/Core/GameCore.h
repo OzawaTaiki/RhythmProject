@@ -32,7 +32,7 @@ public:
     /// <summary>
     /// 初期化処理
     /// </summary>
-    void Initialize(float _noteSpeed, float _offset = 2.0f);
+    void Initialize(float _noteSpeed, float _musicLaytencyMs = 0.0f, float _beginOffset = 2.0f);
 
     /// <summary>
     /// 更新処理
@@ -100,6 +100,12 @@ public:
     /// </summary>
     /// <param name="_speed">ノーツの移動速度</param>
     void SetNoteSpeed(float _speed) { noteSpeed_ = _speed; noteJudge_->SetSpeed(noteSpeed_); }
+
+    /// <summary>
+    /// 音楽の遅延を設定する
+    /// </summary>
+    /// <param name="_latencyMs">遅延時間（ミリ秒）</param>
+    void SetMusicLatency(float _latencyMs) { musicLatencyMs_ = _latencyMs; }
 
     /// <summary>
     /// 最大コンボ数を取得する
@@ -204,9 +210,11 @@ private:
     float noteDeletePosition_ = -10.0f; // ノーツを削除する位置
 
     /// 開始前オフセット関連
-    float offset_ = 2.0f; // ゲーム開始オフセット時間
+    float beginOffset_ = 2.0f; // ゲーム開始オフセット時間
     float waitTimer_ = 0.0f; // 開始前オフセット待機タイマー
     bool isWaitingForStart_ = true; // 開始前オフセット待機中かどうか
+
+    float musicLatencyMs_ = 0.0f; // 音楽の遅延
 
 
     // ホールド中

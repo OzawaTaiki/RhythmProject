@@ -1,0 +1,68 @@
+{
+    "waveformBackground": {
+        "waveformBackground_Text": {
+            "bottomColor": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "outlineColor": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "outlineScale": 0.029999999329447746,
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "position": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "rotate": 0.0,
+            "scale": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "topColor": {
+                "w": 1.0,
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "useGradient": false,
+            "useOutline": false
+        },
+        "waveformBackground_TextOffset": {
+            "x": 0.0,
+            "y": 0.0
+        },
+        "waveformBackground_anchor": {
+            "x": 0.0,
+            "y": 0.0
+        },
+        "waveformBackground_color": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "waveformBackground_directoryPath": "Resources/images/",
+        "waveformBackground_isActive": 257,
+        "waveformBackground_isVisible": 1,
+        "waveformBackground_label": "waveformBackground",
+        "waveformBackground_pos": {
+            "x": 300.0,
+            "y": 0.0
+        },
+        "waveformBackground_rotate": 0.0,
+        "waveformBackground_size": {
+            "x": 680.0,
+            "y": 96.0
+        },
+        "waveformBackground_textureName": "white.png"
+    }
+}

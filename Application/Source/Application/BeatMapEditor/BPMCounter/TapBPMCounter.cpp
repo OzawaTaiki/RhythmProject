@@ -8,7 +8,9 @@ void TapBPMCounter::Initialize()
 
     stopwatch_.Reset();
 
-    tapTimes_.clear(); // タップ時間のベクターを初期化
+    //tapTimes_ = std::deque<float>();
+    if (!tapTimes_.empty())
+        tapTimes_.clear(); // タップ時間のベクターを初期化
 
     totalTime_ = 0.0f;
 }

@@ -28,7 +28,7 @@ private:
 
     Stopwatch stopwatch_; // タップの時間を計測するストップウォッチ
 
-    std::deque<float> tapTimes_; // タップした時間を記録するベクター
+    std::deque<float> tapTimes_= {}; // タップした時間を記録するベクター
     float totalTime_ = 0.0f; // タップの合計時間
 
 };

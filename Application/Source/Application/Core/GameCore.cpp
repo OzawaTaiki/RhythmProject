@@ -19,10 +19,14 @@ GameCore::~GameCore()
 {
 }
 
-void GameCore::Initialize(float _noteSpeed, float _offset)
+void GameCore::Initialize(float _noteSpeed, float _musicLaytencyMs, float _beginOffset)
 {
     noteSpeed_ = _noteSpeed;
-    offset_ = _offset;
+    beginOffset_ = _beginOffset;
+    musicLatencyMs_ = _musicLaytencyMs;
+    waitTimer_ = 0.0f;
+    isWaitingForStart_ = true;
+
 
     // レーンの初期化
     lanes_.resize(laneCount_);
@@ -68,7 +72,7 @@ void GameCore::Update(float  _deltaTime, const std::vector<InputDate>& _inputDat
     if (isWaitingForStart_)
     {
         waitTimer_ += _deltaTime;
-        elapsedTime = Lerp(-offset_, 0.0f, waitTimer_ / offset_);
+        elapsedTime = Lerp(-beginOffset_, 0.0f, waitTimer_ / beginOffset_);
     }
     else if (gamemusic_)
     {
@@ -81,7 +85,7 @@ void GameCore::Update(float  _deltaTime, const std::vector<InputDate>& _inputDat
     }
     for (auto& lane : lanes_)
     {
-        lane->Update(elapsedTime, noteSpeed_);
+        lane->Update(elapsedTime + musicLatencyMs_ / 1000.0f, noteSpeed_);
     }
 }
 
@@ -158,7 +162,7 @@ JudgeType GameCore::ProcessNormalNote(Note* _note, const InputDate& _inputData)
     // 押した瞬間だけ判定
     if (_inputData.state == KeyState::trigger)
     {
-        return noteJudge_->ProcessNoteJudge(_note, _inputData.elapsedTime);
+        return noteJudge_->ProcessNoteJudge(_note, _inputData.elapsedTime + musicLatencyMs_ / 1000.0f);
     }
 
     return JudgeType::None;
@@ -169,7 +173,7 @@ JudgeType GameCore::ProcessHoldNote(Note* _note, const InputDate& _inputData)
     // 押した瞬間だけ判定
     if (_inputData.state == KeyState::trigger)
     {
-        JudgeType result = noteJudge_->ProcessNoteJudge(_note, _inputData.elapsedTime);
+        JudgeType result = noteJudge_->ProcessNoteJudge(_note, _inputData.elapsedTime + musicLatencyMs_ / 1000.0f);
 
         if (result != JudgeType::None && result != JudgeType::Miss)
         {
@@ -198,7 +202,7 @@ JudgeType GameCore::ProcessHoldEndNote(Note* _note, const InputDate& _inputData)
 
         if (_inputData.state == KeyState::Released)
         {
-            JudgeType result = noteJudge_->ProcessNoteJudge(_note, _inputData.elapsedTime);
+            JudgeType result = noteJudge_->ProcessNoteJudge(_note, _inputData.elapsedTime + musicLatencyMs_ / 1000.0f);
 
             holdState_.EndHold(); // ホールド状態を終了
             // noneてことはブリッジ内なので
@@ -277,7 +281,7 @@ void GameCore::CreateBeatMapNotes()
 {
     for (int32_t index = 0; index < notesPerLane_.size(); ++index)
     {
-        lanes_[index]->Initialize(notesPerLane_[index], index, 0.0f, noteSpeed_, offset_);// TODO 仮の値を使用している 判定ラインの座標
+        lanes_[index]->Initialize(notesPerLane_[index], index, 0.0f, noteSpeed_, beginOffset_);// TODO 仮の値を使用している 判定ラインの座標
     }
 }
 

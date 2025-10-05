@@ -14,21 +14,19 @@ void SettingMenu::Initialize(std::function<void(float)> _speedSetFunc, std::func
     speedSetFunc_ = _speedSetFunc;
     audioLatencySetFunc_ = _audioLatencySetFunc;
 
-    auto volumeSlider = uiGroup_->CreateSlider("VolumeSlider", L"音量");
+    auto volumeSlider = uiGroup_->CreateSlider("VolumeSlider", 0.0f, 1.0f);
     volumeSlider->SetPos({ 100, 100 });
     volumeSlider->SetSize({ 200, 20 });
-    volumeSlider->SetRange(0.0f, 1.0f);
-    volumeSlider->SetValue(0.8f);
+    volumeSlider->SetValue(Setting::current_.masterVolume);
     volumeSlider->SetOnValueChanged([](float value) {
         Setting::current_.masterVolume = value; // 音量を設定に反映
         AudioSystem::GetInstance()->SetMasterVolume(value); // オーディオシステムに音量を反映
         Debug::Log(std::format("Volume changed: {}\n", value));
         });
 
-    auto noteSpeedSlider = uiGroup_->CreateSlider("NoteSpeedSlider", L"ノーツ速度");
+    auto noteSpeedSlider = uiGroup_->CreateSlider("NoteSpeedSlider", 5.0f, 100.0f);
     noteSpeedSlider->SetPos({ 100, 150 });
     noteSpeedSlider->SetSize({ 200, 20 });
-    noteSpeedSlider->SetRange(5.0f, 100.0f);
     noteSpeedSlider->SetValue(Setting::current_.noteSpeed);
     noteSpeedSlider->SetOnValueChanged([&](float value) {
         Setting::current_.noteSpeed = value; // ノーツ速度を設定に反映
@@ -37,10 +35,9 @@ void SettingMenu::Initialize(std::function<void(float)> _speedSetFunc, std::func
         Debug::Log(std::format("Note speed changed: {}\n", value));
         });
 
-    auto audioLatencySlider = uiGroup_->CreateSlider("AudioLatencySlider", L"音声遅延");
+    auto audioLatencySlider = uiGroup_->CreateSlider("AudioLatencySlider", -1000.0f, 1000.0f);
     audioLatencySlider->SetPos({ 100, 200 });
     audioLatencySlider->SetSize({ 200, 20 });
-    audioLatencySlider->SetRange(0.0f, 100.0f);
     audioLatencySlider->SetValue(Setting::current_.audioLatencyMs);
     audioLatencySlider->SetOnValueChanged([&](float value) {
         Setting::current_.audioLatencyMs = value; // 音声遅延を設定に反映

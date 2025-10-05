@@ -26,6 +26,6 @@ private:
     std::function<void(float)> audioLatencySetFunc_ = nullptr; // 音声遅延を設定するコールバック関数
 
 
-    std::vector<UISlider*> sliders_; // スライダーのリスト
+    std::vector<std::shared_ptr<UISlider>> sliders_; // スライダー   のリスト
 
 };

@@ -5,6 +5,8 @@
 #include <Features/LineDrawer/LineDrawer.h>
 #include <System/Audio/SoundInstance.h>
 #include <System/Audio/VoiceInstance.h>
+#include <Features/WaveformDisplay/WaveformDisplay.h>
+
 #include <Features/TextRenderer/TextGenerator.h>
 
 
@@ -490,12 +492,18 @@ private:
     float timelineWidth_ = 0.0f; // タイムラインの幅
 
     // 選択・判定用
-    std::unique_ptr<UISprite> areaSelectionSprite_;
-    std::unique_ptr<UISprite> dummy_editLaneArea_;
-    std::unique_ptr<UISprite> dummy_window_;
-    std::unique_ptr<UISprite> dummy_editArea_;
+    std::unique_ptr<UIBase> areaSelectionSprite_;
+    std::unique_ptr<UIBase> dummy_editLaneArea_;
+    std::unique_ptr<UIBase> dummy_window_;
+    std::unique_ptr<UIBase> dummy_editArea_;
 
 
+    // ========================================
+    // 波形表示
+    // ========================================
+    WaveformDisplay waveformDisplay_;
+    WaveformBounds waveformBounds_;
+    std::unique_ptr<UISprite> waveformBackground_;
 
     // ========================================
     // 特殊機能

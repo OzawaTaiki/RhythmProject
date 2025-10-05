@@ -25,6 +25,7 @@
 #include <Features/PostEffects/GrayScale.h>
 
 #include <Features/TextRenderer/TextGenerator.h>
+#include <Features/AudioSpectrum/SpectrumTextureGenerator.h>
 
 class SampleScene : public BaseScene
 {
@@ -82,6 +83,8 @@ private:
 
     // テキストジェネレータ
     TextGenerator textGenerator_;
+
+    std::unique_ptr<SpectrumTextureGenerator> textureGenerator_;
 
 #ifdef _DEBUG
     void ImGui();

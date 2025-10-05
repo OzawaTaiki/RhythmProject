@@ -49,7 +49,7 @@ private:
     std::function<void()> onRetryCallback_ = nullptr;  // リトライボタンのコールバック
     std::function<void()> onToTitleCallback_ = nullptr; // タイトルに戻るボタンのコールバック
 
-    std::map<std::string, UIButton*> buttons_;
+    std::map<std::string, std::shared_ptr<UIButton>> buttons_;
     UISlider* slider_ = nullptr; // スライダー（音量調整などに使用）
 
     UISprite* sprite_ = nullptr;

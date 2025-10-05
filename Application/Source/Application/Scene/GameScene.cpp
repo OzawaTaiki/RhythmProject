@@ -16,6 +16,7 @@
 
 #include <Application/Scene/Transition/SceneTrans.h>
 #include <Application/Scene/Data/SceneDatas.h>
+#include <Application/Setting/Setting.h>
 #include <Framework/LayerSystem/LayerSystem.h>
 #include <Features/ColorMask/ColorMask.h>
 #include <Core/DXCommon/TextureManager/TextureManager.h>
@@ -82,7 +83,7 @@ void GameScene::Initialize(SceneData* _sceneData)
     }
 
     gameCore_ = std::make_unique<GameCore>(); // レーン数はデフォで4
-    gameCore_->Initialize(30.0f, 2.0f); // ノーツの移動速度とオフセット時間を設定
+    gameCore_->Initialize(Setting::current_.noteSpeed, Setting::current_.audioLatencyMs); // ノーツの移動速度とオフセット時間を設定
 
     gameInputManager_ = std::make_unique<GameInputManager>();
     gameInputManager_->Initialize(input_);
@@ -98,6 +99,7 @@ void GameScene::Initialize(SceneData* _sceneData)
     feedbackEffect_ = std::make_unique<FeedbackEffect>();
     feedbackEffect_->Initialize(&SceneCamera_, gameCore_->GetLaneCount(), gameEnvironment_.get());
 
+    
 
     gameUI_ = std::make_unique<GameUI>();
     gameUI_->Initialize();
@@ -106,7 +108,10 @@ void GameScene::Initialize(SceneData* _sceneData)
     pauseMenu_->Initialize();
 
     settingMenu_ = std::make_unique<SettingMenu>();
-    settingMenu_->Initialize([&](float _noteSpeed) { gameCore_->SetNoteSpeed(_noteSpeed); });
+    settingMenu_->Initialize(
+        [&](float _noteSpeed) { gameCore_->SetNoteSpeed(_noteSpeed); },
+        [&](float _audioLatency) { gameCore_->SetMusicLatency(_audioLatency); }
+    );
 
     pauseMenu_->SetSeetingMenu(settingMenu_.get()); // ポーズメニューに設定メニューをセット
 
@@ -383,7 +388,7 @@ bool GameScene::IsComplateLoadBeatMap()
             gameInputManager_->SetGameMusic(gameMusic_.get()); // 入力管理に音声インスタンスを設定
 
             pauseMenu_->SetCallBacks(
-                [this]() { gameMusic_->ResumeWithRewind(0.3f); }, // 一時停止コールバック
+                [this]() { gameMusic_->ResumeWithRewind(Setting::current_.musicVolume); }, // 一時停止コールバック
                 [this]() { Retry(); }, // リトライコールバック
                 [this]() { ToTitle(); } // タイトルに戻るコールバック
             );
@@ -420,7 +425,7 @@ void GameScene::UpdateGameStartOffset()
         gameCore_->Start();
 
         if (gameMusic_)
-            gameMusic_->Play(0.3f);
+            gameMusic_->Play(Setting::current_.musicVolume);
     }
 }
 
