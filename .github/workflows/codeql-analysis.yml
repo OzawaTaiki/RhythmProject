@@ -36,19 +36,10 @@ jobs:
         # security-extended や security-only も選択可能
         queries: security-and-quality
 
-    - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v2
-      with:
-        msbuild-architecture: x64
-
     # CodeQLはビルドプロセスを監視してコードを解析します
-    - name: Build Engine project
-      run: |
-        msbuild Engine/Engine/GameEngine.vcxproj `
-        /p:Platform=x64,Configuration=Debug `
-        /m:4 `
-        /v:minimal `
-        /p:UseMultiToolTask=true
+    # autobildを使用して自動的にビルド方法を検出
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
