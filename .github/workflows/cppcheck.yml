@@ -1,0 +1,77 @@
+name: "CppCheck Static Analysis"
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  cppcheck:
+    name: CppCheck Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+        fetch-depth: 1
+
+    - name: Install CppCheck
+      run: sudo apt-get update && sudo apt-get install -y cppcheck
+
+    - name: Run CppCheck on Engine
+      run: |
+        cppcheck \
+          --enable=all \
+          --inconclusive \
+          --std=c++20 \
+          --language=c++ \
+          --platform=win64 \
+          --suppress=missingIncludeSystem \
+          --suppress=unusedFunction \
+          --inline-suppr \
+          --xml \
+          --xml-version=2 \
+          --output-file=cppcheck-report.xml \
+          -I Engine/Engine \
+          Engine/Engine 2>&1 | tee cppcheck-output.txt
+
+    - name: Display CppCheck Results
+      if: always()
+      run: |
+        echo "=== CppCheck Results ==="
+        cat cppcheck-output.txt
+        echo ""
+        echo "=== Summary ==="
+        if [ -f cppcheck-report.xml ]; then
+          ERROR_COUNT=$(grep -c 'severity="error"' cppcheck-report.xml || echo "0")
+          WARNING_COUNT=$(grep -c 'severity="warning"' cppcheck-report.xml || echo "0")
+          STYLE_COUNT=$(grep -c 'severity="style"' cppcheck-report.xml || echo "0")
+          echo "Errors: $ERROR_COUNT"
+          echo "Warnings: $WARNING_COUNT"
+          echo "Style issues: $STYLE_COUNT"
+        fi
+
+    - name: Upload CppCheck Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: cppcheck-report
+        path: |
+          cppcheck-report.xml
+          cppcheck-output.txt
+
+    - name: Check for Critical Issues
+      run: |
+        if [ -f cppcheck-report.xml ]; then
+          ERROR_COUNT=$(grep -c 'severity="error"' cppcheck-report.xml || echo "0")
+          if [ "$ERROR_COUNT" -gt "0" ]; then
+            echo "❌ CppCheck found $ERROR_COUNT error(s)"
+            echo "Review the report for details"
+            exit 1
+          else
+            echo "✅ No critical errors found"
+          fi
+        fi

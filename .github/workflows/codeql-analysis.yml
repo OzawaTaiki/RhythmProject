@@ -1,0 +1,56 @@
+name: "CodeQL Analysis"
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    # 毎週月曜日の午前3時（UTC）に実行
+    - cron: '0 3 * * 1'
+
+env:
+  SOLUTION_FILE_PATH: Application/RhythmProject.sln
+
+jobs:
+  analyze:
+    name: Analyze C++
+    runs-on: windows-2022
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+        fetch-depth: 1
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: cpp
+        # クエリスイート: security-and-quality（推奨）
+        # security-extended や security-only も選択可能
+        queries: security-and-quality
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v2
+      with:
+        msbuild-architecture: x64
+
+    # CodeQLはビルドプロセスを監視してコードを解析します
+    - name: Build Engine project
+      run: |
+        msbuild Engine/Engine/GameEngine.vcxproj `
+        /p:Platform=x64,Configuration=Debug `
+        /m:4 `
+        /v:minimal `
+        /p:UseMultiToolTask=true
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:cpp"
