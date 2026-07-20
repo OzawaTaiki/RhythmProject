@@ -7,7 +7,6 @@
 
 using namespace Engine;
 
-// TODO : 文字化け
 namespace
 {
 // 描画エリア
@@ -83,7 +82,7 @@ void HexagonGrid::GetHexagonLocalVertices(std::vector<Vector2>& outVertices) con
     outVertices.clear();
     for (int i = 0; i < 6; ++i)
     {
-        float angle = angleStep * i - std::numbers::pi_v<float> / 6.0f; // -30蠎ｦ髢句ｧ・
+        float angle = angleStep * i - std::numbers::pi_v<float> / 6.0f;
         float x = drawRadius * std::cosf(angle);
         float y = drawRadius * std::sinf(angle);
         outVertices.emplace_back(x, y);
@@ -98,8 +97,11 @@ void HexagonGrid::GenerateHexagonGrid(const Rect& area)
     // 六角形の幅と高さを計算
     // マジックナンバー √3 と 1.5 は正六角形の幾何学的特性に基づく
     // らしい
-    float width = radius_ * std::sqrtf(3.0f);
-    float height = radius_ * 1.5f;
+    constexpr float kHexWidthRatio = std::numbers::sqrt3_v<float>;
+    constexpr float kHexHeightRatio = 1.5f;
+
+    float width = radius_ * kHexWidthRatio;
+    float height = radius_ * kHexHeightRatio;
     // 逶ｴ蠕・
     float diameter = (radius_ - margin_) * 2.0f;
 

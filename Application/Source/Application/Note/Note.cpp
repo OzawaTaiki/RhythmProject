@@ -6,6 +6,13 @@
 
 using namespace Engine;
 
+namespace
+{
+constexpr float kNoteScaleX = 0.7f;
+constexpr float kNoteScaleZ = 0.5f;
+constexpr float kNoteScaleY = 0.001f;
+}
+
 void Note::Initialize(float targetTime, const Engine::Vector3& targetPosition)
 {
     model_ = std::make_unique<ObjectModel>("note");
@@ -15,9 +22,9 @@ void Note::Initialize(float targetTime, const Engine::Vector3& targetPosition)
     model_->useQuaternion_ = true;
 
     // TODO : 専用のモデルを用意する
-    model_->scale_.x = 0.7f;
-    model_->scale_.z = 0.5f;
-    model_->scale_.y = 0.001f;
+    model_->scale_.x = kNoteScaleX;
+    model_->scale_.y = kNoteScaleY;
+    model_->scale_.z = kNoteScaleZ;
 
     targetTime_ = targetTime;
     targetPosition_ = targetPosition;
